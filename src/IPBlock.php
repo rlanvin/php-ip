@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * A CIDR block
+ */
 abstract class IPBlock
 {
 	const IP_VERSION = -1;
@@ -9,15 +12,27 @@ abstract class IPBlock
 	 * @var IP
 	 */
 	protected $first_ip;
+
 	/**
 	 * @var IP
 	 */
 	protected $last_ip;
+
 	/**
 	 * @var int
 	 */
 	protected $prefix;
 
+	abstract public function getDelta();
+	abstract public function getMask();
+
+	/**
+	 * Accepts a CIDR string (e.g. 192.168.0.0/24) or an IP and a prefix as
+	 * two separate parameters
+	 *
+	 * @param $ip     mixed  IP or CIDR string
+	 * @param $prefix int    (optional) The "slash" part
+	 */
 	public function __construct($ip, $prefix = '')
 	{
 		if ( strpos($ip, '/') !== false ) {
@@ -43,31 +58,64 @@ abstract class IPBlock
 		return (string) $this->first_ip.'/'.$this->prefix;
 	}
 
+	/**
+	 * Returns the prefix (the slash part)
+	 *
+	 * @return int
+	 */
 	public function getPrefix()
 	{
 		return $this->prefix;
 	}
 
+	/**
+	 * Returns the first IP address of the block.
+	 *
+	 * @return IP
+	 */
 	public function getFirstIp()
 	{
 		return $this->first_ip;
 	}
 
+	/**
+	 * Returns the last IP address of the block.
+	 *
+	 * @return IP
+	 */
 	public function getLastIp()
 	{
 		return $this->last_ip;
 	}
 
+	/**
+	 * Returns the Network IP address of the block (the first address).
+	 *
+	 * @see getFirstIp
+	 * @return IP
+	 */
 	public function getNetworkAddress()
 	{
 		return $this->first_ip;
 	}
 
+	/**
+	 * Returns the Broadcast IP address of the block (the last address).
+	 *
+	 * @see getLastIp
+	 * @return IP
+	 */
 	public function getBroadcastAddress()
 	{
 		return $this->last_ip;
 	}
 
+	/**
+	 * @internal
+	 * Check if the prefix is valid
+	 *
+	 * @throws InvalidArgumentException
+	 */
 	protected function checkPrefix($prefix)
 	{
 		if ( $prefix === '' || $prefix === null || $prefix === false || $prefix < 0 || $prefix > static::MAX_BITS ) {
@@ -79,11 +127,12 @@ abstract class IPBlock
 		}
 	}
 
-	abstract public function getDelta();
-	abstract public function getMask();
-
 	/**
 	 * Split the block into smaller blocks.
+	 *
+	 * Returns an iterator, use foreach to loop it and count to get number of subnets.
+	 *
+	 * @return IPBlockIterator
 	 */
 	public function split($prefix)
 	{
@@ -104,7 +153,10 @@ abstract class IPBlock
 	}
 
 	/**
-	 * Determine if the current block contains the given IP address.
+	 * Determine if the current block contains an IP address or block.
+	 *
+	 * @param $ip_or_block mixed
+	 * @return bool
 	 */
 	public function contains($ip_or_block)
 	{
@@ -116,6 +168,12 @@ abstract class IPBlock
 		}
 	}
 
+	/**
+	 * Determine if the current block contains an IP address
+	 *
+	 * @param  $ip mixed
+	 * @return bool
+	 */
 	public function containsIP($ip)
 	{
 		if ( ! $ip instanceof IP ) {
@@ -125,19 +183,31 @@ abstract class IPBlock
 		return ($ip->numeric() >= $this->getFirstIp()->numeric()) && ($ip->numeric() <= $this->getLastIp()->numeric());
 	}
 
+	/**
+	 * Determine if the current block contains another block.
+	 *
+	 * True in this situation:
+	 * $this: first_ip[                               ]last_ip
+	 * $block:         first_ip[             ]last_ip
+	 *
+	 * @param  $ip mixed
+	 * @return bool
+	 */
 	public function containsBlock($block)
 	{
 		if ( ! $block instanceof IPBlock ) {
 			$block = new static($block);
 		}
 
-		// true in this situation:
-		// $this: first_ip[                               ]last_ip
-		// $block:         first_ip[             ]last_ip
-
 		return $block->getFirstIp()->numeric() >= $this->first_ip->numeric() && $block->getLastIp()->numeric() <= $this->last_ip->numeric();
 	}
 
+	/**
+	 * Determine if the current block is contained in another block.
+	 *
+	 * @param $block mixed
+	 * @return bool
+	 */
 	public function isContainedIn($block)
 	{
 		if ( ! $block instanceof IPBlock ) {
@@ -149,6 +219,9 @@ abstract class IPBlock
 
 	/**
 	 * Test is the two blocks overlap, i.e. if block1 contains block2, or block2 contains block1
+	 *
+	 * @param $block mixed
+	 * @return bool
 	 */
 	public function overlaps($block)
 	{

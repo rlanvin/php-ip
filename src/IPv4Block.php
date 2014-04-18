@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * An IPv4 CIDR block
+ */
 class IPv4Block extends IPBlock
 {
 	const IP_VERSION = 4;
@@ -7,6 +10,8 @@ class IPv4Block extends IPBlock
 
 	/**
 	 * Return netmask
+	 *
+	 * @return IPv4
 	 */
 	public function getMask()
 	{
@@ -18,6 +23,8 @@ class IPv4Block extends IPBlock
 
 	/**
 	 * Return delta to last IP address
+	 *
+	 * @return IPv4
 	 */
 	public function getDelta()
 	{

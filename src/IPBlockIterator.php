@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Iterator for IPBlock
+ */
 class IPBlockIterator implements Iterator, Countable
 {
 	protected $position = 0;

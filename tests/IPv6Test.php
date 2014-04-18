@@ -12,12 +12,14 @@ class IPv6Test extends PHPUnit_Framework_TestCase
 			array('::1', '::1', '1', '1', '1'),
 
 			// IPv4-mapped IPv6 addresses
-			// deprecated notation
 			array('0000:0000:0000:0000:0000:0000:127.127.127.127','::127.127.127.127', '2139062143'),
 			array('::ffff:192.0.2.128','::ffff:192.0.2.128', '281473902969472'),
 
 			// init with numeric representation
 			array('332314827956335977770735408709082546176', 'fa01:8200::', '332314827956335977770735408709082546176'),
+
+			// init with GMP ressource
+			array(gmp_init('332314827956335977770735408709082546176'), 'fa01:8200::', '332314827956335977770735408709082546176'),
 		);
 	}
 
@@ -25,6 +27,11 @@ class IPv6Test extends PHPUnit_Framework_TestCase
 	{
 		return array(
 			array("\t"),
+			array(array()),
+			array(new stdClass()),
+			array("-1"),
+			array(gmp_init('-1')),
+			array(gmp_init('340282366920938463463374607431768211456')),
 			array("abcz"),
 			array(12.3),
 			array(-12.3),
@@ -60,4 +67,32 @@ class IPv6Test extends PHPUnit_Framework_TestCase
 		$this->assertEquals(ltrim($array[1],0), $instance->numeric(16), "Base 16 of $compressed");
 		$this->assertEquals($dec, $instance->numeric(10), "Base 10 of $compressed");
 	}
+
+	/**
+	 * @expectedException OutOfBoundsException
+	 */
+	public function testPlusOob()
+	{
+		$ip = new IPv6('ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff');
+		$ip->plus(1);
+	}
+
+	/**
+	 * @expectedException OutOfBoundsException
+	 */
+	public function testMinusOob()
+	{
+		$ip = new IPv6('::');
+		$ip->minus(1);
+	}
+
+	/**
+	 * @expectedException OutOfBoundsException
+	 */
+	public function testPlusMinusOob()
+	{
+		$ip = new IPv6('::');
+		$ip->plus(-1);
+	}
+
 }

@@ -10,6 +10,11 @@ class IPv4 extends IP
 	const IP_VERSION = 4;
 	const MAX_INT = 0xFFFFFFFF;
 
+	/**
+	 * Constructor tries to guess what is the $ip
+	 *
+	 * @param $ip mixed String, binary string, int or float
+	 */
 	public function __construct($ip)
 	{
 		if ( is_int($ip) ) {
@@ -46,6 +51,12 @@ class IPv4 extends IP
 		}
 	}
 
+	/**
+	 * Returns numeric representation of the IP
+	 *
+	 * @param $base int
+	 * @return string
+	 */
 	public function numeric($base = 10)
 	{
 		if ( $base < 2 || $base > 36 ) {
@@ -54,18 +65,21 @@ class IPv4 extends IP
 		return base_convert(sprintf('%u',$this->ip),10,$base);
 	}
 
-	public function int()
-	{
-		return $this->ip;
-	}
-
+	/**
+	 * Returns human readable representation of the IP
+	 *
+	 * @return string
+	 */
 	public function humanReadable()
 	{
 		return long2ip($this->ip);
 	}
 
 	/**
-	 * Bitwise and
+	 * Bitwise AND
+	 *
+	 * @param $value mixed anything that can be converted into an IP object
+	 * @return IP
 	 */
 	public function bit_and($value)
 	{
@@ -76,6 +90,12 @@ class IPv4 extends IP
 		return new self($this->ip & $value->ip);
 	}
 
+	/**
+	 * Bitwise OR
+	 *
+	 * @param $value mixed anything that can be converted into an IP object
+	 * @return IP
+	 */
 	public function bit_or($value)
 	{
 		if ( ! $value instanceof self ) {
@@ -85,19 +105,54 @@ class IPv4 extends IP
 		return new self($this->ip | $value->ip);
 	}
 
+	/**
+	 * Plus (+)
+	 *
+	 * @throws OutOfBoundsException
+	 * @param $value mixed anything that can be converted into an IP object
+	 * @return IP
+	 */
 	public function plus($value)
 	{
+		if ( $value == 0 ) {
+			return clone $self;
+		}
+		if ( $this->ip == 0 && $value < 0 ) {
+			throw new OutOfBoundsException();
+		}
+
 		if ( ! $value instanceof self ) {
 			$value = new self($value);
+		}
+
+		// test boundaries
+		if ( $this->numeric() == self::MAX_INT && $value->numeric() > 0 ) {
+			throw new OutOfBoundsException();
 		}
 
 		return new self($this->ip + $value->ip);
 	}
 
+	/**
+	 * Minus(-)
+	 *
+	 * @throws OutOfBoundsException
+	 * @param $value mixed anything that can be converted into an IP object
+	 * @return IP
+	 */
 	public function minus($value)
 	{
+		if ( $value == 0 ) {
+			return clone $self;
+		}
+
 		if ( ! $value instanceof self ) {
 			$value = new self($value);
+		}
+
+		// test boundaries
+		if ( $this->ip == 0 ) {
+			throw new OutOfBoundsException();
 		}
 
 		return new self($this->ip - $value->ip);

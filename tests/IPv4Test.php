@@ -65,4 +65,31 @@ class IPv4Test extends PHPUnit_Framework_TestCase
 		$this->assertEquals($bin, $instance->numeric(2), "Base 2 (bin) convertion of $string");
 		$this->assertEquals($hex, $instance->numeric(16), "Base 16 (hex) convertion of $string");
 	}
+
+	/**
+	 * @expectedException OutOfBoundsException
+	 */
+	public function testPlusOob()
+	{
+		$ip = new IPv4('255.255.255.255');
+		$ip->plus(1);
+	}
+
+	/**
+	 * @expectedException OutOfBoundsException
+	 */
+	public function testMinusOob()
+	{
+		$ip = new IPv4('0.0.0.0');
+		$ip->minus(1);
+	}
+
+	/**
+	 * @expectedException OutOfBoundsException
+	 */
+	public function testPlusMinusOob()
+	{
+		$ip = new IPv4('0.0.0.0');
+		$ip->plus(-1);
+	}
 }

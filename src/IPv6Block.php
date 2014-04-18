@@ -1,23 +1,29 @@
 <?php
 
-/**
- * Shift left (<<)
- * @link http://www.php.net/manual/en/ref.gmp.php#99788
- */
-function gmp_shiftl($x, $n)
-{
-	return gmp_mul($x, gmp_pow('2', $n));
+if ( ! function_exists('gmp_shiftl') ) {
+	/**
+	 * Shift left (<<)
+	 * @link http://www.php.net/manual/en/ref.gmp.php#99788
+	 */
+	function gmp_shiftl($x, $n)
+	{
+		return gmp_mul($x, gmp_pow('2', $n));
+	}
+}
+if ( ! function_exists('gmp_shiftr') ) {
+	/**
+	 * Shift right (>>)
+	 * @link http://www.php.net/manual/en/ref.gmp.php#99788
+	 */
+	function gmp_shiftr($x, $n)
+	{
+		return gmp_div($x, gmp_pow('2', $n));
+	}
 }
 
 /**
- * Shift right (>>)
- * @link http://www.php.net/manual/en/ref.gmp.php#99788
+ * An IPv6 CIDR block
  */
-function gmp_shiftr($x, $n)
-{
-	return gmp_div($x, gmp_pow('2', $n));
-}
-
 class IPv6Block extends IPBlock
 {
 	const IP_VERSION = 6;
@@ -25,6 +31,8 @@ class IPv6Block extends IPBlock
 
 	/**
 	 * Return netmask
+	 *
+	 * @return IPv6
 	 */
 	public function getMask()
 	{
@@ -39,6 +47,8 @@ class IPv6Block extends IPBlock
 
 	/**
 	 * Return delta to last IP address
+	 *
+	 * @return IPv6
 	 */
 	public function getDelta()
 	{

@@ -10,6 +10,11 @@ class IPv6 extends IP
 	const IP_VERSION = 6;
 	const MAX_INT = '340282366920938463463374607431768211455';
 
+	/**
+	 * Constuctor tries to guess what is $ip.
+	 *
+	 * @param mixed $ip
+	 */
 	public function __construct($ip)
 	{
 		if ( is_int($ip) ) {
@@ -34,7 +39,6 @@ class IPv6 extends IP
 			}
 			// decimal value ?
 			elseif ( ctype_digit($ip) ) {
-				// max IP value 
 				if ( gmp_cmp($ip, '340282366920938463463374607431768211455') > 0 ) {
 					throw new InvalidArgumentException("'$ip' is not a valid decimal IPv6 address.");
 				}
@@ -45,10 +49,9 @@ class IPv6 extends IP
 			}
 		}
 		elseif ( is_resource($ip) &&  get_resource_type($ip) == 'GMP integer') {
-			if ( gmp_cmp($ip, '340282366920938463463374607431768211455') > 0 ) {
+			if ( gmp_cmp($ip, '-1') <= 0 || gmp_cmp($ip, '340282366920938463463374607431768211455') > 0 ) {
 				throw new InvalidArgumentException(sprintf("'%s' is not a valid decimal IPv6 address.", gmp_strval($ip)));
 			}
-
 			$this->ip = $ip;
 		}
 		else {
@@ -57,7 +60,12 @@ class IPv6 extends IP
 	}
 
 	/**
-	 * The result will not be padded, i.e. leading 0 are removed
+	 * Returns a numeric representation of the IP as a PHP string.
+	 *
+	 * Note: The result will not be padded, i.e. leading 0 are removed
+	 *
+	 * @param  $base int
+	 * @return string
 	 */
 	public function numeric($base = 10)
 	{
@@ -68,6 +76,12 @@ class IPv6 extends IP
 		return gmp_strval($this->ip, $base);
 	}
 
+	/**
+	 * Returns human readable representation of the IP
+	 *
+	 * @param $compress bool Wether to compress IPv6 or not
+	 * @return string
+	 */
 	public function humanReadable($compress = true)
 	{
 		$hex = $this->numeric(16);
@@ -78,12 +92,15 @@ class IPv6 extends IP
 		if ( $compress ) {
 			$ip = @ inet_ntop(@ inet_pton($ip));
 		}
-		
+
 		return $ip;
 	}
 
 	/**
-	 * Bitwise and
+	 * Bitwise AND
+	 *
+	 * @param $value mixed anything that can be converted into an IP object
+	 * @return IP
 	 */
 	public function bit_and($value)
 	{
@@ -94,6 +111,12 @@ class IPv6 extends IP
 		return new self(gmp_and($this->ip, $value->ip));
 	}
 
+	/**
+	 * Bitwise OR
+	 *
+	 * @param $value mixed anything that can be converted into an IP object
+	 * @return IP
+	 */
 	public function bit_or($value)
 	{
 		if ( ! $value instanceof self ) {
@@ -103,17 +126,51 @@ class IPv6 extends IP
 		return new self(gmp_or($this->ip, $value->ip));
 	}
 
+	/**
+	 * Plus (+)
+	 *
+	 * @throws OutOfBoundsException
+	 * @param $value mixed anything that can be converted into an IP object
+	 * @return IP
+	 */
 	public function plus($value)
 	{
+		if ( $value == 0 ) {
+			return clone $self;
+		}
+		if ( gmp_cmp($this->ip,0) === 0 && $value < 0 ) {
+			throw new OutOfBoundsException();
+		}
+
 		if ( ! $value instanceof self ) {
 			$value = new self($value);
+		}
+
+		// test boundaries
+		if ( $this->numeric() == self::MAX_INT && $value->numeric() > '0' ) {
+			throw new OutOfBoundsException();
 		}
 
 		return new self(gmp_add($this->ip, $value->ip));
 	}
 
+	/**
+	 * Minus(-)
+	 *
+	 * @throws OutOfBoundsException
+	 * @param $value mixed anything that can be converted into an IP object
+	 * @return IP
+	 */
 	public function minus($value)
 	{
+		if ( $value == 0 ) {
+			return clone $self;
+		}
+		// test boundaries
+		if ( gmp_cmp($this->ip,0) === 0 ) {
+			throw new OutOfBoundsException();
+		}
+
 		if ( ! $value instanceof self ) {
 			$value = new self($value);
 		}
