@@ -5,6 +5,7 @@ class IPv6Test extends PHPUnit_Framework_TestCase
 	public function validAddresses()
 	{
 		return array(
+			// IP  compressed  decimal
 			array('2a01:8200::', '2a01:8200::', '55835404833073476206743540170770874368',),
 			array('2001:0db8:85a3:0000:0000:8a2e:0370:7334', '2001:db8:85a3::8a2e:370:7334', '42540766452641154071740215577757643572'),
 			array('ffff:0db8::', 'ffff:db8::', '340277452873386678732099705461792571392'),
@@ -20,6 +21,9 @@ class IPv6Test extends PHPUnit_Framework_TestCase
 
 			// init with GMP ressource
 			array(gmp_init('332314827956335977770735408709082546176'), 'fa01:8200::', '332314827956335977770735408709082546176'),
+
+			// init with something else
+			array(-1, '::255.255.255.255', '4294967295'),
 		);
 	}
 

@@ -18,6 +18,12 @@ class IPv6 extends IP
 {
 	const IP_VERSION = 6;
 	const MAX_INT = '340282366920938463463374607431768211455';
+	const NB_BITS = 128;
+
+	public function getVersion()
+	{
+		return self::IP_VERSION;
+	}
 
 	/**
 	 * Constuctor tries to guess what is $ip.
@@ -35,7 +41,7 @@ class IPv6 extends IP
 				// probably the result of inet_pton
 				// must be 16 bytes exactly to be valid
 				if ( strlen($ip) != 16 ) {
-					throw new InvalidArgumentException("The binary string not a valid IPv6 address.");
+					throw new InvalidArgumentException("The binary string is not a valid IPv6 address");
 				}
 				$hex = unpack('H*',$ip);
 				$this->ip = gmp_init($hex[1],16);
@@ -49,22 +55,22 @@ class IPv6 extends IP
 			// decimal value ?
 			elseif ( ctype_digit($ip) ) {
 				if ( gmp_cmp($ip, '340282366920938463463374607431768211455') > 0 ) {
-					throw new InvalidArgumentException("'$ip' is not a valid decimal IPv6 address.");
+					throw new InvalidArgumentException("$ip is not a valid decimal IPv6 address");
 				}
 				$this->ip = gmp_init($ip,10);
 			}
 			else {
-				throw new InvalidArgumentException("'$ip' is not a valid IPv6 address.");
+				throw new InvalidArgumentException("$ip is not a valid IPv6 address");
 			}
 		}
 		elseif ( is_resource($ip) &&  get_resource_type($ip) == 'GMP integer') {
 			if ( gmp_cmp($ip, '-1') <= 0 || gmp_cmp($ip, '340282366920938463463374607431768211455') > 0 ) {
-				throw new InvalidArgumentException(sprintf("'%s' is not a valid decimal IPv6 address.", gmp_strval($ip)));
+				throw new InvalidArgumentException(sprintf("%s is not a valid decimal IPv6 address", gmp_strval($ip)));
 			}
 			$this->ip = $ip;
 		}
 		else {
-			throw new InvalidArgumentException("Unsupported argument type: '".gettype($ip)."'");
+			throw new InvalidArgumentException("Unsupported argument type: ".gettype($ip));
 		}
 	}
 
@@ -79,7 +85,7 @@ class IPv6 extends IP
 	public function numeric($base = 10)
 	{
 		if ( $base < 2 || $base > 36 ) {
-			throw new InvalidArgumentException("Base must be between 2 and 36 (included).");
+			throw new InvalidArgumentException("Base must be between 2 and 36 (included)");
 		}
 
 		return gmp_strval($this->ip, $base);
@@ -193,5 +199,26 @@ class IPv6 extends IP
 		}
 
 		return new self($result);
+	}
+
+	/**
+	 * Return true if the address is reserved per iana-ipv6-special-registry
+	 */
+	public function isPrivate()
+	{
+		if ( $this->is_private === null ) {
+			$this->is_private =
+				$this->isIn('::1/128') ||
+				$this->isIn('::/128') ||
+				$this->isIn('::ffff:0:0/96') ||
+				$this->isIn('100::/64') ||
+				$this->isIn('2001::/23') ||
+				$this->isIn('2001:2::/48') ||
+				$this->isIn('2001:db8::/32') ||
+				$this->isIn('2001:10::/28') ||
+				$this->isIn('fc00::/7') ||
+				$this->isIn('fe80::/10');
+		}
+		return $this->is_private;
 	}
 }

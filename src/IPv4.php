@@ -18,6 +18,12 @@ class IPv4 extends IP
 {
 	const IP_VERSION = 4;
 	const MAX_INT = 0xFFFFFFFF;
+	const NB_BITS = 32;
+
+	public function getVersion()
+	{
+		return self::IP_VERSION;
+	}
 
 	/**
 	 * Constructor tries to guess what is the $ip
@@ -34,10 +40,12 @@ class IPv4 extends IP
 		}
 		elseif ( is_string($ip) ) {
 			if ( ! ctype_print($ip) ) {
-				// probably the result of inet_pton
+				if ( strlen($ip) != 4 ) {
+					throw new InvalidArgumentException("The binary string is not a valid IPv4 address");
+				}
 				$this->ip = @ inet_ntop($ip);
 				if ( $this->ip === false ) {
-					throw new InvalidArgumentException("The binary string is not a valid IPv4 address.");
+					throw new InvalidArgumentException("The binary string is not a valid IPv4 address");
 				}
 				$this->ip = ip2long($this->ip);
 			}
@@ -46,17 +54,17 @@ class IPv4 extends IP
 			}
 			elseif ( ctype_digit($ip) ) {
 				if ( $ip > 0xFFFFFFFF ) {
-					throw new InvalidArgumentException("'$ip' is not a valid decimal IPv4 address.");
+					throw new InvalidArgumentException("$ip is not a valid decimal IPv4 address");
 				}
 				// convert "unsigned long" (string) to signed int (int)
 				$this->ip = intval(doubleval($ip));
 			}
 			else {
-				throw new InvalidArgumentException("'$ip' is not a valid IPv4 address.");
+				throw new InvalidArgumentException("$ip is not a valid IPv4 address");
 			}
 		}
 		else {
-			throw new InvalidArgumentException("Unsupported argument type: '".gettype($ip)."'");
+			throw new InvalidArgumentException("Unsupported argument type: ".gettype($ip));
 		}
 	}
 
@@ -69,7 +77,7 @@ class IPv4 extends IP
 	public function numeric($base = 10)
 	{
 		if ( $base < 2 || $base > 36 ) {
-			throw new InvalidArgumentException("Base must be between 2 and 36 (included).");
+			throw new InvalidArgumentException("Base must be between 2 and 36 (included)");
 		}
 		return base_convert(sprintf('%u',$this->ip),10,$base);
 	}
@@ -174,5 +182,30 @@ class IPv4 extends IP
 		}
 
 		return new self($result);
+	}
+
+	/**
+	 * Return true if the address is reserved per iana-ipv4-special-registry
+	 */
+	public function isPrivate()
+	{
+		if ( $this->is_private === null ) {
+			$this->is_private =
+				$this->isIn('0.0.0.0/8') ||
+				$this->isIn('10.0.0.0/8') ||
+				$this->isIn('127.0.0.0/8') ||
+				$this->isIn('169.254.0.0/16') ||
+				$this->isIn('172.16.0.0/12') ||
+				$this->isIn('192.0.0.0/29') ||
+				$this->isIn('192.0.0.170/31') ||
+				$this->isIn('192.0.2.0/24') ||
+				$this->isIn('192.168.0.0/16') ||
+				$this->isIn('198.18.0.0/15') ||
+				$this->isIn('198.51.100.0/24') ||
+				$this->isIn('203.0.113.0/24') ||
+				$this->isIn('240.0.0.0/4') ||
+				$this->isIn('255.255.255.255/32');
+		}
+		return $this->is_private;
 	}
 }

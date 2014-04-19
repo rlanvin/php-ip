@@ -69,7 +69,9 @@ class IPv4BlockTest extends PHPUnit_Framework_TestCase
 			array('-1'),
 			array('4294967296'),
 			array('2a01:8200::'),
-			array('::1')
+			array('::1'),
+			array('::1/128'),
+			array('2a01:8200::/32')
 		);
 	}
 
@@ -80,60 +82,5 @@ class IPv4BlockTest extends PHPUnit_Framework_TestCase
 	public function testConstructInvalid($block)
 	{
 		$instance = new IPv4Block($block);
-	}
-
-	public function blockContent()
-	{
-		return array(
-			array(
-				'192.168.0.0/24',
-				array('192.168.0.0','192.168.0.42','192.168.0.255', '192.168.0.128/25'),
-				array('10.0.0.1','192.167.255.255','192.169.0.0', '10.0.0.1/24'),
-			)
-		);
-	}
-
-	/**
-	 * @dataProvider blockContent
-	 */
-	public function testContains($block, $in, $not_in)
-	{
-		$block = new IPv4Block($block);
-		foreach ( $in as $ip_or_block ) {
-			$this->assertTrue($block->contains($ip_or_block), "$ip_or_block is in $block");
-		}
-		foreach ( $not_in as $ip_or_block ) {
-			$this->assertFalse($block->contains($ip_or_block, "$ip_or_block is not in $block"));
-		}
-	}
-
-
-	public function overlappingBlocks()
-	{
-		return array(
-			array(
-				'192.168.0.0/24',
-				array('192.168.0.128/25', '192.168.0.0/23'),
-				array('10.0.0.1/24'),
-			)
-		);
-	}
-
-	/**
-	 * @dataProvider overlappingBlocks
-	 */
-	public function testOverlaps($block, $overlapping, $not_overlapping)
-	{
-		$block = new IPv4Block($block);
-		foreach ( $overlapping as $block2 ) {
-			$this->assertTrue($block->overlaps($block2), "$block is overlapping $block2");
-			$block2 = new IPv4Block($block2);
-			$this->assertTrue($block2->overlaps($block), "$block2 is overlapping $block");
-		}
-		foreach ( $not_overlapping as $block2 ) {
-			$this->assertFalse($block->overlaps($block2, "$block is not overlapping $block2"));
-			$block2 = new IPv4Block($block2);
-			$this->assertFalse($block2->overlaps($block), "$block2 is not overlappping $block");
-		}
 	}
 }

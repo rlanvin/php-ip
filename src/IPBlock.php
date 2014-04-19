@@ -10,13 +10,10 @@
  */
 
 /**
- * A CIDR block
+ * Base class to manipulate CIDR block (aka "networks").
  */
 abstract class IPBlock
 {
-	const IP_VERSION = -1;
-	const MAX_BITS = 0;
-
 	/**
 	 * @var IP
 	 */
@@ -36,28 +33,34 @@ abstract class IPBlock
 	abstract public function getMask();
 
 	/**
-	 * Accepts a CIDR string (e.g. 192.168.0.0/24) or an IP and a prefix as
-	 * two separate parameters
-	 *
-	 * @param $ip     mixed  IP or CIDR string
-	 * @param $prefix int    (optional) The "slash" part
+	 * Factory method.
 	 */
-	public function __construct($ip, $prefix = '')
+	public static function create($ip, $prefix = '')
 	{
-		if ( strpos($ip, '/') !== false ) {
-			list($ip,$prefix) = explode('/', $ip, 2);
+		try {
+			return new IPv4Block($ip, $prefix);
+		} catch ( InvalidArgumentException $e ) {
+			// do nothing
 		}
 
+		try {
+			return new IPv6Block($ip, $prefix);
+		} catch ( InvalidArgumentException $e ) {
+			// do nothing
+		}
+
+		throw new InvalidArgumentException("$ip does not appear to be an IPv4 or IPv6 block");
+	}
+
+	public function __construct(IP $ip, $prefix)
+	{
 		$this->checkPrefix($prefix);
 
 		$this->prefix = (int) $prefix;
 
-		if ( ! $ip instanceof IP ) {
-			$ip = IP::create($ip, static::IP_VERSION);
-		}
 		$delta = $this->getDelta();
 		$mask = $this->getMask();
-		
+
 		$this->first_ip = $ip->bit_and($mask);
 		$this->last_ip = $this->first_ip->bit_or($delta);
 	}
@@ -76,6 +79,8 @@ abstract class IPBlock
 	{
 		return $this->prefix;
 	}
+
+	abstract public function getMaxPrefix();
 
 	/**
 	 * Returns the first IP address of the block.
@@ -127,10 +132,10 @@ abstract class IPBlock
 	 */
 	protected function checkPrefix($prefix)
 	{
-		if ( $prefix === '' || $prefix === null || $prefix === false || $prefix < 0 || $prefix > static::MAX_BITS ) {
+		if ( $prefix === '' || $prefix === null || $prefix === false || $prefix < 0 || $prefix > $this->getMaxPrefix() ) {
 			throw new InvalidArgumentException(sprintf(
 				"Invalid IPv%s block prefix '%s'",
-				static::IP_VERSION,
+				$this->getVersion(),
 				$prefix
 			));
 		}
@@ -149,10 +154,10 @@ abstract class IPBlock
 		$this->checkPrefix($prefix);
 
 		if ( $prefix <= $this->prefix ) {
-			throw new InvalidArgumentException("'$prefix' is not smaller than '{$this->prefix}'.");
+			throw new InvalidArgumentException("$prefix is not smaller than {$this->prefix}");
 		}
 		if ( $prefix - $this->prefix >= 32 ) {
-			throw new InvalidArgumentException("You cannot split directly into more than 32bits depth, that would create memory problems.");
+			throw new InvalidArgumentException("You cannot split directly into more than 32bits depth, that would create memory problems");
 		}
 
 		$first_block = new static($this->first_ip, $prefix);
@@ -186,7 +191,7 @@ abstract class IPBlock
 	public function containsIP($ip)
 	{
 		if ( ! $ip instanceof IP ) {
-			$ip = IP::create($ip, static::IP_VERSION);
+			$ip = IP::create($ip);
 		}
 
 		return ($ip->numeric() >= $this->getFirstIp()->numeric()) && ($ip->numeric() <= $this->getLastIp()->numeric());
@@ -205,7 +210,8 @@ abstract class IPBlock
 	public function containsBlock($block)
 	{
 		if ( ! $block instanceof IPBlock ) {
-			$block = new static($block);
+			// $block = new static($block);
+			$block = IPBlock::create($block);
 		}
 
 		return $block->getFirstIp()->numeric() >= $this->first_ip->numeric() && $block->getLastIp()->numeric() <= $this->last_ip->numeric();
@@ -220,7 +226,8 @@ abstract class IPBlock
 	public function isContainedIn($block)
 	{
 		if ( ! $block instanceof IPBlock ) {
-			$block = new static($block);
+			// $block = new static($block);
+			$block = IPBlock::create($block);
 		}
 
 		return $block->containsBlock($this);
@@ -235,7 +242,8 @@ abstract class IPBlock
 	public function overlaps($block)
 	{
 		if ( ! $block instanceof IPBlock ) {
-			$block = new static($block);
+			// $block = new static($block);
+			$block = IPBlock::create($block);
 		}
 
 		return ! ($block->getFirstIp()->numeric() > $this->last_ip->numeric() || $block->getLastIp()->numeric() < $this->first_ip->numeric());

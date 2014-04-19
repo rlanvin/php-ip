@@ -16,6 +16,7 @@ class IPv4Test extends PHPUnit_Framework_TestCase
 			array(ip2long('10.0.0.1'), '10.0.0.1', '167772161', '00001010000000000000000000000001', 'a000001'),
 			array(ip2long('255.255.255.255'), '255.255.255.255', '4294967295', '11111111111111111111111111111111', 'ffffffff'),
 			array(-1, '255.255.255.255', '4294967295', '11111111111111111111111111111111', 'ffffffff'),
+			array((double) -1, '255.255.255.255', '4294967295', '11111111111111111111111111111111', 'ffffffff'),
 			array('1', '0.0.0.1', '1', '00000000000000000000000000000001', '00000001'),
 			array('4294967295', '255.255.255.255', '4294967295', '11111111111111111111111111111111', 'ffffffff'),
 			array(inet_pton('10.0.0.1'), '10.0.0.1', '167772161', '00001010000000000000000000000001', 'a000001'),
@@ -123,5 +124,23 @@ class IPv4Test extends PHPUnit_Framework_TestCase
 		elseif ( $minus !== null ) {
 			$ip->minus($minus);
 		}
+	}
+
+	public function privateAddresses()
+	{
+		return array(
+			array('127.0.0.1'),
+			array('192.168.0.1')
+		);
+	}
+
+	/**
+	 * @dataProvider privateAddresses
+	 */
+	public function testIsPrivate($ip)
+	{
+		$ip = new IPv4($ip);
+		$this->assertTrue($ip->isPrivate(), "$ip is private");
+		$this->assertFalse($ip->isPublic(), "$ip is not public");
 	}
 }

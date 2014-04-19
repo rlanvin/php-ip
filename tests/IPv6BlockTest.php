@@ -16,6 +16,18 @@ class IPv6BlockTest extends PHPUnit_Framework_TestCase
 		);
 	}
 
+	/**
+	 * @dataProvider validBlocks
+	 */
+	public function testConstructValid($block, $mask, $delta, $first_ip, $last_ip)
+	{
+		$instance = new IPv6Block($block);
+		$this->assertEquals($mask, (string) $instance->getMask(), "Mask of $block");
+		$this->assertEquals($delta, (string) $instance->getDelta(), "Delta of $block");
+		$this->assertEquals($first_ip, (string) $instance->getFirstIp(), "First IP of $block");
+		$this->assertEquals($last_ip, (string) $instance->getLastIp(), "Last IP of $block");
+	}
+
 	public function invalidBlocks()
 	{
 		return array(
@@ -29,20 +41,9 @@ class IPv6BlockTest extends PHPUnit_Framework_TestCase
 			array('4294967296'),
 			array('2a01:8200::'),
 			array('2a01:8200::/'),
-			array('::1')
+			array('::1'),
+			array('192.168.0.2/24')
 		);
-	}
-
-	/**
-	 * @dataProvider validBlocks
-	 */
-	public function testConstructValid($block, $mask, $delta, $first_ip, $last_ip)
-	{
-		$instance = new IPv6Block($block);
-		$this->assertEquals($mask, (string) $instance->getMask(), "Mask of $block");
-		$this->assertEquals($delta, (string) $instance->getDelta(), "Delta of $block");
-		$this->assertEquals($first_ip, (string) $instance->getFirstIp(), "First IP of $block");
-		$this->assertEquals($last_ip, (string) $instance->getLastIp(), "Last IP of $block");
 	}
 
 	/**
@@ -52,26 +53,5 @@ class IPv6BlockTest extends PHPUnit_Framework_TestCase
 	public function testConstructInvalid($block)
 	{
 		$instance = new IPv6Block($block);
-	}
-
-	public function blockContent()
-	{
-		return array(
-			array('2001:0db8::/32', array('2001:db8::','2001:0db8:85a3::8a2e:0370:7334','2001:db8:ffff:ffff:ffff:ffff:ffff:ffff'), array('::1'))
-		);
-	}
-
-	/**
-	 * @dataProvider blockContent
-	 */
-	public function testContains($block, $in, $not_in)
-	{
-		$block = new IPv6Block($block);
-		foreach ( $in as $ip ) {
-			$this->assertTrue($block->contains($ip), "$ip is in $block");
-		}
-		foreach ( $not_in as $ip ) {
-			$this->assertFalse($block->contains($ip, "$ip is not in $block"));
-		}
 	}
 }

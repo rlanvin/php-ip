@@ -1,4 +1,4 @@
-<?
+<?php
 
 /**
  * Licensed under the MIT license.
@@ -10,71 +10,128 @@
  */
 
 /**
- * Abstract class to manipulate an IP address.
- *
- *
+ * Base class to manipulate an IP address.
  */
 abstract class IP
 {
-	const IP_VERSION = -1;
-
 	/**
 	 * Internal representation of the IP as a numeric format.
-	 * For IPv4, this will be an int (32 bits).
+	 * For IPv4, this will be an SIGNED int (32 bits).
 	 * For IPv6, this will be a GMP ressource (128 bits big int).
 	 * @var mixed
 	 */
 	protected $ip;
 
 	/**
-	 * Return human readable version of the IP (e.g. 127.0.0.1 or ::1)
+	 * @var bool
+	 */
+	protected $is_private;
+
+	/**
+	 * Take an IP string/int and return an object of the correct type.
+	 * 
+	 * Either IPv4 or IPv6 may be supplied, but integers less than 2^32 will
+	 * be considered to be IPv4 by default.
+	 *
+	 * @param  $ip      mixed Anything that can be converted into an IP (string, int, bin, etc.)
+	 * @return IPv4 or IPv6
+	 */
+	public static function create($ip)
+	{
+		try {
+			return new IPv4($ip);
+		} catch ( InvalidArgumentException $e ) {
+			// do nothing
+		}
+
+		try {
+			return new IPv6($ip);
+		} catch ( InvalidArgumentException $e ) {
+			// do nothing
+		}
+
+		throw new InvalidArgumentException("$ip does not appear to be an IPv4 or IPv6 address");
+	}
+
+	/**
+	 * Return human readable representation of the IP (e.g. 127.0.0.1 or ::1)
+	 *
+	 * @return string
 	 */
 	abstract public function humanReadable();
 
 	/**
-	 * Return numeric version of the IP
+	 * Return numeric representation of the IP in base $base.
+	 *
+	 * The return value is a PHP string. It can base used for comparaison.
+	 *
+	 * @param  $base  int from 2 to 36
+	 * @return string
 	 */
-	abstract public function numeric($base);
+	abstract public function numeric($base = 10);
 
+	/**
+	 * Bitwise AND
+	 */
 	abstract public function bit_and($value);
+
+	/**
+	 * Bitwise OR
+	 */
 	abstract public function bit_or($value);
+
+	/**
+	 * Addition
+	 */
 	abstract public function plus($value);
+
+	/**
+	 * Subtraction
+	 */
 	abstract public function minus($value);
 
 	/**
-	 * Display human readable version of the IP
+	 * @see humanReadable()
 	 */
 	public function __toString()
 	{
 		return $this->humanReadable();
 	}
 
-	public function getVersion()
-	{
-		return static::IP_VERSION;
-	}
+	/**
+	 * Return the version number (4 or 6).
+	 *
+	 * Note: this is left abstract because there is not late static binding
+	 * in PHP 5.2 (which I need to support).
+	 *
+	 * @return int
+	 */
+	abstract public function getVersion();
 
-	public function isContainedIn($block)
+	/**
+	 * Check if the IP is contained in given block.
+	 *
+	 * @param $block mixed Anything that can be converted into an IPBlock
+	 * @return bool
+	 */
+	public function isIn($block)
 	{
 		if ( ! $block instanceof IPBlock ) {
-			// this is not pretty
-			$class = sprintf('IPv%dBlock',static::IP_VERSION);
-			$block = new $class($block);
+			$block = IPBlock::create($block);
 		}
 
 		return $block->contains($this);
 	}
 
+	abstract public function isPrivate();
+
 	/**
-	 * Factory
+	 * Return true if the address is allocated for public networks
+	 *
+	 * @return bool
 	 */
-	public static function create($ip, $version = null)
+	public function isPublic()
 	{
-		if ( $version == 4 || ( $version == null && filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) ) ) {
-			return new IPv4($ip);
-		}
-		else {
-			return new IPv6($ip);
-		}
+		return ! $this->isPrivate();
 	}
 }
