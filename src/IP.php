@@ -9,6 +9,27 @@
  * @link https://github.com/rlanvin/php-ip 
  */
 
+if ( ! function_exists('gmp_shiftl') ) {
+	/**
+	 * Shift left (<<)
+	 * @link http://www.php.net/manual/en/ref.gmp.php#99788
+	 */
+	function gmp_shiftl($x, $n)
+	{
+		return gmp_mul($x, gmp_pow('2', $n));
+	}
+}
+if ( ! function_exists('gmp_shiftr') ) {
+	/**
+	 * Shift right (>>)
+	 * @link http://www.php.net/manual/en/ref.gmp.php#99788
+	 */
+	function gmp_shiftr($x, $n)
+	{
+		return gmp_div($x, gmp_pow('2', $n));
+	}
+}
+
 /**
  * Base class to manipulate an IP address.
  */
@@ -68,27 +89,106 @@ abstract class IP
 	 * @param  $base  int from 2 to 36
 	 * @return string
 	 */
-	abstract public function numeric($base = 10);
+	public function numeric($base = 10)
+	{
+		if ( $base < 2 || $base > 36 ) {
+			throw new InvalidArgumentException("Base must be between 2 and 36 (included)");
+		}
+
+		return gmp_strval($this->ip, $base);
+	}
+
 
 	/**
 	 * Bitwise AND
+	 *
+	 * @param $value mixed anything that can be converted into an IP object
+	 * @return IP
 	 */
-	abstract public function bit_and($value);
+	public function bit_and($value)
+	{
+		if ( ! $value instanceof self ) {
+			$value = new $this->class($value);
+		}
+
+		return new $this->class(gmp_and($this->ip, $value->ip));
+	}
 
 	/**
 	 * Bitwise OR
+	 *
+	 * @param $value mixed anything that can be converted into an IP object
+	 * @return IP
 	 */
-	abstract public function bit_or($value);
+	public function bit_or($value)
+	{
+		if ( ! $value instanceof self ) {
+			$value = new $this->class($value);
+		}
+
+		return new $this->class(gmp_or($this->ip, $value->ip));
+	}
 
 	/**
-	 * Addition
+	 * Plus (+)
+	 *
+	 * @throws OutOfBoundsException
+	 * @param $value mixed anything that can be converted into an IP object
+	 * @return IP
 	 */
-	abstract public function plus($value);
+	public function plus($value)
+	{
+		if ( $value < 0 ) {
+			return $this->minus(-1*$value);
+		}
+
+		if ( $value == 0 ) {
+			return clone $this;
+		}
+
+		if ( ! $value instanceof self ) {
+			$value = new $this->class($value);
+		}
+
+		$result = gmp_add($this->ip, $value->ip);
+
+		if ( gmp_cmp($result,0) < 0 || gmp_cmp($result, constant("$this->class::MAX_INT")) > 0 ) {
+			throw new OutOfBoundsException();
+		}
+
+		return new $this->class($result);
+	}
 
 	/**
-	 * Subtraction
+	 * Minus(-)
+	 *
+	 * @throws OutOfBoundsException
+	 * @param $value mixed anything that can be converted into an IP object
+	 * @return IP
 	 */
-	abstract public function minus($value);
+	public function minus($value)
+	{
+		if ( $value < 0 ) {
+			return $this->plus(-1*$value);
+		}
+
+		if ( $value == 0 ) {
+			return clone $this;
+		}
+
+		if ( ! $value instanceof self ) {
+			$value = new $this->class($value);
+		}
+
+		$result = gmp_sub($this->ip, $value->ip);
+
+		if ( gmp_cmp($result,0) < 0 || gmp_cmp($result, constant("$this->class::MAX_INT")) > 0 ) {
+			throw new OutOfBoundsException();
+		}
+
+		return new $this->class($result);
+	}
+
 
 	/**
 	 * @see humanReadable()

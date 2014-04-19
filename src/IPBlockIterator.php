@@ -10,37 +10,34 @@
  */
 
 /**
- * Iterator for IPBlock
+ * Iterator for IPBlock. This could be a Generator in PHP 5.5
  */
-class IPBlockIterator implements Iterator, Countable
+class IPBlockIterator implements Iterator
 {
 	protected $position = 0;
 	protected $current_block = null;
 
 	protected $first_block = null;
-	protected $number_of_blocks = 0;
+	protected $nb_blocks = 0;
 
 	protected $class = '';
 
-	public function __construct(IPBlock $first_block, $number_of_blocks)
+	public function __construct(IPBlock $first_block, $nb_blocks)
 	{
 		$this->class = get_class($first_block);
 
 		$this->first_block = $first_block;
-		$this->number_of_blocks = $number_of_blocks;
-
-		$this->position = 0;
-		$this->current_block = $first_block;
+		$this->nb_blocks = $nb_blocks;
 	}
 
 	public function count()
 	{
-		return $this->number_of_blocks;
+		return gmp_strval($this->nb_blocks);
 	}
 
 	public function rewind()
 	{
-		$this->position = 0;
+		$this->position = gmp_init(0);
 		$this->current_block = $this->first_block;
 	}
 
@@ -56,15 +53,13 @@ class IPBlockIterator implements Iterator, Countable
 
 	public function next()
 	{
-		$this->position += 1;
-		$this->current_block = new $this->class(
-			$this->current_block->getLastIp()->plus(1),
-			$this->current_block->getPrefix()
-		);
+		$this->position = gmp_add($this->position,1);
+		$this->current_block = $this->current_block->plus(1);
 	}
 
 	public function valid()
 	{
-		return $this->position >= 0 && $this->position < $this->number_of_blocks;
+		return gmp_cmp($this->position,0) >= 0 && gmp_cmp($this->position, $this->nb_blocks) < 0;
 	}
+
 }

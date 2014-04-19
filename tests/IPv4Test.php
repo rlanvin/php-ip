@@ -67,65 +67,6 @@ class IPv4Test extends PHPUnit_Framework_TestCase
 		$this->assertEquals($hex, $instance->numeric(16), "Base 16 (hex) convertion of $string");
 	}
 
-	public function validOperations()
-	{
-		return array(
-			//     IP                plus              minus             result
-			array('255.255.255.255', null,             1,                '255.255.255.254'),
-			array('255.255.255.255', -1,               null,             '255.255.255.254'),
-			array('0.0.0.0',        '255.255.255.255', null,             '255.255.255.255'),
-			array('255.255.255.255', null,            '255.255.255.255', '0.0.0.0'),
-			array('0.0.0.0',         1,                null,             '0.0.0.1'),
-			array('0.0.0.0',         null,              -1,              '0.0.0.1')
-		);
-	}
-
-	/**
-	 * @dataProvider validOperations
-	 */
-	public function testPlusMinus($ip, $plus, $minus, $result)
-	{
-		$ip = new IPv4($ip);
-		if ( $plus !== null ) {
-			$this->assertEquals($result, (string) $ip->plus($plus), "$ip + $plus = $result");
-		}
-		elseif ( $minus !== null ) {
-			$this->assertEquals($result, (string) $ip->minus($minus), "$ip - $minus = $result");
-		}
-	}
-
-	public function invalidOperations()
-	{
-		return array(
-			// IP   plus   minus
-			array('255.255.255.255', 1, null),
-			array('255.255.255.254', 2, null),
-			array('255.255.255.255', null, -1),
-			array('255.255.255.254', null, -2),
-			array('255.255.255.255', '255.255.255.255', null),
-			array('255.255.255.255', IPv4::MAX_INT, null),
-			array('0.0.0.0', -1, null),
-			array('0.0.0.1', -2, null),
-			array('0.0.0.0', null, 1),
-			array('0.0.0.1', null, 2)
-		);
-	}
-
-	/**
-	 * @dataProvider invalidOperations
-	 * @expectedException OutOfBoundsException
-	 */
-	public function testPlusMinusOob($ip, $plus, $minus)
-	{
-		$ip = new IPv4($ip);
-		if ( $plus !== null ) {
-			$ip->plus($plus);
-		}
-		elseif ( $minus !== null ) {
-			$ip->minus($minus);
-		}
-	}
-
 	public function privateAddresses()
 	{
 		return array(

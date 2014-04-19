@@ -44,8 +44,44 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
 	 */
 	protected $nb_addresses;
 
-	abstract public function getDelta();
-	abstract public function getMask();
+	/**
+	 * Return netmask
+	 *
+	 * @return IPv6
+	 */
+	public function getMask()
+	{
+		if ( $this->mask === null ) {
+			if ( $this->prefix == 0 ) {
+				$this->mask = new $this->ip_class(0);
+			}
+			else {
+				$max_int = gmp_init(constant("$this->ip_class::MAX_INT"));
+				$mask = gmp_shiftl($max_int, constant("$this->ip_class::NB_BITS") - $this->prefix);
+				$mask = gmp_and($mask, $max_int); // truncate to 128 bits only
+				$this->mask = new $this->ip_class($mask);
+			}
+		}
+		return $this->mask;
+	}
+
+	/**
+	 * Return delta to last IP address
+	 *
+	 * @return IPv6
+	 */
+	public function getDelta()
+	{
+		if ( $this->delta === null ) {
+			if ( $this->prefix == 0 ) {
+				$this->delta = new $this->ip_class(constant("$this->ip_class::MAX_INT"));
+			}
+			else {
+				$this->delta = new $this->ip_class(gmp_sub(gmp_shiftl(1, constant("$this->ip_class::NB_BITS") - $this->prefix),1));
+			}
+		}
+		return $this->delta;
+	}
 
 	/**
 	 * Factory method.
@@ -67,17 +103,29 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
 		throw new InvalidArgumentException("$ip does not appear to be an IPv4 or IPv6 block");
 	}
 
-	public function __construct(IP $ip, $prefix)
+	/**
+	 * Accepts a CIDR string (e.g. 192.168.0.0/24) or an IP and a prefix as
+	 * two separate parameters
+	 *
+	 * @param $ip     mixed  IP or CIDR string
+	 * @param $prefix int    (optional) The "slash" part
+	 */
+	public function __construct($ip_or_cidr, $prefix = '')
 	{
-		$this->checkPrefix($prefix);
+		$ip = $ip_or_cidr;
+		if ( strpos($ip_or_cidr, '/') !== false ) {
+			list($ip, $prefix) = explode('/', $ip_or_cidr, 2);
+		}
 
+		if ( ! $ip instanceof IP ) {
+			$ip = new $this->ip_class($ip);
+		}
+
+		$this->checkPrefix($prefix);
 		$this->prefix = (int) $prefix;
 
-		$delta = $this->getDelta();
-		$mask = $this->getMask();
-
-		$this->first_ip = $ip->bit_and($mask);
-		$this->last_ip = $this->first_ip->bit_or($delta);
+		$this->first_ip = $ip->bit_and($this->getMask());
+		$this->last_ip = $this->first_ip->bit_or($this->getDelta());
 	}
 
 	public function __toString()
@@ -95,7 +143,67 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
 		return $this->prefix;
 	}
 
-	abstract public function getMaxPrefix();
+	public function getMaxPrefix()
+	{
+		return constant("$this->ip_class::NB_BITS");
+	}
+
+	public function getVersion()
+	{
+		return constant("$this->ip_class::IP_VERSION");
+	}
+
+	public function plus($value)
+	{
+		if ( $value < 0 ) {
+			return $this->minus(-1*$value);
+		}
+
+		if ( ! is_int($value) ) {
+			throw new InvalidArgumentException('plus() takes an integer');
+		}
+
+		if ( $value == 0 ) {
+			return clone $this;
+		}
+
+		// check boundaries
+		try { 
+			$first_ip = $this->first_ip->plus(gmp_mul($value, $this->getNbAddresses()));
+			return new $this->class(
+				$first_ip,
+				$this->prefix
+			);
+		} catch ( InvalidArgumentException $e ) {
+			throw new OutOfBoundsException($e->getMessage());
+		}
+	}
+
+	public function minus($value)
+	{
+		if ( $value < 0 ) {
+			return $this->plus(-1*$value);
+		}
+
+		if ( ! is_int($value) ) {
+			throw new InvalidArgumentException('plus() takes an integer');
+		}
+
+		if ( $value == 0 ) {
+			return clone $this;
+		}
+
+		// check boundaries
+		try { 
+			$first_ip = $this->first_ip->minus(gmp_mul($value, $this->getNbAddresses()));
+			return new $this->class(
+				$first_ip,
+				$this->prefix
+			);
+		} catch ( InvalidArgumentException $e ) {
+			throw new OutOfBoundsException($e->getMessage());
+		}
+	}
 
 	/**
 	 * Returns the first IP address of the block.
@@ -171,12 +279,9 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
 		if ( $prefix <= $this->prefix ) {
 			throw new InvalidArgumentException("$prefix is not smaller than {$this->prefix}");
 		}
-		if ( $prefix - $this->prefix >= 32 ) {
-			throw new InvalidArgumentException("You cannot split directly into more than 32bits depth, that would create memory problems");
-		}
 
-		$first_block = new static($this->first_ip, $prefix);
-		$number_of_blocks = pow(2, $prefix - $this->prefix);
+		$first_block = new $this->class($this->first_ip, $prefix);
+		$number_of_blocks = gmp_pow(2, $prefix - $this->prefix);
 
 		return new IPBlockIterator($first_block, $number_of_blocks);
 	}
@@ -225,8 +330,7 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
 	public function containsBlock($block)
 	{
 		if ( ! $block instanceof IPBlock ) {
-			// $block = new static($block);
-			$block = IPBlock::create($block);
+			$block = new $this->class($block);
 		}
 
 		return $block->getFirstIp()->numeric() >= $this->first_ip->numeric() && $block->getLastIp()->numeric() <= $this->last_ip->numeric();
@@ -238,11 +342,10 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
 	 * @param $block mixed
 	 * @return bool
 	 */
-	public function isContainedIn($block)
+	public function isIn($block)
 	{
 		if ( ! $block instanceof IPBlock ) {
-			// $block = new static($block);
-			$block = IPBlock::create($block);
+			$block = new $this->class($block);
 		}
 
 		return $block->containsBlock($this);
@@ -257,8 +360,7 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
 	public function overlaps($block)
 	{
 		if ( ! $block instanceof IPBlock ) {
-			// $block = new static($block);
-			$block = IPBlock::create($block);
+			$block = new $this->class($block);
 		}
 
 		return ! ($block->getFirstIp()->numeric() > $this->last_ip->numeric() || $block->getLastIp()->numeric() < $this->first_ip->numeric());
@@ -277,7 +379,7 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
 	{
 		$n = $this->getNbAddresses();
 		if ( $n > PHP_INT_MAX ) {
-			throw new RuntimeException('The number of addresses is bigger than PHP_INT_MAX. Use getNbAddresses() instead. Sorry!');
+			throw new RuntimeException('The number of addresses is bigger than PHP_INT_MAX, use getNbAddresses() instead');
 		}
 		return $n;
 	}

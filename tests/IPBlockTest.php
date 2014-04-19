@@ -2,6 +2,68 @@
 
 class IPBlockTest extends PHPUnit_Framework_TestCase
 {
+	public function validOperations()
+	{
+		return array(
+			// block                plus  minus  result
+			array('192.168.0.0/24', 5,    null, '192.168.5.0/24'),
+			array('192.168.0.0/24', 256,  null, '192.169.0.0/24'),
+			array('0.0.0.0/1',      1,    null, '128.0.0.0/1'),
+		);
+	}
+
+	/**
+	 * @dataProvider validOperations
+	 */
+	public function testPlusMinus($block, $plus, $minus, $result)
+	{
+		$block = IPBlock::create($block);
+		if ( $plus !== null ) {
+			$this->assertEquals($result, (string) $block->plus($plus), "$block + $plus = $result");
+			$this->assertEquals((string) $block, (string) IPBlock::create($result)->minus($plus), "$result - $plus = $block");
+		}
+		elseif ( $minus !== null ) {
+			$this->assertEquals($result, (string) $block->minus($minus), "$block - $minus = $result");
+			$this->assertEquals((string) $block, (string) IPBlock::create($result)->plus($minus), "$result + $minus = $block");
+
+		}
+	}
+
+	public function invalidOperations()
+	{
+		return array(
+			// IP   plus   minus
+			array('255.255.255.255/32', 1, null),
+			array('255.255.255.254/32', 2, null),
+			// array('255.255.255.255/32', null, -1),
+			// array('255.255.255.254/32', null, -2),
+			// array('255.255.255.255', '255.255.255.255', null),
+			// array('255.255.255.255', IPv4::MAX_INT, null),
+			array('0.0.0.0/0', 1, null),
+			array('0.0.0.0/0', -1, null),
+			array('0.0.0.0/1', 2, null),
+			array('0.0.0.0/32', -1, null),
+			array('0.0.0.1/32', -2, null),
+			// array('0.0.0.0', null, 1),
+			// array('0.0.0.1', null, 2)
+		);
+	}
+
+	/**
+	 * @dataProvider invalidOperations
+	 * @expectedException OutOfBoundsException
+	 */
+	public function testPlusMinusOob($block, $plus, $minus)
+	{
+		$block = IPBlock::create($block);
+		if ( $plus !== null ) {
+			$block->plus($plus);
+		}
+		elseif ( $minus !== null ) {
+			$block->minus($minus);
+		}
+	}
+
 	public function blockContent()
 	{
 		return array(

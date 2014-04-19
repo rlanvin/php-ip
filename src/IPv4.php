@@ -11,14 +11,18 @@
 
 /**
  * Class to manipulate IPv4
- *
- * The address is stored as a **SIGNED** 32bit integer (because PHP doesn't support unsigned type).
  */
 class IPv4 extends IP
 {
 	const IP_VERSION = 4;
-	const MAX_INT = 0xFFFFFFFF;
+	const MAX_INT = '4294967295';
 	const NB_BITS = 32;
+
+	/**
+	 * Workaround for lack of late static binding in PHP 5.2
+	 * so I can use "new $this->class()"" instead of "new static()"
+	 */
+	protected $class = __CLASS__;
 
 	public function getVersion()
 	{
@@ -32,36 +36,37 @@ class IPv4 extends IP
 	 */
 	public function __construct($ip)
 	{
-		if ( is_int($ip) ) {
-			$this->ip = $ip;
-		}
-		elseif ( is_float($ip) && floor($ip) == $ip ) {
-			$this->ip = intval($ip);
+		if ( is_int($ip) || (is_float($ip) && floor($ip) == $ip) ) {
+			$this->ip = gmp_init(sprintf('%u',$ip),10);
 		}
 		elseif ( is_string($ip) ) {
 			if ( ! ctype_print($ip) ) {
 				if ( strlen($ip) != 4 ) {
 					throw new InvalidArgumentException("The binary string is not a valid IPv4 address");
 				}
-				$this->ip = @ inet_ntop($ip);
-				if ( $this->ip === false ) {
-					throw new InvalidArgumentException("The binary string is not a valid IPv4 address");
-				}
-				$this->ip = ip2long($this->ip);
+				$hex = unpack('H*',$ip);
+				$this->ip = gmp_init($hex[1],16);
 			}
 			elseif ( filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) ) {
-				$this->ip = ip2long($ip);
+				$this->ip = gmp_init(sprintf('%u',ip2long($ip)));
 			}
 			elseif ( ctype_digit($ip) ) {
-				if ( $ip > 0xFFFFFFFF ) {
-					throw new InvalidArgumentException("$ip is not a valid decimal IPv4 address");
+				$ip = gmp_init($ip);
+				if ( gmp_cmp($ip, self::MAX_INT) > 0 ) {
+					throw new InvalidArgumentException(sprintf("%s is not a valid decimal IPv4 address", gmp_strval($ip)));
 				}
-				// convert "unsigned long" (string) to signed int (int)
-				$this->ip = intval(doubleval($ip));
+				
+				$this->ip = $ip;
 			}
 			else {
 				throw new InvalidArgumentException("$ip is not a valid IPv4 address");
 			}
+		}
+		elseif ( is_resource($ip) &&  get_resource_type($ip) == 'GMP integer') {
+			if ( gmp_cmp($ip, 0) < 0 || gmp_cmp($ip, self::MAX_INT) > 0 ) {
+				throw new InvalidArgumentException(sprintf("%s is not a valid decimal IPv4 address", gmp_strval($ip)));
+			}
+			$this->ip = $ip;
 		}
 		else {
 			throw new InvalidArgumentException("Unsupported argument type: ".gettype($ip));
@@ -69,119 +74,27 @@ class IPv4 extends IP
 	}
 
 	/**
-	 * Returns numeric representation of the IP
-	 *
-	 * @param $base int
-	 * @return string
-	 */
-	public function numeric($base = 10)
-	{
-		if ( $base < 2 || $base > 36 ) {
-			throw new InvalidArgumentException("Base must be between 2 and 36 (included)");
-		}
-		return base_convert(sprintf('%u',$this->ip),10,$base);
-	}
-
-	/**
 	 * Returns human readable representation of the IP
 	 *
+	 * @param $compress bool Wether to compress IPv4 or not
 	 * @return string
 	 */
-	public function humanReadable()
+	public function humanReadable($compress = true)
 	{
-		return long2ip($this->ip);
-	}
-
-	/**
-	 * Bitwise AND
-	 *
-	 * @param $value mixed anything that can be converted into an IP object
-	 * @return IP
-	 */
-	public function bit_and($value)
-	{
-		if ( ! $value instanceof self ) {
-			$value = new self($value);
+		if ( $compress ) {
+			$ip = long2ip(intval(doubleval($this->numeric())));
+		}
+		else {
+			$hex = $this->numeric(16);
+			$hex = str_pad($hex, 8, '0', STR_PAD_LEFT);
+			$segments = str_split($hex, 2);
+			foreach ( $segments as & $s ) {
+				$s = str_pad(base_convert($s,16,10), 3, '0', STR_PAD_LEFT);
+			}
+			$ip = implode('.',$segments);
 		}
 
-		return new self($this->ip & $value->ip);
-	}
-
-	/**
-	 * Bitwise OR
-	 *
-	 * @param $value mixed anything that can be converted into an IP object
-	 * @return IP
-	 */
-	public function bit_or($value)
-	{
-		if ( ! $value instanceof self ) {
-			$value = new self($value);
-		}
-
-		return new self($this->ip | $value->ip);
-	}
-
-	/**
-	 * Plus (+)
-	 *
-	 * @throws OutOfBoundsException
-	 * @param $value mixed anything that can be converted into an IP object
-	 * @return IP
-	 */
-	public function plus($value)
-	{
-		if ( $value < 0 ) {
-			return $this->minus(-1*$value);
-		}
-
-		if ( $value == 0 ) {
-			return clone $this;
-		}
-
-		if ( ! $value instanceof self ) {
-			$value = new self($value);
-		}
-
-		// test boundaries
-		$result = $this->numeric() + $value->numeric();
-
-		if ( $result < 0 || $result > self::MAX_INT ) {
-			throw new OutOfBoundsException();
-		}
-
-		return new self($result);
-	}
-
-	/**
-	 * Minus(-)
-	 *
-	 * @throws OutOfBoundsException
-	 * @param $value mixed anything that can be converted into an IP object
-	 * @return IP
-	 */
-	public function minus($value)
-	{
-		if ( $value < 0 ) {
-			return $this->plus(-1*$value);
-		}
-
-		if ( $value == 0 ) {
-			return clone $this;
-		}
-
-		if ( ! $value instanceof self ) {
-			$value = new self($value);
-		}
-
-		// test boundaries
-		$result = $this->numeric() - $value->numeric();
-
-		if ( $result < 0 || $result > self::MAX_INT ) {
-			throw new OutOfBoundsException();
-		}
-
-		return new self($result);
+		return $ip;
 	}
 
 	/**
