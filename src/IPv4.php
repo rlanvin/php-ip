@@ -136,7 +136,7 @@ class IPv4 extends IP
 		}
 
 		if ( $value == 0 ) {
-			return clone $self;
+			return clone $this;
 		}
 
 		if ( ! $value instanceof self ) {
@@ -167,7 +167,7 @@ class IPv4 extends IP
 		}
 
 		if ( $value == 0 ) {
-			return clone $self;
+			return clone $this;
 		}
 
 		if ( ! $value instanceof self ) {

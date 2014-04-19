@@ -12,7 +12,7 @@
 /**
  * Base class to manipulate CIDR block (aka "networks").
  */
-abstract class IPBlock
+abstract class IPBlock implements Iterator, ArrayAccess, Countable
 {
 	/**
 	 * @var IP
@@ -38,6 +38,11 @@ abstract class IPBlock
 	 * @var IP
 	 */
 	protected $delta;
+
+	/**
+	 * @var Numeric string
+	 */
+	protected $nb_addresses;
 
 	abstract public function getDelta();
 	abstract public function getMask();
@@ -257,5 +262,77 @@ abstract class IPBlock
 		}
 
 		return ! ($block->getFirstIp()->numeric() > $this->last_ip->numeric() || $block->getLastIp()->numeric() < $this->first_ip->numeric());
+	}
+
+	public function getNbAddresses()
+	{
+		if ( $this->nb_addresses === null ) {
+			$this->nb_addresses = gmp_strval(gmp_pow(2, $this->getMaxPrefix() - $this->prefix));
+		}
+		return $this->nb_addresses;
+	}
+
+// Countable
+	public function count()
+	{
+		$n = $this->getNbAddresses();
+		if ( $n > PHP_INT_MAX ) {
+			throw new RuntimeException('The number of addresses is bigger than PHP_INT_MAX. Use getNbAddresses() instead. Sorry!');
+		}
+		return $n;
+	}
+
+// Iterator
+
+	protected $position = 0;
+
+	public function rewind()
+	{
+		$this->position = gmp_init(0);
+	}
+
+	public function current()
+	{
+		return $this->first_ip->plus(gmp_strval($this->position));
+	}
+
+	public function key()
+	{
+		return $this->position;
+	}
+
+	public function next()
+	{
+		$this->position = gmp_add($this->position,1);
+	}
+
+	public function valid()
+	{
+		return gmp_cmp($this->position,0) >= 0 && gmp_cmp($this->position, $this->getNbAddresses()) < 0;
+	}
+
+// ArrayAccess
+
+	public function offsetExists($offset)
+	{
+		return gmp_cmp($offset,0) >= 0 && gmp_cmp($offset, $this->getNbAddresses()) < 0;
+	}
+
+	public function offsetGet($offset)
+	{
+		if ( ! $this->offsetExists($offset) ) {
+			throw new OutOfBoundsException("Offset $offset does not exists");
+		}
+		return $this->first_ip->plus($offset);
+	}
+
+	public function offsetSet($offset, $value)
+	{
+		throw new LogicException('Setting IP in block is not supported');
+	}
+
+	public function offsetUnset($offset)
+	{
+		throw new LogicException('Unsetting IP in block is not supported');
 	}
 }

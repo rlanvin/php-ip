@@ -72,4 +72,45 @@ class IPBlockTest extends PHPUnit_Framework_TestCase
 			$this->assertFalse(IPBlock::create($block2)->overlaps($block), "$block2 is not overlappping $block");
 		}
 	}
+
+	public function testCountable()
+	{
+		$block = IPBlock::create('192.168.0.0/24');
+		$this->assertEquals(256, sizeof($block));
+
+		$block = IPBlock::create('::1/128');
+		$this->assertEquals(1, sizeof($block));
+
+		$block = IPBlock::create('0.0.0.0/8');
+		$this->assertEquals(16777216, sizeof($block));
+
+		try {
+			$block = IPBlock::create('0.0.0.0/1');
+			sizeof($block);
+			$this->fail('Sizeof should fail if number of addresses is bigger than PHP_INT_MAX');
+		} catch ( RuntimeException $e ) {
+		}
+
+		$block = IPBlock::create('0.0.0.0/0');
+		$this->assertEquals('4294967296', $block->getNbAddresses());
+	}
+
+	public function testArrayAccess()
+	{
+		$block = IPBlock::create('192.168.0.0/24');
+		$this->assertEquals('192.168.0.0',$block[0]);
+		$this->assertEquals('192.168.0.15',$block[15]);
+		$this->assertEquals('192.168.0.255',$block[255]);
+		try {
+			$block[256];
+			$this->fail('[] shoud throw OutOfBoundException');
+		} catch ( OutOfBoundsException $e ) {
+		}
+
+		try {
+			$block[2] = 'X';
+			$this->fail('Setting with [] shoud throw LogicException');
+		} catch ( LogicException $e ) {
+		}
+	}
 }
