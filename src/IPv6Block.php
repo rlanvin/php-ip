@@ -73,13 +73,18 @@ class IPv6Block extends IPBlock
 	 */
 	public function getMask()
 	{
-		if ( $this->prefix == 0 ) {
-			return new IPv6(0);
+		if ( $this->mask === null ) {
+			if ( $this->prefix == 0 ) {
+				$this->mask = new IPv6(0);
+			}
+			else {
+				$max_int = gmp_init(IPv6::MAX_INT);
+				$mask = gmp_shiftl($max_int, IPv6::NB_BITS - $this->prefix);
+				$mask = gmp_and($mask, $max_int); // truncate to 128 bits only
+				$this->mask = new IPv6($mask);
+			}
 		}
-		$max_int = gmp_init(IPv6::MAX_INT);
-		$mask = gmp_shiftl($max_int, IPv6::NB_BITS - $this->prefix);
-		$mask = gmp_and($mask, $max_int); // truncate to 128 bits only
-		return new IPv6($mask);
+		return $this->mask;
 	}
 
 	/**
@@ -89,9 +94,14 @@ class IPv6Block extends IPBlock
 	 */
 	public function getDelta()
 	{
-		if ( $this->prefix == 0 ) {
-			return new IPv6(IPv6::MAX_INT);
+		if ( $this->delta === null ) {
+			if ( $this->prefix == 0 ) {
+				$this->delta = new IPv6(IPv6::MAX_INT);
+			}
+			else {
+				$this->delta = new IPv6(gmp_sub(gmp_shiftl(1, IPv6::NB_BITS - $this->prefix),1));
+			}
 		}
-		return new IPv6(gmp_sub(gmp_shiftl(1, IPv6::NB_BITS - $this->prefix),1));
+		return $this->delta;
 	}
 }

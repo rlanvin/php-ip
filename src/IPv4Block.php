@@ -52,10 +52,15 @@ class IPv4Block extends IPBlock
 	 */
 	public function getMask()
 	{
-		if ( $this->prefix == 0 ) {
-			return new IPv4(0);
+		if ( $this->mask === null ) {
+			if ( $this->prefix == 0 ) {
+				$this->mask = new IPv4(0);
+			}
+			else {
+				$this->mask = new IPv4(IPv4::MAX_INT << (IPv4::NB_BITS - $this->prefix));
+			}
 		}
-		return new IPv4(IPv4::MAX_INT << (IPv4::NB_BITS - $this->prefix));
+		return $this->mask;
 	}
 
 	/**
@@ -65,9 +70,14 @@ class IPv4Block extends IPBlock
 	 */
 	public function getDelta()
 	{
-		if ( $this->prefix == 0 ) {
-			return new IPv4(IPv4::MAX_INT);
+		if ( $this->delta === null ) {
+			if ( $this->prefix == 0 ) {
+				$this->delta = new IPv4(IPv4::MAX_INT);
+			}
+			else {
+				$this->delta = new IPv4((1 << (IPv4::NB_BITS - $this->prefix)) - 1);
+			}
 		}
-		return new IPv4((1 << (IPv4::NB_BITS - $this->prefix)) - 1);
+		return $this->delta;
 	}
 }

@@ -29,6 +29,16 @@ abstract class IPBlock
 	 */
 	protected $prefix;
 
+	/**
+	 * @var IP
+	 */
+	protected $mask;
+
+	/**
+	 * @var IP
+	 */
+	protected $delta;
+
 	abstract public function getDelta();
 	abstract public function getMask();
 
