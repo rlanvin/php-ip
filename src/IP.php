@@ -1,7 +1,18 @@
 <?
 
 /**
- * Abstract class to manipulate an IP address
+ * Licensed under the MIT license.
+ *
+ * For the full copyright and license information, please view the LICENSE file.
+ *
+ * @author Rémi Lanvin <remi@cloudconnected.fr>
+ * @link https://github.com/rlanvin/php-ip 
+ */
+
+/**
+ * Abstract class to manipulate an IP address.
+ *
+ *
  */
 abstract class IP
 {
@@ -25,6 +36,11 @@ abstract class IP
 	 */
 	abstract public function numeric($base);
 
+	abstract public function bit_and($value);
+	abstract public function bit_or($value);
+	abstract public function plus($value);
+	abstract public function minus($value);
+
 	/**
 	 * Display human readable version of the IP
 	 */
@@ -32,11 +48,6 @@ abstract class IP
 	{
 		return $this->humanReadable();
 	}
-
-	abstract public function bit_and($value);
-	abstract public function bit_or($value);
-	abstract public function plus($value);
-	abstract public function minus($value);
 
 	public function getVersion()
 	{

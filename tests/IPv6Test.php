@@ -68,31 +68,58 @@ class IPv6Test extends PHPUnit_Framework_TestCase
 		$this->assertEquals($dec, $instance->numeric(10), "Base 10 of $compressed");
 	}
 
-	/**
-	 * @expectedException OutOfBoundsException
-	 */
-	public function testPlusOob()
+	public function validOperations()
 	{
-		$ip = new IPv6('ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff');
-		$ip->plus(1);
+		return array(
+			// IP   plus   minus result
+			array('ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff', null, 1, 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:fffe'),
+			array('ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff', -1, null, 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:fffe'),
+			array('::', 1, null, '::1'),
+			array('::', null, -1, '::1')
+		);
 	}
 
 	/**
-	 * @expectedException OutOfBoundsException
+	 * @dataProvider validOperations
 	 */
-	public function testMinusOob()
+	public function testPlusMinus($ip, $plus, $minus, $result)
 	{
-		$ip = new IPv6('::');
-		$ip->minus(1);
+		$ip = new IPv6($ip);
+		if ( $plus !== null ) {
+			$this->assertEquals($result, (string) $ip->plus($plus), "$ip + $plus = $result");
+		}
+		elseif ( $minus !== null ) {
+			$this->assertEquals($result, (string) $ip->minus($minus), "$ip - $minus = $result");
+		}
+	}
+
+	public function invalidOperations()
+	{
+		return array(
+			// IP   plus   minus
+			array('ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff', 1, null),
+			array('ffff:ffff:ffff:ffff:ffff:ffff:ffff:fffe', 2, null),
+			array('ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff', null, -1),
+			array('ffff:ffff:ffff:ffff:ffff:ffff:ffff:fffe', null, -2),
+			array('::', -1, null),
+			array('::1', -2, null),
+			array('::', null, 1),
+			array('::1', null, 2)
+		);
 	}
 
 	/**
+	 * @dataProvider invalidOperations
 	 * @expectedException OutOfBoundsException
 	 */
-	public function testPlusMinusOob()
+	public function testPlusMinusOob($ip, $plus, $minus)
 	{
-		$ip = new IPv6('::');
-		$ip->plus(-1);
+		$ip = new IPv6($ip);
+		if ( $plus !== null ) {
+			$ip->plus($plus);
+		}
+		elseif ( $minus !== null ) {
+			$ip->minus($minus);
+		}
 	}
-
 }

@@ -1,6 +1,15 @@
 <?php
 
 /**
+ * Licensed under the MIT license.
+ *
+ * For the full copyright and license information, please view the LICENSE file.
+ *
+ * @author Rémi Lanvin <remi@cloudconnected.fr>
+ * @link https://github.com/rlanvin/php-ip 
+ */
+
+/**
  * Class to manipulate IPv4
  *
  * The address is stored as a **SIGNED** 32bit integer (because PHP doesn't support unsigned type).
@@ -114,11 +123,12 @@ class IPv4 extends IP
 	 */
 	public function plus($value)
 	{
+		if ( $value < 0 ) {
+			return $this->minus(-1*$value);
+		}
+
 		if ( $value == 0 ) {
 			return clone $self;
-		}
-		if ( $this->ip == 0 && $value < 0 ) {
-			throw new OutOfBoundsException();
 		}
 
 		if ( ! $value instanceof self ) {
@@ -126,11 +136,13 @@ class IPv4 extends IP
 		}
 
 		// test boundaries
-		if ( $this->numeric() == self::MAX_INT && $value->numeric() > 0 ) {
+		$result = $this->numeric() + $value->numeric();
+
+		if ( $result < 0 || $result > self::MAX_INT ) {
 			throw new OutOfBoundsException();
 		}
 
-		return new self($this->ip + $value->ip);
+		return new self($result);
 	}
 
 	/**
@@ -142,6 +154,10 @@ class IPv4 extends IP
 	 */
 	public function minus($value)
 	{
+		if ( $value < 0 ) {
+			return $this->plus(-1*$value);
+		}
+
 		if ( $value == 0 ) {
 			return clone $self;
 		}
@@ -151,10 +167,12 @@ class IPv4 extends IP
 		}
 
 		// test boundaries
-		if ( $this->ip == 0 ) {
+		$result = $this->numeric() - $value->numeric();
+
+		if ( $result < 0 || $result > self::MAX_INT ) {
 			throw new OutOfBoundsException();
 		}
 
-		return new self($this->ip - $value->ip);
+		return new self($result);
 	}
 }

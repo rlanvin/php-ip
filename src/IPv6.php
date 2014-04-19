@@ -1,6 +1,15 @@
 <?php
 
 /**
+ * Licensed under the MIT license.
+ *
+ * For the full copyright and license information, please view the LICENSE file.
+ *
+ * @author Rémi Lanvin <remi@cloudconnected.fr>
+ * @link https://github.com/rlanvin/php-ip 
+ */
+
+/**
  * Class to manipulate IPv6
  *
  * Addresses are stored internally as GMP ressource (big int).
@@ -135,23 +144,25 @@ class IPv6 extends IP
 	 */
 	public function plus($value)
 	{
+		if ( $value < 0 ) {
+			return $this->minus(-1*$value);
+		}
+
 		if ( $value == 0 ) {
 			return clone $self;
-		}
-		if ( gmp_cmp($this->ip,0) === 0 && $value < 0 ) {
-			throw new OutOfBoundsException();
 		}
 
 		if ( ! $value instanceof self ) {
 			$value = new self($value);
 		}
 
-		// test boundaries
-		if ( $this->numeric() == self::MAX_INT && $value->numeric() > '0' ) {
+		$result = gmp_add($this->ip, $value->ip);
+
+		if ( gmp_cmp($result,0) < 0 || gmp_cmp($result,self::MAX_INT) > 0 ) {
 			throw new OutOfBoundsException();
 		}
 
-		return new self(gmp_add($this->ip, $value->ip));
+		return new self($result);
 	}
 
 	/**
@@ -163,18 +174,24 @@ class IPv6 extends IP
 	 */
 	public function minus($value)
 	{
+		if ( $value < 0 ) {
+			return $this->plus(-1*$value);
+		}
+
 		if ( $value == 0 ) {
 			return clone $self;
-		}
-		// test boundaries
-		if ( gmp_cmp($this->ip,0) === 0 ) {
-			throw new OutOfBoundsException();
 		}
 
 		if ( ! $value instanceof self ) {
 			$value = new self($value);
 		}
 
-		return new self(gmp_sub($this->ip, $value->ip));
+		$result = gmp_sub($this->ip, $value->ip);
+
+		if ( gmp_cmp($result,0) < 0 || gmp_cmp($result,self::MAX_INT) > 0 ) {
+			throw new OutOfBoundsException();
+		}
+
+		return new self($result);
 	}
 }
