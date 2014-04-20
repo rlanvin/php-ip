@@ -10,15 +10,36 @@ IPv4/IPv6 manipulation library for PHP inspired by Python [ipaddress](https://do
 
 ## Installation
 
-### Option 1
+### Option 1 (PHP <= 5.2)
 
 - [Download the single-file version](https://raw.githubusercontent.com/rlanvin/php-ip/master/ip.lib.php)
 - `include` or `require` it
-- Done
+- Enjoy!
 
-### Option 2
+### Option 2 (PHP >= 5.3)
 
-I'm working on it!
+The recommend way is to install the lib [through Composer](http://getcomposer.org/).
+
+Just add this to your `composer.json` file:
+
+```JSON
+{
+    "require": {
+        "rlanvin/php-ip": "dev/master"
+    }
+}
+```
+
+Then run `composer install` or `composer update`.
+
+Now you can use the autoloader, and you will have access to the library:
+
+```php
+<?php
+require 'vendor/autoload.php';
+````
+
+Caution: This library is compatible with PHP 5.2, therefore it is not namespaced.
 
 ## Documentation
 
