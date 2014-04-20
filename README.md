@@ -18,7 +18,7 @@ IPv4/IPv6 manipulation library for PHP inspired by Python [ipaddress](https://do
 
 ### Option 2 (PHP >= 5.3)
 
-The recommend way is to install the lib [through Composer](http://getcomposer.org/).
+The recommended way is to install the lib [through Composer](http://getcomposer.org/).
 
 Just add this to your `composer.json` file:
 
