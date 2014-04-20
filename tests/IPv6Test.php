@@ -4,7 +4,7 @@ class IPv6Test extends PHPUnit_Framework_TestCase
 {
 	public function validAddresses()
 	{
-		return array(
+		$values = array(
 			// IP  compressed  decimal
 			array('2a01:8200::', '2a01:8200::', '55835404833073476206743540170770874368',),
 			array('2001:0db8:85a3:0000:0000:8a2e:0370:7334', '2001:db8:85a3::8a2e:370:7334', '42540766452641154071740215577757643572'),
@@ -21,15 +21,27 @@ class IPv6Test extends PHPUnit_Framework_TestCase
 
 			// init with GMP ressource
 			array(gmp_init('332314827956335977770735408709082546176'), 'fa01:8200::', '332314827956335977770735408709082546176'),
-
-			// init with something else
-			array(-1, '::255.255.255.255', '4294967295'),
 		);
+
+		// 32 bits
+		if ( PHP_INT_SIZE == 4 ) {
+			$values = array_merge($values,array(
+				array(-1, '::255.255.255.255', '4294967295')
+			));
+		}
+		// 64 bits
+		elseif ( PHP_INT_SIZE == 8 ) {
+			$values = array_merge($values, array(
+				array(-1, '::ffff:ffff:ffff:ffff', '18446744073709551615')
+			));
+		}
+
+		return $values;
 	}
 
 	public function invalidAddresses()
 	{
-		return array(
+		$values = array(
 			array("\t"),
 			array(array()),
 			array(new stdClass()),
@@ -41,6 +53,17 @@ class IPv6Test extends PHPUnit_Framework_TestCase
 			array(-12.3),
 			array('127.0.0.1'),
 		);
+
+		// 32 bits
+		if ( PHP_INT_SIZE == 4 ) {
+
+		}
+		// 64 bits
+		elseif ( PHP_INT_SIZE == 8 ) {
+
+		}
+
+		return $values;
 	}
 
 	/**

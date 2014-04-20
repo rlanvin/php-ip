@@ -39,7 +39,16 @@ class IPv6 extends IP
 	public function __construct($ip)
 	{
 		if ( is_int($ip) ) {
+			// always a valid IP, since even in 64bits plateform, it's less than max value
 			$this->ip = gmp_init(sprintf('%u',$ip),10);
+		}
+		elseif ( is_float($ip) && floor($ip) == $ip ) {
+			// float (or double) with an integer value
+			$ip = gmp_init(sprintf('%s',$ip), 10);
+			if ( gmp_cmp($ip, 0) < 0 || gmp_cmp($ip, self::MAX_INT) > 0 ) {
+				throw new InvalidArgumentException(sprintf('The double %s is not a valid IPv6 address', gmp_strval($ip)));
+			}
+			$this->ip = $ip;
 		}
 		elseif ( is_string($ip) ) {
 			// binary string
@@ -58,7 +67,7 @@ class IPv6 extends IP
 				$hex = unpack('H*',$ip);
 				$this->ip = gmp_init($hex[1],16);
 			}
-			// decimal value ?
+			// numeric string (decimal)
 			elseif ( ctype_digit($ip) ) {
 				$ip = gmp_init($ip, 10);
 				if ( gmp_cmp($ip, '340282366920938463463374607431768211455') > 0 ) {

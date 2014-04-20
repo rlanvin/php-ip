@@ -2,6 +2,8 @@
 
 IPv4/IPv6 manipulation library for PHP inspired by Python [ipaddress](https://docs.python.org/dev/library/ipaddress.html).
 
+[![Build Status](https://travis-ci.org/rlanvin/php-ip.svg?branch=master)](https://travis-ci.org/rlanvin/php-ip)
+
 ## Requirements
 
 - PHP >= 5.2
