@@ -24,6 +24,14 @@ class IPTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals($version, $instance->getVersion());
 	}
 
+	/**
+	 * @dataProvider validAddresses
+	 */
+	public function testBinary($ip, $string)
+	{
+		$instance = IP::create($ip);
+		$this->assertEquals(inet_pton($string), $instance->binary());
+	}
 
 	public function invalidAddresses()
 	{

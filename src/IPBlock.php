@@ -271,19 +271,36 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
 	 *
 	 * @return IPBlockIterator
 	 */
-	public function split($prefix)
+	public function getSubblocks($prefix)
 	{
 		$prefix = ltrim($prefix,'/');
 		$this->checkPrefix($prefix);
 
 		if ( $prefix <= $this->prefix ) {
-			throw new InvalidArgumentException("$prefix is not smaller than {$this->prefix}");
+			throw new InvalidArgumentException("Prefix must be smaller than {$this->prefix} ($prefix given)");
 		}
 
 		$first_block = new $this->class($this->first_ip, $prefix);
 		$number_of_blocks = gmp_pow(2, $prefix - $this->prefix);
 
 		return new IPBlockIterator($first_block, $number_of_blocks);
+	}
+
+	/**
+	 * Return the superblock containing the current block.
+	 *
+	 * @return IPBlock
+	 */
+	public function getSuper($prefix)
+	{
+		$prefix = ltrim($prefix,'/');
+		$this->checkPrefix($prefix);
+
+		if ( $prefix >= $this->prefix ) {
+			throw new InvalidArgumentException("Prefix must be bigger than {$this->prefix} ($prefix given)");
+		}
+
+		return new $this->class($this->first_ip, $prefix);
 	}
 
 	/**
@@ -366,6 +383,11 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
 		return ! ($block->getFirstIp()->numeric() > $this->last_ip->numeric() || $block->getLastIp()->numeric() < $this->first_ip->numeric());
 	}
 
+	/**
+	 * Return the number of IP addresses in the block.
+	 *
+	 * @return string numeric string (can be huge)
+	 */
 	public function getNbAddresses()
 	{
 		if ( $this->nb_addresses === null ) {

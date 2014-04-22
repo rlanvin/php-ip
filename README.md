@@ -39,7 +39,7 @@ Now you can use the autoloader, and you will have access to the library:
 ```php
 <?php
 require 'vendor/autoload.php';
-````
+```
 
 Caution: This library is compatible with PHP 5.2, therefore it is not namespaced.
 

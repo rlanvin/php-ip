@@ -175,4 +175,27 @@ class IPBlockTest extends PHPUnit_Framework_TestCase
 		} catch ( LogicException $e ) {
 		}
 	}
+
+	public function testGetSubblocks()
+	{
+		// todo
+	}
+
+	public function testGetSuper()
+	{
+		$block = IPBlock::create('192.168.42.0/24');
+		$this->assertEquals('192.168.0.0/16', (string) $block->getSuper('/16'));
+
+		try {
+			$block->getSuper('');
+			$this->fail('Expected InvalidArgumentException has not be thrown');
+		} catch ( InvalidArgumentException $e ) {
+		}
+
+		try {
+			$block->getSuper('/32');
+			$this->fail('Expected InvalidArgumentException has not be thrown');
+		} catch ( InvalidArgumentException $e ) {
+		}
+	}
 }

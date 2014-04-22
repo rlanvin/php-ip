@@ -98,6 +98,17 @@ abstract class IP
 		return gmp_strval($this->ip, $base);
 	}
 
+	/**
+	 * Return binary string representation
+	 *
+	 * @todo could be optimized with pack() instead?
+	 *
+	 * @return string Binary string
+	 */
+	public function binary()
+	{
+		return inet_pton($this->humanReadable());
+	}
 
 	/**
 	 * Bitwise AND
@@ -271,10 +282,26 @@ class IPv4 extends IP
 	 */
 	public function __construct($ip)
 	{
-		if ( is_int($ip) || (is_float($ip) && floor($ip) == $ip) ) {
-			$this->ip = gmp_init(sprintf('%u',$ip),10);
+		if ( is_int($ip) ) {
+			// if an integer is provided, we have to be careful of the architecture
+			// on 32 bits plateform, it's always a valid IP
+			// on 64 bits plateform, we have to test the value
+			$ip = gmp_init(sprintf('%u',$ip),10);
+			if ( gmp_cmp($ip, self::MAX_INT) > 0 ) {
+				throw new InvalidArgumentException(sprintf('The integer %s is not a valid IPv4 address', gmp_strval($ip)));
+			}
+			$this->ip = $ip;
+		}
+		elseif ( is_float($ip) && floor($ip) == $ip ) {
+			// float (or double) with an integer value
+			$ip = gmp_init(sprintf('%s',$ip), 10);
+			if ( gmp_cmp($ip, 0) < 0 || gmp_cmp($ip, self::MAX_INT) > 0 ) {
+				throw new InvalidArgumentException(sprintf('The double %s is not a valid IPv4 address', gmp_strval($ip)));
+			}
+			$this->ip = $ip;
 		}
 		elseif ( is_string($ip) ) {
+			// binary string
 			if ( ! ctype_print($ip) ) {
 				if ( strlen($ip) != 4 ) {
 					throw new InvalidArgumentException("The binary string is not a valid IPv4 address");
@@ -282,9 +309,11 @@ class IPv4 extends IP
 				$hex = unpack('H*',$ip);
 				$this->ip = gmp_init($hex[1],16);
 			}
+			// human readable IPv4
 			elseif ( filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) ) {
 				$this->ip = gmp_init(sprintf('%u',ip2long($ip)));
 			}
+			// numeric string (decimal)
 			elseif ( ctype_digit($ip) ) {
 				$ip = gmp_init($ip);
 				if ( gmp_cmp($ip, self::MAX_INT) > 0 ) {
@@ -396,7 +425,16 @@ class IPv6 extends IP
 	public function __construct($ip)
 	{
 		if ( is_int($ip) ) {
+			// always a valid IP, since even in 64bits plateform, it's less than max value
 			$this->ip = gmp_init(sprintf('%u',$ip),10);
+		}
+		elseif ( is_float($ip) && floor($ip) == $ip ) {
+			// float (or double) with an integer value
+			$ip = gmp_init(sprintf('%s',$ip), 10);
+			if ( gmp_cmp($ip, 0) < 0 || gmp_cmp($ip, self::MAX_INT) > 0 ) {
+				throw new InvalidArgumentException(sprintf('The double %s is not a valid IPv6 address', gmp_strval($ip)));
+			}
+			$this->ip = $ip;
 		}
 		elseif ( is_string($ip) ) {
 			// binary string
@@ -415,7 +453,7 @@ class IPv6 extends IP
 				$hex = unpack('H*',$ip);
 				$this->ip = gmp_init($hex[1],16);
 			}
-			// decimal value ?
+			// numeric string (decimal)
 			elseif ( ctype_digit($ip) ) {
 				$ip = gmp_init($ip, 10);
 				if ( gmp_cmp($ip, '340282366920938463463374607431768211455') > 0 ) {
@@ -750,19 +788,36 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
 	 *
 	 * @return IPBlockIterator
 	 */
-	public function split($prefix)
+	public function getSubblocks($prefix)
 	{
 		$prefix = ltrim($prefix,'/');
 		$this->checkPrefix($prefix);
 
 		if ( $prefix <= $this->prefix ) {
-			throw new InvalidArgumentException("$prefix is not smaller than {$this->prefix}");
+			throw new InvalidArgumentException("Prefix must be smaller than {$this->prefix} ($prefix given)");
 		}
 
 		$first_block = new $this->class($this->first_ip, $prefix);
 		$number_of_blocks = gmp_pow(2, $prefix - $this->prefix);
 
 		return new IPBlockIterator($first_block, $number_of_blocks);
+	}
+
+	/**
+	 * Return the superblock containing the current block.
+	 *
+	 * @return IPBlock
+	 */
+	public function getSuper($prefix)
+	{
+		$prefix = ltrim($prefix,'/');
+		$this->checkPrefix($prefix);
+
+		if ( $prefix >= $this->prefix ) {
+			throw new InvalidArgumentException("Prefix must be bigger than {$this->prefix} ($prefix given)");
+		}
+
+		return new $this->class($this->first_ip, $prefix);
 	}
 
 	/**
@@ -845,6 +900,11 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
 		return ! ($block->getFirstIp()->numeric() > $this->last_ip->numeric() || $block->getLastIp()->numeric() < $this->first_ip->numeric());
 	}
 
+	/**
+	 * Return the number of IP addresses in the block.
+	 *
+	 * @return string numeric string (can be huge)
+	 */
 	public function getNbAddresses()
 	{
 		if ( $this->nb_addresses === null ) {

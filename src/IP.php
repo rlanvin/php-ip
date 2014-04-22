@@ -98,6 +98,17 @@ abstract class IP
 		return gmp_strval($this->ip, $base);
 	}
 
+	/**
+	 * Return binary string representation
+	 *
+	 * @todo could be optimized with pack() instead?
+	 *
+	 * @return string Binary string
+	 */
+	public function binary()
+	{
+		return inet_pton($this->humanReadable());
+	}
 
 	/**
 	 * Bitwise AND
