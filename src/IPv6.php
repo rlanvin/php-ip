@@ -79,7 +79,7 @@ class IPv6 extends IP
 				throw new InvalidArgumentException("$ip is not a valid IPv6 address");
 			}
 		}
-		elseif ( is_resource($ip) &&  get_resource_type($ip) == 'GMP integer') {
+		elseif ( (is_resource($ip) && get_resource_type($ip) == 'GMP integer') || $ip instanceof GMP ) {
 			if ( gmp_cmp($ip, 0) < 0 || gmp_cmp($ip, self::MAX_INT) > 0 ) {
 				throw new InvalidArgumentException(sprintf("%s is not a valid decimal IPv6 address", gmp_strval($ip)));
 			}
