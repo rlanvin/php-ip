@@ -90,9 +90,9 @@ class IPv4Test extends PHPUnit_Framework_TestCase
 	public function testConvertToNumeric($ip, $string, $dec, $bin, $hex)
 	{
 		$instance = new IPv4($ip);
-		$this->assertEquals($dec, $instance->numeric(), "Base 10 convertion of $string");
-		$this->assertEquals($bin, $instance->numeric(2), "Base 2 (bin) convertion of $string");
-		$this->assertEquals($hex, $instance->numeric(16), "Base 16 (hex) convertion of $string");
+		$this->assertEquals($dec, $instance->numeric(), "Base 10 conversion of $string");
+		$this->assertEquals($bin, $instance->numeric(2), "Base 2 (bin) conversion of $string");
+		$this->assertEquals($hex, $instance->numeric(16), "Base 16 (hex) conversion of $string");
 	}
 
 	public function privateAddresses()
