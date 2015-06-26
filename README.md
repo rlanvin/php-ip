@@ -29,7 +29,7 @@ Just add this to your `composer.json` file (change the version by the release yo
 ```JSON
 {
     "require": {
-        "rlanvin/php-ip": "1.0.0"
+        "rlanvin/php-ip": "1.*"
     }
 }
 ```
