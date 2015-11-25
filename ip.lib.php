@@ -95,7 +95,16 @@ abstract class IP
 			throw new InvalidArgumentException("Base must be between 2 and 36 (included)");
 		}
 
-		return gmp_strval($this->ip, $base);
+		$value = gmp_strval($this->ip, $base);
+
+		// fix for newer versions of GMP (> 5.0) in PHP 5.4+ that removes
+		// the leading 0 in base 2
+		if ( $base == 2 ) {
+			$n = constant("$this->class::NB_BITS"); // ugly, but necessary because of PHP 5.2
+			$value = str_pad($value, $n, '0', STR_PAD_LEFT);
+		}
+
+		return $value;
 	}
 
 	/**
@@ -326,7 +335,7 @@ class IPv4 extends IP
 				throw new InvalidArgumentException("$ip is not a valid IPv4 address");
 			}
 		}
-		elseif ( is_resource($ip) &&  get_resource_type($ip) == 'GMP integer') {
+		elseif ( (is_resource($ip) && get_resource_type($ip) == 'GMP integer') || $ip instanceof GMP ) {
 			if ( gmp_cmp($ip, 0) < 0 || gmp_cmp($ip, self::MAX_INT) > 0 ) {
 				throw new InvalidArgumentException(sprintf("%s is not a valid decimal IPv4 address", gmp_strval($ip)));
 			}
@@ -465,7 +474,7 @@ class IPv6 extends IP
 				throw new InvalidArgumentException("$ip is not a valid IPv6 address");
 			}
 		}
-		elseif ( is_resource($ip) &&  get_resource_type($ip) == 'GMP integer') {
+		elseif ( (is_resource($ip) && get_resource_type($ip) == 'GMP integer') || $ip instanceof GMP ) {
 			if ( gmp_cmp($ip, 0) < 0 || gmp_cmp($ip, self::MAX_INT) > 0 ) {
 				throw new InvalidArgumentException(sprintf("%s is not a valid decimal IPv6 address", gmp_strval($ip)));
 			}

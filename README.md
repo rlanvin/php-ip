@@ -14,7 +14,7 @@ IPv4/IPv6 manipulation library for PHP inspired by Python [ipaddress](https://do
 
 ## Installation
 
-### Option 1 (PHP <= 5.2)
+### Option 1 (PHP 5.2)
 
 - [Download the single-file version](https://raw.githubusercontent.com/rlanvin/php-ip/master/ip.lib.php)
 - `include` or `require` it
@@ -49,7 +49,11 @@ Caution: This library is compatible with PHP 5.2, therefore it is not namespaced
 
 Complete doc is available in [the wiki](https://github.com/rlanvin/php-ip/wiki).
 
-## Disclaimer
+## Contribution
+
+Feel free to contribute! Just create a new issue or a new pull request.
+
+## Note
 
 I built this library for a project running PHP 5.2 (yep that's old). PHP 5.2 doesn't support late static binding, traits, namespaces and the like. So that explains some of the quirks of the design.
 
