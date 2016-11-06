@@ -17,6 +17,11 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
 	/**
 	 * @var IP
 	 */
+	protected $given_ip;
+
+	/**
+	 * @var IP
+	 */
 	protected $first_ip;
 
 	/**
@@ -112,25 +117,37 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
 	 */
 	public function __construct($ip_or_cidr, $prefix = '')
 	{
-		$ip = $ip_or_cidr;
+		$this->given_ip = $ip_or_cidr;
 		if ( strpos($ip_or_cidr, '/') !== false ) {
-			list($ip, $prefix) = explode('/', $ip_or_cidr, 2);
+			list($this->given_ip, $prefix) = explode('/', $ip_or_cidr, 2);
 		}
 
-		if ( ! $ip instanceof IP ) {
-			$ip = new $this->ip_class($ip);
+		if ( ! $this->given_ip instanceof IP ) {
+			$this->given_ip = new $this->ip_class($this->given_ip);
 		}
 
 		$this->checkPrefix($prefix);
 		$this->prefix = (int) $prefix;
 
-		$this->first_ip = $ip->bit_and($this->getMask());
+		$this->first_ip = $this->given_ip->bit_and($this->getMask());
 		$this->last_ip = $this->first_ip->bit_or($this->getDelta());
 	}
 
 	public function __toString()
 	{
 		return (string) $this->first_ip.'/'.$this->prefix;
+	}
+
+	/**
+	 * Returns given IP.
+	 *
+	 * For example 192.168.48.7 for 192.168.48.7/24
+	 *
+	 * @return IP
+	 */
+	public function getGivenIp()
+	{
+		return $this->given_ip;
 	}
 
 	/**
@@ -245,6 +262,26 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
 	public function getBroadcastAddress()
 	{
 		return $this->last_ip;
+	}
+
+	/**
+	 * A string representation of the given IP with the mask in prefix notation
+	 *
+	 * @return string
+	 */
+	public function getGivenIpWithPrefixlen()
+	{
+		return $this->given_ip . "/" . $this->prefix;
+	}
+
+	/**
+	 * A string representation of the given IP with the network as a net mask.
+	 *
+	 * @return string
+	 **/
+	public function getGivenIpWithNetmask()
+	{
+		return $this->given_ip . "/" . $this->getMask();
 	}
 
 	/**
