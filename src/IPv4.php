@@ -76,6 +76,9 @@ class IPv4 extends IP
 				
 				$this->ip = $ip;
 			}
+			elseif (false !== inet_ntop($ip)) {
+			    $this->ip = gmp_init(bin2hex($ip), 16);
+            }
 			else {
 				throw new InvalidArgumentException("$ip is not a valid IPv4 address");
 			}
