@@ -46,14 +46,24 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
     protected $delta;
 
     /**
-     * @var Numeric string
+     * @var string Numeric string
      */
     protected $nb_addresses;
 
     /**
+     * @var string Either "IPv4" or "IPv6"
+     */
+    protected $ip_class;
+
+    /**
+     * @var string Either "IPv4Block" or "IPv6Block"
+     */
+    protected $class;
+
+    /**
      * Return netmask.
      *
-     * @return IPv6
+     * @return IP
      */
     public function getMask()
     {
@@ -74,7 +84,7 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
     /**
      * Return delta to last IP address.
      *
-     * @return IPv6
+     * @return IP
      */
     public function getDelta()
     {
@@ -91,6 +101,11 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
 
     /**
      * Factory method.
+     *
+     * @param $ip
+     * @param string $prefix
+     *
+     * @return IPv4Block|IPv6Block
      */
     public static function create($ip, $prefix = '')
     {
@@ -113,8 +128,8 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
      * Accepts a CIDR string (e.g. 192.168.0.0/24) or an IP and a prefix as
      * two separate parameters.
      *
-     * @param $ip     mixed  IP or CIDR string
-     * @param $prefix int    (optional) The "slash" part
+     * @param mixed $ip_or_cidr IP or CIDR string
+     * @param mixed $prefix     (optional) The "slash" part
      */
     public function __construct($ip_or_cidr, $prefix = '')
     {
@@ -293,6 +308,8 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
      * @internal
      * Check if the prefix is valid
      *
+     * @param mixed $prefix
+     *
      * @throws InvalidArgumentException
      */
     protected function checkPrefix($prefix)
@@ -310,6 +327,8 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
      * Split the block into smaller blocks.
      *
      * Returns an iterator, use foreach to loop it and count to get number of subnets.
+     *
+     * @param mixed $prefix
      *
      * @return IPBlockIterator
      */
@@ -330,6 +349,8 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
 
     /**
      * Return the superblock containing the current block.
+     *
+     * @param mixed $prefix
      *
      * @return IPBlock
      */
@@ -364,7 +385,7 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
     /**
      * Determine if the current block contains an IP address.
      *
-     * @param  $ip mixed
+     * @param mixed $ip
      *
      * @return bool
      */
@@ -384,7 +405,7 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
      * $this: first_ip[                               ]last_ip
      * $block:         first_ip[             ]last_ip
      *
-     * @param  $ip mixed
+     * @param mixed $block
      *
      * @return bool
      */

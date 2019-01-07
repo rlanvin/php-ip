@@ -15,12 +15,29 @@
  */
 class IPBlockIterator implements Iterator
 {
+    /**
+     * @var int
+     */
     protected $position = 0;
+
+    /**
+     * @var IPBlock
+     */
     protected $current_block = null;
 
+    /**
+     * @var IPBlock
+     */
     protected $first_block = null;
+
+    /**
+     * @var int
+     */
     protected $nb_blocks = 0;
 
+    /**
+     * @var string
+     */
     protected $class = '';
 
     public function __construct(IPBlock $first_block, $nb_blocks)
