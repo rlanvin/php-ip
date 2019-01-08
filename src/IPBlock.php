@@ -381,6 +381,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
 
     /**
      * @param mixed $block
+     *
      * @return bool
      */
     private function isIpBlock($block): bool

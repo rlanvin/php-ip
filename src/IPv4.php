@@ -35,7 +35,7 @@ class IPv4 extends IP
         '198.51.100.0/24',
         '203.0.113.0/24',
         '240.0.0.0/4',
-        '255.255.255.255/32'
+        '255.255.255.255/32',
     ];
 
     /**
@@ -54,7 +54,7 @@ class IPv4 extends IP
         $hex = $this->numeric(16);
         $hex = str_pad($hex, 8, '0', STR_PAD_LEFT);
 
-        $octets = array_map(function ($hex){
+        $octets = array_map(function ($hex) {
             return str_pad(hexdec($hex), 3, '0', STR_PAD_LEFT);
         }, str_split($hex, 2));
 

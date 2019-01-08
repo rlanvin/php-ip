@@ -2,7 +2,8 @@
 
 namespace phpIP\Tests;
 
-use phpIP\{IP, IPv4};
+use phpIP\IP;
+use phpIP\IPv4;
 use PHPUnit\Framework\TestCase;
 
 class IPTest extends TestCase

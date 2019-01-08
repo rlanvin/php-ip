@@ -3,7 +3,8 @@
 namespace phpIP\Tests;
 
 use PHPUnit\Framework\TestCase;
-use phpIP\{IPBlock, IP};
+use phpIP\IPBlock;
+use phpIP\IP;
 
 class IPBlockTest extends TestCase
 {

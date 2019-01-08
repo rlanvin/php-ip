@@ -54,11 +54,13 @@ abstract class IP
     {
         try {
             return new IPv4($ip);
-        } catch (\InvalidArgumentException $e) {}
+        } catch (\InvalidArgumentException $e) {
+        }
 
         try {
             return new IPv6($ip);
-        } catch (\InvalidArgumentException $e) {}
+        } catch (\InvalidArgumentException $e) {
+        }
 
         throw new \InvalidArgumentException(sprintf('%s does not appear to be an IPv4 or IPv6 address', $ip));
     }
@@ -199,7 +201,7 @@ abstract class IP
      *
      * The return value is a PHP string. It can base used for comparison.
      *
-     * @param  int $base from 2 to 36
+     * @param int $base from 2 to 36
      *
      * @return string
      */
