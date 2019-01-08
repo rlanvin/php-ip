@@ -10,10 +10,12 @@
  * @see https://github.com/rlanvin/php-ip
  */
 
+namespace PHPIP;
+
 /**
  * Iterator for IPBlock. This could be a Generator in PHP 5.5.
  */
-class IPBlockIterator implements Iterator
+class IPBlockIterator implements \Iterator
 {
     /**
      * @var int

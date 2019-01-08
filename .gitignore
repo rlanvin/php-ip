@@ -1,4 +1,2 @@
-*.sublime*
 vendor
-test.php
 composer.lock

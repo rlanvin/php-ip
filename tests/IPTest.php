@@ -1,6 +1,11 @@
 <?php
 
-class IPTest extends PHPUnit_Framework_TestCase
+namespace PHPIP\Tests;
+
+use PHPIP\{IP, IPv4};
+use PHPUnit\Framework\TestCase;
+
+class IPTest extends TestCase
 {
     public function validAddresses()
     {
@@ -15,6 +20,10 @@ class IPTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param $ip
+     * @param $string
+     * @param $version
+     *
      * @dataProvider validAddresses
      */
     public function testConstructValid($ip, $string, $version)
@@ -25,6 +34,9 @@ class IPTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param $ip
+     * @param $string
+     *
      * @dataProvider validAddresses
      */
     public function testBinary($ip, $string)
@@ -45,12 +57,14 @@ class IPTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param $ip
+     *
      * @dataProvider invalidAddresses
      * @expectedException \InvalidArgumentException
      */
     public function testConstructInvalid($ip)
     {
-        $instance = IP::create($ip);
+        IP::create($ip);
     }
 
     public function validOperations()
@@ -71,6 +85,11 @@ class IPTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param $ip
+     * @param $plus
+     * @param $minus
+     * @param $result
+     *
      * @dataProvider validOperations
      */
     public function testPlusMinus($ip, $plus, $minus, $result)
@@ -112,6 +131,10 @@ class IPTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param $ip
+     * @param $plus
+     * @param $minus
+     *
      * @dataProvider invalidOperations
      * @expectedException \OutOfBoundsException
      */

@@ -1,6 +1,11 @@
 <?php
 
-class IPBlockTest extends PHPUnit_Framework_TestCase
+namespace PHPIP\Tests;
+
+use PHPUnit\Framework\TestCase;
+use PHPIP\{IPBlock, IP};
+
+class IPBlockTest extends TestCase
 {
     public function validOperations()
     {
@@ -13,6 +18,11 @@ class IPBlockTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param $block
+     * @param $plus
+     * @param $minus
+     * @param $result
+     *
      * @dataProvider validOperations
      */
     public function testPlusMinus($block, $plus, $minus, $result)
@@ -48,6 +58,10 @@ class IPBlockTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param $block
+     * @param $plus
+     * @param $minus
+     *
      * @dataProvider invalidOperations
      * @expectedException \OutOfBoundsException
      */
@@ -82,6 +96,12 @@ class IPBlockTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param $block
+     * @param $ip_in
+     * @param $block_in
+     * @param $ip_not_in
+     * @param $block_not_in
+     *
      * @dataProvider blockContent
      */
     public function testContains($block, $ip_in, $block_in, $ip_not_in, $block_not_in)
@@ -116,6 +136,10 @@ class IPBlockTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param $block
+     * @param $overlapping
+     * @param $not_overlapping
+     *
      * @dataProvider overlappingBlocks
      */
     public function testOverlaps($block, $overlapping, $not_overlapping)
@@ -126,7 +150,7 @@ class IPBlockTest extends PHPUnit_Framework_TestCase
             $this->assertTrue(IPBlock::create($block2)->overlaps($block), "$block2 is overlapping $block");
         }
         foreach ($not_overlapping as $block2) {
-            $this->assertFalse($block->overlaps($block2, "$block is not overlapping $block2"));
+            $this->assertFalse($block->overlaps($block2), "$block is not overlapping $block2");
             $this->assertFalse(IPBlock::create($block2)->overlaps($block), "$block2 is not overlappping $block");
         }
     }
@@ -146,7 +170,7 @@ class IPBlockTest extends PHPUnit_Framework_TestCase
             $block = IPBlock::create('0.0.0.0/1');
             sizeof($block);
             $this->fail('Sizeof should fail if number of addresses is bigger than PHP_INT_MAX');
-        } catch (RuntimeException $e) {
+        } catch (\RuntimeException $e) {
         }
 
         $block = IPBlock::create('0.0.0.0/0');
@@ -161,14 +185,14 @@ class IPBlockTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('192.168.0.255', $block[255]);
         try {
             $block[256];
-            $this->fail('[] shoud throw OutOfBoundException');
-        } catch (OutOfBoundsException $e) {
+            $this->fail('[] shoud throw \OutOfBoundException');
+        } catch (\OutOfBoundsException $e) {
         }
 
         try {
             $block[2] = 'X';
-            $this->fail('Setting with [] shoud throw LogicException');
-        } catch (LogicException $e) {
+            $this->fail('Setting with [] shoud throw \LogicException');
+        } catch (\LogicException $e) {
         }
     }
 
@@ -184,14 +208,14 @@ class IPBlockTest extends PHPUnit_Framework_TestCase
 
         try {
             $block->getSuper('');
-            $this->fail('Expected InvalidArgumentException has not be thrown');
-        } catch (InvalidArgumentException $e) {
+            $this->fail('Expected \InvalidArgumentException has not be thrown');
+        } catch (\InvalidArgumentException $e) {
         }
 
         try {
             $block->getSuper('/32');
-            $this->fail('Expected InvalidArgumentException has not be thrown');
-        } catch (InvalidArgumentException $e) {
+            $this->fail('Expected \InvalidArgumentException has not be thrown');
+        } catch (\InvalidArgumentException $e) {
         }
     }
 }

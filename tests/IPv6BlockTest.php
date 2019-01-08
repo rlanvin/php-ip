@@ -1,6 +1,11 @@
 <?php
 
-class IPv6BlockTest extends PHPUnit_Framework_TestCase
+namespace PHPIP\Tests;
+
+use PHPIP\{IPv6Block};
+use PHPUnit\Framework\TestCase;
+
+class IPv6BlockTest extends TestCase
 {
     // see http://www.miniwebtool.com/ip-address-to-binary-converter/
     // and http://www.miniwebtool.com/ip-address-to-hex-converter
@@ -17,6 +22,12 @@ class IPv6BlockTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param $block
+     * @param $mask
+     * @param $delta
+     * @param $first_ip
+     * @param $last_ip
+     *
      * @dataProvider validBlocks
      */
     public function testConstructValid($block, $mask, $delta, $first_ip, $last_ip)
@@ -47,11 +58,13 @@ class IPv6BlockTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param $block
+     *
      * @dataProvider invalidBlocks
      * @expectedException \InvalidArgumentException
      */
     public function testConstructInvalid($block)
     {
-        $instance = new IPv6Block($block);
+        new IPv6Block($block);
     }
 }

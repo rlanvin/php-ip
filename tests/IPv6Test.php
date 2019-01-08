@@ -1,6 +1,11 @@
 <?php
 
-class IPv6Test extends PHPUnit_Framework_TestCase
+namespace PHPIP\Tests;
+
+use PHPIP\{IPv6};
+use PHPUnit\Framework\TestCase;
+
+class IPv6Test extends TestCase
 {
     public function validAddresses()
     {
@@ -44,7 +49,7 @@ class IPv6Test extends PHPUnit_Framework_TestCase
         $values = array(
             array("\t"),
             array(array()),
-            array(new stdClass()),
+            array(new \stdClass()),
             array('-1'),
             array(gmp_init('-1')),
             array(gmp_init('340282366920938463463374607431768211456')),
@@ -54,17 +59,13 @@ class IPv6Test extends PHPUnit_Framework_TestCase
             array('127.0.0.1'),
         );
 
-        // 32 bits
-        if (PHP_INT_SIZE == 4) {
-        }
-        // 64 bits
-        elseif (PHP_INT_SIZE == 8) {
-        }
-
         return $values;
     }
 
     /**
+     * @param $ip
+     * @param $compressed
+     *
      * @dataProvider validAddresses
      */
     public function testConstructValid($ip, $compressed)
@@ -74,15 +75,21 @@ class IPv6Test extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param $ip
+     *
      * @dataProvider invalidAddresses
      * @expectedException \InvalidArgumentException
      */
     public function testConstructInvalid($ip)
     {
-        $instance = new IPv6($ip);
+        new IPv6($ip);
     }
 
     /**
+     * @param $ip
+     * @param $compressed
+     * @param $dec
+     *
      * @dataProvider validAddresses
      */
     public function testConvertToNumeric($ip, $compressed, $dec)

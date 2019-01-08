@@ -1,6 +1,11 @@
 <?php
 
-class IPv4Test extends PHPUnit_Framework_TestCase
+namespace PHPIP\Tests;
+
+use PHPIP\{IPv4};
+use PHPUnit\Framework\TestCase;
+
+class IPv4Test extends TestCase
 {
     // see http://www.miniwebtool.com/ip-address-to-binary-converter/
     // and http://www.miniwebtool.com/ip-address-to-hex-converter
@@ -9,13 +14,13 @@ class IPv4Test extends PHPUnit_Framework_TestCase
         $values = array(
             array('127.0.0.1', '127.0.0.1', '2130706433', '01111111000000000000000000000001', '7f000001'),
             array('10.0.0.1', '10.0.0.1', '167772161', '00001010000000000000000000000001', 'a000001'),
-            array('0.0.0.0', '0.0.0.0', '0', '00000000000000000000000000000000', '00000000'),
-            array('0.0.0.1', '0.0.0.1', '1', '00000000000000000000000000000001', '00000001'),
+            array('0.0.0.0', '0.0.0.0', '0', '00000000000000000000000000000000', '0'),
+            array('0.0.0.1', '0.0.0.1', '1', '00000000000000000000000000000001', '1'),
             array('255.255.255.254', '255.255.255.254', '4294967294', '11111111111111111111111111111110', 'fffffffe'),
             array('255.255.255.255', '255.255.255.255', '4294967295', '11111111111111111111111111111111', 'ffffffff'),
             array(ip2long('10.0.0.1'), '10.0.0.1', '167772161', '00001010000000000000000000000001', 'a000001'),
             array(ip2long('255.255.255.255'), '255.255.255.255', '4294967295', '11111111111111111111111111111111', 'ffffffff'),
-            array('1', '0.0.0.1', '1', '00000000000000000000000000000001', '00000001'),
+            array('1', '0.0.0.1', '1', '00000000000000000000000000000001', '1'),
             array('4294967295', '255.255.255.255', '4294967295', '11111111111111111111111111111111', 'ffffffff'),
             array(inet_pton('10.0.0.1'), '10.0.0.1', '167772161', '00001010000000000000000000000001', 'a000001'),
             array(inet_pton('255.255.255.255'), '255.255.255.255', '4294967295', '11111111111111111111111111111111', 'ffffffff'),
@@ -26,9 +31,6 @@ class IPv4Test extends PHPUnit_Framework_TestCase
             $values = array_merge($values, array(
                 array(-1, '255.255.255.255', '4294967295', '11111111111111111111111111111111', 'ffffffff'),
             ));
-        }
-        // 64 bits
-        elseif (PHP_INT_SIZE == 8) {
         }
 
         return $values;
@@ -66,6 +68,9 @@ class IPv4Test extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param $ip
+     * @param $string
+     *
      * @dataProvider validAddresses
      */
     public function testConstructValid($ip, $string)
@@ -75,15 +80,23 @@ class IPv4Test extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param $ip
+     *
      * @dataProvider invalidAddresses
      * @expectedException \InvalidArgumentException
      */
     public function testConstructInvalid($ip)
     {
-        $instance = new IPv4($ip);
+        new IPv4($ip);
     }
 
     /**
+     * @param string $ip
+     * @param string $string
+     * @param string $dec
+     * @param string $bin
+     * @param string $hex
+     *
      * @dataProvider validAddresses
      */
     public function testConvertToNumeric($ip, $string, $dec, $bin, $hex)
@@ -103,6 +116,8 @@ class IPv4Test extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @param $ip
+     *
      * @dataProvider privateAddresses
      */
     public function testIsPrivate($ip)
