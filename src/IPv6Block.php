@@ -18,5 +18,4 @@ namespace PHPIP;
 class IPv6Block extends IPBlock
 {
     protected $ip_class = IPv6::class;
-    protected $class = __CLASS__;
 }

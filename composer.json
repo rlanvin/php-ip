@@ -14,7 +14,11 @@
     },
     "autoload": {
         "psr-4": {
-            "PHPIP\\": "src/",
+            "PHPIP\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
             "PHPIP\\Tests\\": "tests/"
         }
     }
