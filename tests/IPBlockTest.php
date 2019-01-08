@@ -1,9 +1,9 @@
 <?php
 
-namespace PHPIP\Tests;
+namespace phpIP\Tests;
 
 use PHPUnit\Framework\TestCase;
-use PHPIP\{IPBlock, IP};
+use phpIP\{IPBlock, IP};
 
 class IPBlockTest extends TestCase
 {

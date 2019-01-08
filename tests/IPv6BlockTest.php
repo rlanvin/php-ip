@@ -1,8 +1,8 @@
 <?php
 
-namespace PHPIP\Tests;
+namespace phpIP\Tests;
 
-use PHPIP\{IPv6Block};
+use phpIP\{IPv6Block};
 use PHPUnit\Framework\TestCase;
 
 class IPv6BlockTest extends TestCase

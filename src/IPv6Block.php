@@ -10,7 +10,7 @@
  * @see https://github.com/rlanvin/php-ip
  */
 
-namespace PHPIP;
+namespace phpIP;
 
 /**
  * An IPv6 CIDR block.

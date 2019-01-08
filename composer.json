@@ -14,12 +14,12 @@
     },
     "autoload": {
         "psr-4": {
-            "PHPIP\\": "src/"
+            "phpIP\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "PHPIP\\Tests\\": "tests/"
+            "phpIP\\Tests\\": "tests/"
         }
     }
 }

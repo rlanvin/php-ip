@@ -1,8 +1,8 @@
 <?php
 
-namespace PHPIP\Tests;
+namespace phpIP\Tests;
 
-use PHPIP\{IP, IPv4};
+use phpIP\{IP, IPv4};
 use PHPUnit\Framework\TestCase;
 
 class IPTest extends TestCase
