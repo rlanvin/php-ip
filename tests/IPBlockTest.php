@@ -235,4 +235,21 @@ class IPBlockTest extends TestCase
         } catch (\InvalidArgumentException $e) {
         }
     }
+
+    public function testIterator()
+    {
+        $block = IPBlock::create('192.168.0.0/24');
+        $IPs = [];
+        $expected = [];
+
+        foreach ($block as $ip) {
+            $IPs[] = $ip->humanReadable();
+        }
+
+        foreach (range(0,255) as $n) {
+            $expected[] = '192.168.0.'.$n;
+        }
+
+        $this->assertEquals($expected, $IPs);
+    }
 }
