@@ -109,16 +109,14 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
         try {
             return new IPv4Block($ip, $prefix);
         } catch (\InvalidArgumentException $e) {
-            // do nothing
         }
 
         try {
             return new IPv6Block($ip, $prefix);
         } catch (\InvalidArgumentException $e) {
-            // do nothing
         }
 
-        throw new \InvalidArgumentException("$ip does not appear to be an IPv4 or IPv6 block");
+        throw new \InvalidArgumentException(sprintf('%s does not appear to be an IPv4 or IPv6 block', $ip));
     }
 
     /**
@@ -168,29 +166,39 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
      *
      * @return int
      */
-    public function getPrefix()
+    public function getPrefix(): int
     {
         return $this->prefix;
     }
 
-    public function getMaxPrefix()
+    /**
+     * @return int
+     */
+    public function getMaxPrefix(): int
     {
         return ($this->ip_class)::NB_BITS;
     }
 
-    public function getVersion()
+    /**
+     * @return int
+     */
+    public function getVersion(): int
     {
         return ($this->ip_class)::IP_VERSION;
     }
 
-    public function plus($value)
+    /**
+     * Returns the nth network block after current block.
+     *
+     * E.g. (new IPv4Block('192.168.0.0/24'))->plus(5); //Returns IPv4Block('192.168.5.0/24')
+     *
+     * @param int $value
+     * @return IPBlock
+     */
+    public function plus(int $value): IPBlock
     {
         if ($value < 0) {
             return $this->minus(-1 * $value);
-        }
-
-        if (!is_int($value)) {
-            throw new \InvalidArgumentException('plus() takes an integer');
         }
 
         if (0 == $value) {
@@ -210,14 +218,18 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
         }
     }
 
-    public function minus($value)
+    /**
+     * Returns the nth network block before current block.
+     *
+     * E.g. (new IPv4Block('192.168.5.0/24'))->minus(5); //Returns IPv4Block('192.168.0.0/24')
+     *
+     * @param int $value
+     * @return IPBlock
+     */
+    public function minus(int $value): IPBlock
     {
         if ($value < 0) {
             return $this->plus(-1 * $value);
-        }
-
-        if (!is_int($value)) {
-            throw new \InvalidArgumentException('plus() takes an integer');
         }
 
         if (0 == $value) {
@@ -242,7 +254,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
      *
      * @return IP
      */
-    public function getFirstIp()
+    public function getFirstIp(): IP
     {
         return $this->first_ip;
     }
@@ -252,7 +264,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
      *
      * @return IP
      */
-    public function getLastIp()
+    public function getLastIp(): IP
     {
         return $this->last_ip;
     }
@@ -264,7 +276,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
      *
      * @return IP
      */
-    public function getNetworkAddress()
+    public function getNetworkAddress(): IP
     {
         return $this->first_ip;
     }
@@ -276,7 +288,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
      *
      * @return IP
      */
-    public function getBroadcastAddress()
+    public function getBroadcastAddress(): IP
     {
         return $this->last_ip;
     }
@@ -286,7 +298,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
      *
      * @return string
      */
-    public function getGivenIpWithPrefixlen()
+    public function getGivenIpWithPrefixLen(): string
     {
         return $this->given_ip.'/'.$this->prefix;
     }
@@ -296,7 +308,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
      *
      * @return string
      **/
-    public function getGivenIpWithNetmask()
+    public function getGivenIpWithNetmask(): string
     {
         return $this->given_ip.'/'.$this->getMask();
     }
@@ -309,11 +321,11 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
      *
      * @throws \InvalidArgumentException
      */
-    protected function checkPrefix($prefix)
+    protected function checkPrefix($prefix): void
     {
         if ('' === $prefix || null === $prefix || false === $prefix || $prefix < 0 || $prefix > $this->getMaxPrefix()) {
             throw new \InvalidArgumentException(sprintf(
-                "Invalid IPv%s block prefix '%s'",
+                'Invalid IPv%s block prefix "%s"',
                 $this->getVersion(),
                 $prefix
             ));
@@ -323,19 +335,19 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
     /**
      * Split the block into smaller blocks.
      *
-     * Returns an iterator, use foreach to loop it and count to get number of subnets.
+     * Returns an iterator, use foreach to loop it and count to get number of sub-nets.
      *
      * @param mixed $prefix
      *
      * @return IPBlockIterator
      */
-    public function getSubblocks($prefix)
+    public function getSubBlocks($prefix): IPBlockIterator
     {
         $prefix = ltrim($prefix, '/');
         $this->checkPrefix($prefix);
 
         if ($prefix <= $this->prefix) {
-            throw new \InvalidArgumentException("Prefix must be smaller than {$this->prefix} ($prefix given)");
+            throw new \InvalidArgumentException(sprintf('Prefix must be smaller than %d, "%d" given.', $this->prefix, $prefix));
         }
 
         $first_block = new static($this->first_ip, $prefix);
@@ -345,19 +357,19 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
     }
 
     /**
-     * Return the superblock containing the current block.
+     * Return the super-block containing the current block.
      *
      * @param mixed $prefix
      *
      * @return IPBlock
      */
-    public function getSuper($prefix)
+    public function getSuperBlock($prefix): IPBlock
     {
         $prefix = ltrim($prefix, '/');
         $this->checkPrefix($prefix);
 
         if ($prefix >= $this->prefix) {
-            throw new \InvalidArgumentException("Prefix must be bigger than {$this->prefix} ($prefix given)");
+            throw new \InvalidArgumentException(sprintf('Prefix must be bigger than "%d", "%d" given.', $this->prefix, $prefix));
         }
 
         return new static($this->first_ip, $prefix);
@@ -400,7 +412,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
      *
      * @return bool
      */
-    public function containsIP($ip)
+    public function containsIP($ip): bool
     {
         if (!$ip instanceof IP) {
             $ip = IP::create($ip);
@@ -412,15 +424,13 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
     /**
      * Determine if the current block contains another block.
      *
-     * True in this situation:
-     * $this: first_ip[                               ]last_ip
-     * $block:         first_ip[             ]last_ip
+     * E.g. IPBlock::create('192.168.1.0/24')->containsBlock('192.168.1.8/30'); //Returns true
      *
      * @param mixed $block
      *
      * @return bool
      */
-    public function containsBlock($block)
+    public function containsBlock($block): bool
     {
         if (!$block instanceof IPBlock) {
             $block = new static($block);
@@ -436,7 +446,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
      *
      * @return bool
      */
-    public function isIn($block)
+    public function isIn($block): bool
     {
         if (!$block instanceof IPBlock) {
             $block = new static($block);
@@ -452,7 +462,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
      *
      * @return bool
      */
-    public function overlaps($block)
+    public function overlaps($block): bool
     {
         if (!$block instanceof IPBlock) {
             $block = new static($block);
@@ -464,21 +474,32 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
     /**
      * Return the number of IP addresses in the block.
      *
-     * @return string numeric string (can be huge)
+     * @return string Numeric string (can be huge)
      */
-    public function getNbAddresses()
+    public function getNbAddresses(): string
     {
         if (null === $this->nb_addresses) {
-            $this->nb_addresses = gmp_strval(gmp_pow(2, $this->getMaxPrefix() - $this->prefix));
+            $this->nb_addresses = gmp_strval($this->blockSize());
         }
 
         return $this->nb_addresses;
     }
 
-    // Countable
-    public function count()
+    /**
+     * @return \GMP
+     */
+    private function blockSize(): \GMP
     {
-        $n = $this->getNbAddresses();
+        return gmp_pow(2, $this->getMaxPrefix() - $this->prefix);
+    }
+
+    /**
+     * @return int
+     */
+    public function count(): int
+    {
+        $n = gmp_intval($this->blockSize());
+
         if ($n > PHP_INT_MAX) {
             throw new \RuntimeException('The number of addresses is bigger than PHP_INT_MAX, use getNbAddresses() instead');
         }
@@ -538,7 +559,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
 
     public function offsetUnset($offset)
     {
-        throw new \LogicException('Unsetting IP in block is not supported');
+        throw new \LogicException('Unset IP in block is not supported');
     }
 
     /**
@@ -549,9 +570,9 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
      * @param resource|string $x
      * @param resource|string $n
      *
-     * @return resource
+     * @return \GMP
      */
-    private static function gmp_shiftl($x, $n)
+    private static function gmp_shiftl($x, $n): \GMP
     {
         return gmp_mul($x, gmp_pow('2', $n));
     }

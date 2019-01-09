@@ -13,46 +13,55 @@
 namespace phpIP;
 
 /**
- * Iterator for IPBlock. This could be a Generator in PHP 5.5.
+ * Iterate over networks starting from an initial block.
  */
-class IPBlockIterator implements \Iterator
+class IPBlockIterator implements \Iterator, \Countable
 {
     /**
-     * @var int
+     * @var \GMP
      */
-    protected $position = 0;
+    protected $position;
 
     /**
      * @var IPBlock
      */
-    protected $current_block = null;
+    protected $current_block;
 
     /**
      * @var IPBlock
      */
-    protected $first_block = null;
+    protected $first_block;
 
     /**
-     * @var int
+     * @var \GMP
      */
-    protected $nb_blocks = 0;
+    protected $nb_blocks;
 
     /**
-     * @var string
+     * IPBlockIterator constructor.
+     * @param IPBlock $first_block
+     * @param \GMP|int $nb_blocks
      */
-    protected $class = '';
-
     public function __construct(IPBlock $first_block, $nb_blocks)
     {
-        $this->class = get_class($first_block);
+        if (!$nb_blocks instanceof \GMP) {
+            $nb_blocks = gmp_init($nb_blocks);
+        }
 
-        $this->first_block = $first_block;
+        $this->current_block = $this->first_block = $first_block;
         $this->nb_blocks = $nb_blocks;
+        $this->position = gmp_init(0);
     }
 
-    public function count()
+   public function count(): int
     {
-        return gmp_strval($this->nb_blocks);
+        $value = gmp_intval($this->nb_blocks);
+
+        if ($value > PHP_INT_MAX) {
+            throw new \RuntimeException();
+        }
+
+        return $value;
     }
 
     public function rewind()
@@ -61,7 +70,7 @@ class IPBlockIterator implements \Iterator
         $this->current_block = $this->first_block;
     }
 
-    public function current()
+    public function current(): IPBlock
     {
         return $this->current_block;
     }
@@ -79,6 +88,8 @@ class IPBlockIterator implements \Iterator
 
     public function valid()
     {
-        return gmp_cmp($this->position, 0) >= 0 && gmp_cmp($this->position, $this->nb_blocks) < 0;
+        return
+            gmp_cmp($this->position, 0) >= 0 &&
+            gmp_cmp($this->position, $this->nb_blocks) < 0;
     }
 }

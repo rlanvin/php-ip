@@ -23,10 +23,8 @@ abstract class IP
 
     /**
      * Internal representation of the IP as a numeric format.
-     * For IPv4, this will be an SIGNED int (32 bits).
-     * For IPv6, this will be a GMP ressource (128 bits big int).
      *
-     * @var mixed
+     * @var \GMP
      */
     protected $ip;
 
@@ -208,16 +206,10 @@ abstract class IP
     public function numeric($base = 10): string
     {
         if ($base < 2 || $base > 62) {
-            throw new \InvalidArgumentException('Base must be between 2 and 36 (included)');
+            throw new \InvalidArgumentException('Base must be between 2 and 62 (inclusive).');
         }
 
-        $value = gmp_strval($this->ip, $base);
-
-        if (2 == $base) {
-            $value = str_pad($value, static::NB_BITS, '0', STR_PAD_LEFT);
-        }
-
-        return $value;
+        return gmp_strval($this->ip, $base);
     }
 
     /**
@@ -385,9 +377,6 @@ abstract class IP
 
     /**
      * Return the version number (4 or 6).
-     *
-     * Note: this is left abstract because there is not late static binding
-     * in PHP 5.2 (which I need to support).
      *
      * @return int
      */
