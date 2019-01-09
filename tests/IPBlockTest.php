@@ -21,7 +21,7 @@ class IPBlockTest extends TestCase
     public function getValidSubBlocks(): array
     {
         return [
-            ['192.168.0.1/24', '192.168.0.9/30']
+            ['192.168.0.1/24', '192.168.0.9/30'],
         ];
     }
 
@@ -211,7 +211,7 @@ class IPBlockTest extends TestCase
 
         $this->assertCount(64, $subNets);
 
-        for ($i = 0; $i < 6; $i++) {
+        for ($i = 0; $i < 6; ++$i) {
             $subNets->next();
         }
 
@@ -246,7 +246,7 @@ class IPBlockTest extends TestCase
             $IPs[] = $ip->humanReadable();
         }
 
-        foreach (range(0,255) as $n) {
+        foreach (range(0, 255) as $n) {
             $expected[] = '192.168.0.'.$n;
         }
 

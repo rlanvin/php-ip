@@ -198,6 +198,7 @@ abstract class IPBlock implements \ArrayAccess, \Countable, \IteratorAggregate
      * E.g. (new IPv4Block('192.168.0.0/24'))->plus(5); //Returns IPv4Block('192.168.5.0/24')
      *
      * @param int $value
+     *
      * @return IPBlock
      */
     public function plus(int $value): IPBlock
@@ -229,6 +230,7 @@ abstract class IPBlock implements \ArrayAccess, \Countable, \IteratorAggregate
      * E.g. (new IPv4Block('192.168.5.0/24'))->minus(5); //Returns IPv4Block('192.168.0.0/24')
      *
      * @param int $value
+     *
      * @return IPBlock
      */
     public function minus(int $value): IPBlock
@@ -460,7 +462,7 @@ abstract class IPBlock implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
-     * interface Countable
+     * interface Countable.
      *
      * @return int
      */
@@ -476,7 +478,7 @@ abstract class IPBlock implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
-     * interface IteratorAggregate
+     * interface IteratorAggregate.
      *
      * @return IPRangeIterator
      */
@@ -486,9 +488,10 @@ abstract class IPBlock implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
-     * interface ArrayAccess
+     * interface ArrayAccess.
      *
      * @param mixed $offset
+     *
      * @return bool
      */
     public function offsetExists($offset): bool
@@ -497,7 +500,7 @@ abstract class IPBlock implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
-     * interface ArrayAccess
+     * interface ArrayAccess.
      *
      * @param mixed $offset
      *
@@ -515,7 +518,7 @@ abstract class IPBlock implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
-     * interface ArrayAccess
+     * interface ArrayAccess.
      *
      * @param mixed $offset
      * @param mixed $value
@@ -528,7 +531,7 @@ abstract class IPBlock implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
-     * interface ArrayAccess
+     * interface ArrayAccess.
      *
      * @param mixed $offset
      *

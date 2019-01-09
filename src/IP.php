@@ -295,7 +295,6 @@ abstract class IP
         return static::IP_VERSION;
     }
 
-
     /**
      * Construct from integer.
      *

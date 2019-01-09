@@ -39,7 +39,8 @@ class IPBlockIterator implements \Iterator, \Countable
 
     /**
      * IPBlockIterator constructor.
-     * @param IPBlock $first_block
+     *
+     * @param IPBlock  $first_block
      * @param \GMP|int $nb_blocks
      */
     public function __construct(IPBlock $first_block, $nb_blocks)
@@ -53,7 +54,7 @@ class IPBlockIterator implements \Iterator, \Countable
         $this->position = gmp_init(0);
     }
 
-   public function count(): int
+    public function count(): int
     {
         $value = gmp_intval($this->nb_blocks);
 

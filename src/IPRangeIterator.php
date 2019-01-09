@@ -33,10 +33,10 @@ class IPRangeIterator implements \Iterator, \Countable
      * @param IPBlock $ipBlock
      */
     public function __construct(IPBlock $ipBlock)
-   {
-       $this->ipBlock = $ipBlock;
-       $this->position = gmp_init(0);
-   }
+    {
+        $this->ipBlock = $ipBlock;
+        $this->position = gmp_init(0);
+    }
 
     public function rewind(): void
     {
