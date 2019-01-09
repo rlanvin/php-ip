@@ -39,31 +39,6 @@ abstract class IP
     protected static $privateRanges = [];
 
     /**
-     * Take an IP string/int and return an object of the correct type.
-     *
-     * Either IPv4 or IPv6 may be supplied, but integers less than 2^32 will
-     * be considered to be IPv4 by default.
-     *
-     * @param mixed $ip Anything that can be converted into an IP (string, int, bin, etc.)
-     *
-     * @return IP
-     */
-    public static function create($ip): IP
-    {
-        try {
-            return new IPv4($ip);
-        } catch (\InvalidArgumentException $e) {
-        }
-
-        try {
-            return new IPv6($ip);
-        } catch (\InvalidArgumentException $e) {
-        }
-
-        throw new \InvalidArgumentException(sprintf('%s does not appear to be an IPv4 or IPv6 address', $ip));
-    }
-
-    /**
      * Return human readable representation of the IP (e.g. 127.0.0.1 or ::1).
      *
      * @return string
@@ -103,95 +78,32 @@ abstract class IP
             return;
         }
 
-        throw new \InvalidArgumentException('Unsupported argument type: '.gettype($ip));
+        throw new \InvalidArgumentException(sprintf('Unsupported argument type "%s".', gettype($ip)));
     }
 
     /**
-     * @param int $ip
-     */
-    protected function fromInt(int $ip): void
-    {
-        $ip = gmp_init(sprintf('%u', $ip), 10);
-
-        if (gmp_cmp($ip, static::MAX_INT) > 0) {
-            throw new \InvalidArgumentException(sprintf('The integer %s is not a valid IPv4 address', gmp_strval($ip)));
-        }
-
-        $this->ip = $ip;
-    }
-
-    /**
-     * @param string $ip
-     */
-    protected function fromString(string $ip): void
-    {
-        // binary string
-        if (false !== @inet_ntop($ip)) {
-            $strLen = static::NB_BITS / 8;
-
-            if ($strLen != strlen($ip)) {
-                throw new \InvalidArgumentException('The binary string is not a valid IPv6 address');
-            }
-
-            $hex = unpack('H*', $ip);
-            $this->ip = gmp_init($hex[1], 16);
-
-            return;
-        }
-
-        $filter_flag = constant('FILTER_FLAG_IPV'.static::IP_VERSION);
-
-        if (filter_var($ip, FILTER_VALIDATE_IP, $filter_flag)) {
-            $ip = inet_pton($ip);
-            $hex = unpack('H*', $ip);
-            $this->ip = gmp_init($hex[1], 16);
-
-            return;
-        }
-
-        // numeric string (decimal)
-        if (ctype_digit($ip)) {
-            $ip = gmp_init($ip, 10);
-
-            if (gmp_cmp($ip, static::MAX_INT) > 0) {
-                throw new \InvalidArgumentException(sprintf('The decimal %s is not a valid IPv%d address.', gmp_strval($ip), static::IP_VERSION));
-            }
-
-            $this->ip = $ip;
-
-            return;
-        }
-
-        throw new \InvalidArgumentException(sprintf('%s is not a valid IPv%d address.', $ip, static::IP_VERSION));
-    }
-
-    /**
-     * @param float $ip
+     * Take an IP string/int and return an object of the correct type.
      *
-     * @throws \InvalidArgumentException
+     * Either IPv4 or IPv6 may be supplied, but integers less than 2^32 will
+     * be considered to be IPv4 by default.
+     *
+     * @param mixed $ip Anything that can be converted into an IP (string, int, bin, etc.)
+     *
+     * @return IP
      */
-    protected function fromFloat(float $ip): void
+    public static function create($ip): IP
     {
-        if (floor($ip) != $ip) {
-            throw new \InvalidArgumentException();
+        try {
+            return new IPv4($ip);
+        } catch (\InvalidArgumentException $e) {
         }
 
-        $ip = gmp_init(sprintf('%s', $ip), 10);
-
-        if (gmp_cmp($ip, 0) < 0 || gmp_cmp($ip, self::MAX_INT) > 0) {
-            throw new \InvalidArgumentException(sprintf('The double %s is not a valid IPv%d address.', gmp_strval($ip), static::IP_VERSION));
+        try {
+            return new IPv6($ip);
+        } catch (\InvalidArgumentException $e) {
         }
 
-        $this->ip = $ip;
-    }
-
-    protected function fromGmp(\GMP $ip): void
-    {
-        if (gmp_cmp($ip, 0) < 0 || gmp_cmp($ip, static::MAX_INT) > 0) {
-            throw new \InvalidArgumentException(sprintf('%s is not a valid decimal IPv%d address', gmp_strval($ip), static::IP_VERSION));
-        }
-
-        $this->ip = $ip;
+        throw new \InvalidArgumentException(sprintf('%s does not appear to be an IPv4 or IPv6 address', $ip));
     }
 
     /**
@@ -214,8 +126,6 @@ abstract class IP
 
     /**
      * Return binary string representation.
-     *
-     * @todo could be optimized with pack() instead?
      *
      * @return string Binary string
      */
@@ -383,5 +293,105 @@ abstract class IP
     public function getVersion(): int
     {
         return static::IP_VERSION;
+    }
+
+
+    /**
+     * Construct from integer.
+     *
+     * @param int $ip
+     */
+    protected function fromInt(int $ip): void
+    {
+        $ip = gmp_init(sprintf('%u', $ip), 10);
+
+        if (gmp_cmp($ip, static::MAX_INT) > 0) {
+            throw new \InvalidArgumentException(sprintf('The integer %s is not a valid IPv4 address', gmp_strval($ip)));
+        }
+
+        $this->ip = $ip;
+    }
+
+    /**
+     * Construct from string.
+     *
+     * @param string $ip
+     */
+    protected function fromString(string $ip): void
+    {
+        // binary string
+        if (false !== @inet_ntop($ip)) {
+            $strLen = static::NB_BITS / 8;
+
+            if ($strLen != strlen($ip)) {
+                throw new \InvalidArgumentException('The binary string is not a valid IPv6 address');
+            }
+
+            $hex = unpack('H*', $ip);
+            $this->ip = gmp_init($hex[1], 16);
+
+            return;
+        }
+
+        $filter_flag = constant('FILTER_FLAG_IPV'.static::IP_VERSION);
+
+        if (filter_var($ip, FILTER_VALIDATE_IP, $filter_flag)) {
+            $ip = inet_pton($ip);
+            $hex = unpack('H*', $ip);
+            $this->ip = gmp_init($hex[1], 16);
+
+            return;
+        }
+
+        // numeric string (decimal)
+        if (ctype_digit($ip)) {
+            $ip = gmp_init($ip, 10);
+
+            if (gmp_cmp($ip, static::MAX_INT) > 0) {
+                throw new \InvalidArgumentException(sprintf('The decimal %s is not a valid IPv%d address.', gmp_strval($ip), static::IP_VERSION));
+            }
+
+            $this->ip = $ip;
+
+            return;
+        }
+
+        throw new \InvalidArgumentException(sprintf('%s is not a valid IPv%d address.', $ip, static::IP_VERSION));
+    }
+
+    /**
+     * Construct from float.
+     *
+     * @param float $ip
+     *
+     * @throws \InvalidArgumentException
+     */
+    protected function fromFloat(float $ip): void
+    {
+        if (floor($ip) != $ip) {
+            throw new \InvalidArgumentException();
+        }
+
+        $ip = gmp_init(sprintf('%s', $ip), 10);
+
+        if (gmp_cmp($ip, 0) < 0 || gmp_cmp($ip, self::MAX_INT) > 0) {
+            throw new \InvalidArgumentException(sprintf('The double %s is not a valid IPv%d address.', gmp_strval($ip), static::IP_VERSION));
+        }
+
+        $this->ip = $ip;
+    }
+
+    /**
+     * Construct from GMP object.
+     *
+     * @param \GMP $ip
+     */
+    protected function fromGmp(\GMP $ip): void
+    {
+        if (gmp_cmp($ip, 0) < 0 || gmp_cmp($ip, static::MAX_INT) > 0) {
+            throw new \InvalidArgumentException(sprintf('%s is not a valid decimal IPv%d address', gmp_strval($ip), static::IP_VERSION));
+        }
+
+        $this->ip = $ip;
     }
 }

@@ -13,9 +13,9 @@
 namespace phpIP;
 
 /**
- * Base class to manipulate CIDR block (aka "networks").
+ * Iterates over each IP in a single IPBlock.
  */
-class IPRangeIterator implements \Iterator
+class IPRangeIterator implements \Iterator, \Countable
 {
     /**
      * @var \GMP
@@ -38,7 +38,7 @@ class IPRangeIterator implements \Iterator
        $this->position = gmp_init(0);
    }
 
-    public function rewind()
+    public function rewind(): void
     {
         $this->position = gmp_init(0);
     }
@@ -53,13 +53,18 @@ class IPRangeIterator implements \Iterator
         return $this->position;
     }
 
-    public function next()
+    public function next(): void
     {
         $this->position = gmp_add($this->position, 1);
     }
 
-    public function valid()
+    public function valid(): bool
     {
         return gmp_cmp($this->position, 0) >= 0 && gmp_cmp($this->position, $this->ipBlock->getNbAddresses()) < 0;
+    }
+
+    public function count(): int
+    {
+        return $this->ipBlock->count();
     }
 }

@@ -53,71 +53,9 @@ abstract class IPBlock implements \ArrayAccess, \Countable, \IteratorAggregate
     protected $nb_addresses;
 
     /**
-     * @var string Either "IPv4" or "IPv6"
+     * @var string Either "phpIP\IPv4" or "phpIP\IPv6"
      */
     protected $ip_class;
-
-    /**
-     * Return netmask.
-     *
-     * @return IP
-     */
-    public function getMask(): IP
-    {
-        if (null === $this->mask) {
-            if (0 == $this->prefix) {
-                $this->mask = new $this->ip_class(0);
-            } else {
-                $max_int = gmp_init(($this->ip_class)::MAX_INT);
-                $mask = self::gmp_shiftl($max_int, ($this->ip_class)::NB_BITS - $this->prefix);
-                $mask = gmp_and($mask, $max_int); // truncate to 128 bits only
-                $this->mask = new $this->ip_class($mask);
-            }
-        }
-
-        return $this->mask;
-    }
-
-    /**
-     * Return delta to last IP address.
-     *
-     * @return IP
-     */
-    public function getDelta()
-    {
-        if (null === $this->delta) {
-            if (0 == $this->prefix) {
-                $this->delta = new $this->ip_class(($this->ip_class)::MAX_INT);
-            } else {
-                $this->delta = new $this->ip_class(gmp_sub(self::gmp_shiftl(1, ($this->ip_class)::NB_BITS - $this->prefix), 1));
-            }
-        }
-
-        return $this->delta;
-    }
-
-    /**
-     * Factory method.
-     *
-     * @param $ip
-     * @param string $prefix
-     *
-     * @return IPv4Block|IPv6Block
-     */
-    public static function create($ip, $prefix = '')
-    {
-        try {
-            return new IPv4Block($ip, $prefix);
-        } catch (\InvalidArgumentException $e) {
-        }
-
-        try {
-            return new IPv6Block($ip, $prefix);
-        } catch (\InvalidArgumentException $e) {
-        }
-
-        throw new \InvalidArgumentException(sprintf('%s does not appear to be an IPv4 or IPv6 block', $ip));
-    }
 
     /**
      * Accepts a CIDR string (e.g. 192.168.0.0/24) or an IP and a prefix as
@@ -139,12 +77,79 @@ abstract class IPBlock implements \ArrayAccess, \Countable, \IteratorAggregate
 
         $this->checkPrefix($prefix);
         $this->prefix = (int) $prefix;
-
         $this->first_ip = $this->given_ip->bit_and($this->getMask());
         $this->last_ip = $this->first_ip->bit_or($this->getDelta());
     }
 
-    public function __toString()
+    /**
+     * Return netmask.
+     *
+     * @return IP
+     */
+    public function getMask(): IP
+    {
+        if (null !== $this->mask) {
+            return $this->mask;
+        }
+
+        if (0 === $this->prefix) {
+            return $this->mask = new $this->ip_class(0);
+        }
+
+        $max_int = gmp_init(($this->ip_class)::MAX_INT);
+        $mask = self::gmp_shiftl($max_int, ($this->ip_class)::NB_BITS - $this->prefix);
+        $mask = gmp_and($mask, $max_int); // truncate to 128 bits only
+
+        return $this->mask = new $this->ip_class($mask);
+    }
+
+    /**
+     * Return delta to last IP address.
+     *
+     * @return IP
+     */
+    public function getDelta(): IP
+    {
+        if (null !== $this->delta) {
+            return $this->delta;
+        }
+
+        if (0 === $this->prefix) {
+            return $this->delta = new $this->ip_class(($this->ip_class)::MAX_INT);
+        }
+
+        $delta = gmp_sub(self::gmp_shiftl(1, ($this->ip_class)::NB_BITS - $this->prefix), 1);
+
+        return $this->delta = new $this->ip_class($delta);
+    }
+
+    /**
+     * Factory method.
+     *
+     * @param $ip
+     * @param mixed $prefix
+     *
+     * @return IPv4Block|IPv6Block
+     */
+    public static function create($ip, $prefix = ''): IPBlock
+    {
+        try {
+            return new IPv4Block($ip, $prefix);
+        } catch (\InvalidArgumentException $e) {
+        }
+
+        try {
+            return new IPv6Block($ip, $prefix);
+        } catch (\InvalidArgumentException $e) {
+        }
+
+        throw new \InvalidArgumentException(sprintf('%s does not appear to be an IPv4 or IPv6 block', $ip));
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString(): string
     {
         return (string) $this->first_ip.'/'.$this->prefix;
     }
@@ -156,7 +161,7 @@ abstract class IPBlock implements \ArrayAccess, \Countable, \IteratorAggregate
      *
      * @return IP
      */
-    public function getGivenIp()
+    public function getGivenIp(): IP
     {
         return $this->given_ip;
     }
@@ -180,7 +185,7 @@ abstract class IPBlock implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
-     * @return int
+     * @return int Returns either 4 or 6
      */
     public function getVersion(): int
     {
@@ -201,7 +206,7 @@ abstract class IPBlock implements \ArrayAccess, \Countable, \IteratorAggregate
             return $this->minus(-1 * $value);
         }
 
-        if (0 == $value) {
+        if (0 === $value) {
             return clone $this;
         }
 
@@ -232,7 +237,7 @@ abstract class IPBlock implements \ArrayAccess, \Countable, \IteratorAggregate
             return $this->plus(-1 * $value);
         }
 
-        if (0 == $value) {
+        if (0 === $value) {
             return clone $this;
         }
 
@@ -314,25 +319,6 @@ abstract class IPBlock implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
-     * @internal
-     * Check if the prefix is valid
-     *
-     * @param mixed $prefix
-     *
-     * @throws \InvalidArgumentException
-     */
-    protected function checkPrefix($prefix): void
-    {
-        if ('' === $prefix || null === $prefix || false === $prefix || $prefix < 0 || $prefix > $this->getMaxPrefix()) {
-            throw new \InvalidArgumentException(sprintf(
-                'Invalid IPv%s block prefix "%s"',
-                $this->getVersion(),
-                $prefix
-            ));
-        }
-    }
-
-    /**
      * Split the block into smaller blocks.
      *
      * Returns an iterator, use foreach to loop it and count to get number of sub-nets.
@@ -378,7 +364,7 @@ abstract class IPBlock implements \ArrayAccess, \Countable, \IteratorAggregate
     /**
      * Determine if the current block contains an IP address or block.
      *
-     * @param IP|IPBlock $ip_or_block mixed
+     * @param mixed $ip_or_block
      *
      * @return bool
      */
@@ -389,20 +375,6 @@ abstract class IPBlock implements \ArrayAccess, \Countable, \IteratorAggregate
         }
 
         return $this->containsIP($ip_or_block);
-    }
-
-    /**
-     * @param mixed $block
-     *
-     * @return bool
-     */
-    private function isIpBlock($block): bool
-    {
-        if ((is_string($block) && false !== strpos($block, '/')) || $block instanceof IPBlock) {
-            return true;
-        }
-
-        return false;
     }
 
     /**
@@ -458,6 +430,8 @@ abstract class IPBlock implements \ArrayAccess, \Countable, \IteratorAggregate
     /**
      * Test is the two blocks overlap, i.e. if block1 contains block2, or block2 contains block1.
      *
+     * E.g. IPBlock::create('192.168.0.0/23')->overlaps('192.168.1.0/24'); //Returns true
+     *
      * @param $block mixed
      *
      * @return bool
@@ -486,14 +460,8 @@ abstract class IPBlock implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
-     * @return \GMP
-     */
-    private function blockSize(): \GMP
-    {
-        return gmp_pow(2, $this->getMaxPrefix() - $this->prefix);
-    }
-
-    /**
+     * interface Countable
+     *
      * @return int
      */
     public function count(): int
@@ -508,6 +476,8 @@ abstract class IPBlock implements \ArrayAccess, \Countable, \IteratorAggregate
     }
 
     /**
+     * interface IteratorAggregate
+     *
      * @return IPRangeIterator
      */
     public function getIterator(): IPRangeIterator
@@ -515,30 +485,98 @@ abstract class IPBlock implements \ArrayAccess, \Countable, \IteratorAggregate
         return new IPRangeIterator($this);
     }
 
-    // ArrayAccess
-
-    public function offsetExists($offset)
+    /**
+     * interface ArrayAccess
+     *
+     * @param mixed $offset
+     * @return bool
+     */
+    public function offsetExists($offset): bool
     {
         return gmp_cmp($offset, 0) >= 0 && gmp_cmp($offset, $this->getNbAddresses()) < 0;
     }
 
-    public function offsetGet($offset)
+    /**
+     * interface ArrayAccess
+     *
+     * @param mixed $offset
+     *
+     * @return IP
+     *
+     * @throws \OutOfBoundsException
+     */
+    public function offsetGet($offset): IP
     {
         if (!$this->offsetExists($offset)) {
-            throw new \OutOfBoundsException("Offset $offset does not exists");
+            throw new \OutOfBoundsException(sprintf('Offset "%s" does not exists', $offset));
         }
 
         return $this->first_ip->plus($offset);
     }
 
+    /**
+     * interface ArrayAccess
+     *
+     * @param mixed $offset
+     * @param mixed $value
+     *
+     * @throws \LogicException
+     */
     public function offsetSet($offset, $value)
     {
         throw new \LogicException('Setting IP in block is not supported');
     }
 
+    /**
+     * interface ArrayAccess
+     *
+     * @param mixed $offset
+     *
+     * @throws \LogicException
+     */
     public function offsetUnset($offset)
     {
         throw new \LogicException('Unset IP in block is not supported');
+    }
+
+    /**
+     * @param mixed $block
+     *
+     * @return bool
+     */
+    private function isIpBlock($block): bool
+    {
+        if ((is_string($block) && false !== strpos($block, '/')) || $block instanceof IPBlock) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @return \GMP
+     */
+    private function blockSize(): \GMP
+    {
+        return gmp_pow(2, $this->getMaxPrefix() - $this->prefix);
+    }
+
+    /**
+     * Check if the prefix is valid.
+     *
+     * @param mixed $prefix
+     *
+     * @throws \InvalidArgumentException
+     */
+    private function checkPrefix($prefix): void
+    {
+        if ('' === $prefix || null === $prefix || false === $prefix || $prefix < 0 || $prefix > $this->getMaxPrefix()) {
+            throw new \InvalidArgumentException(sprintf(
+                'Invalid IPv%s block prefix "%s"',
+                $this->getVersion(),
+                $prefix
+            ));
+        }
     }
 
     /**
