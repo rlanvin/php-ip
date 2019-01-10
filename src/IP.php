@@ -9,6 +9,9 @@
  *
  * @see https://github.com/rlanvin/php-ip
  */
+
+namespace phpIP;
+
 if (!function_exists('gmp_shiftl')) {
     /**
      * Shift left (<<).
@@ -65,17 +68,17 @@ abstract class IP
     {
         try {
             return new IPv4($ip);
-        } catch (InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException $e) {
             // do nothing
         }
 
         try {
             return new IPv6($ip);
-        } catch (InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException $e) {
             // do nothing
         }
 
-        throw new InvalidArgumentException("$ip does not appear to be an IPv4 or IPv6 address");
+        throw new \InvalidArgumentException("$ip does not appear to be an IPv4 or IPv6 address");
     }
 
     /**
@@ -97,7 +100,7 @@ abstract class IP
     public function numeric($base = 10)
     {
         if ($base < 2 || $base > 36) {
-            throw new InvalidArgumentException('Base must be between 2 and 36 (included)');
+            throw new \InvalidArgumentException('Base must be between 2 and 36 (included)');
         }
 
         $value = gmp_strval($this->ip, $base);
@@ -159,7 +162,7 @@ abstract class IP
     /**
      * Plus (+).
      *
-     * @throws OutOfBoundsException
+     * @throws \OutOfBoundsException
      *
      * @param $value mixed anything that can be converted into an IP object
      *
@@ -182,7 +185,7 @@ abstract class IP
         $result = gmp_add($this->ip, $value->ip);
 
         if (gmp_cmp($result, 0) < 0 || gmp_cmp($result, constant("$this->class::MAX_INT")) > 0) {
-            throw new OutOfBoundsException();
+            throw new \OutOfBoundsException();
         }
 
         return new $this->class($result);
@@ -191,7 +194,7 @@ abstract class IP
     /**
      * Minus(-).
      *
-     * @throws OutOfBoundsException
+     * @throws \OutOfBoundsException
      *
      * @param $value mixed anything that can be converted into an IP object
      *
@@ -214,7 +217,7 @@ abstract class IP
         $result = gmp_sub($this->ip, $value->ip);
 
         if (gmp_cmp($result, 0) < 0 || gmp_cmp($result, constant("$this->class::MAX_INT")) > 0) {
-            throw new OutOfBoundsException();
+            throw new \OutOfBoundsException();
         }
 
         return new $this->class($result);

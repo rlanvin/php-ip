@@ -1,6 +1,11 @@
 <?php
 
-class IPBlockTest extends PHPUnit_Framework_TestCase
+namespace phpIP\Tests;
+
+use phpIP\IPBlock;
+use phpIP\IP;
+
+class IPBlockTest extends \PHPUnit_Framework_TestCase
 {
     public function validOperations()
     {
@@ -146,7 +151,7 @@ class IPBlockTest extends PHPUnit_Framework_TestCase
             $block = IPBlock::create('0.0.0.0/1');
             sizeof($block);
             $this->fail('Sizeof should fail if number of addresses is bigger than PHP_INT_MAX');
-        } catch (RuntimeException $e) {
+        } catch (\RuntimeException $e) {
         }
 
         $block = IPBlock::create('0.0.0.0/0');
@@ -162,13 +167,13 @@ class IPBlockTest extends PHPUnit_Framework_TestCase
         try {
             $block[256];
             $this->fail('[] shoud throw OutOfBoundException');
-        } catch (OutOfBoundsException $e) {
+        } catch (\OutOfBoundsException $e) {
         }
 
         try {
             $block[2] = 'X';
             $this->fail('Setting with [] shoud throw LogicException');
-        } catch (LogicException $e) {
+        } catch (\LogicException $e) {
         }
     }
 
@@ -185,13 +190,13 @@ class IPBlockTest extends PHPUnit_Framework_TestCase
         try {
             $block->getSuper('');
             $this->fail('Expected InvalidArgumentException has not be thrown');
-        } catch (InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException $e) {
         }
 
         try {
             $block->getSuper('/32');
             $this->fail('Expected InvalidArgumentException has not be thrown');
-        } catch (InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException $e) {
         }
     }
 }

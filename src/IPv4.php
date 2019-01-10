@@ -10,6 +10,8 @@
  * @see https://github.com/rlanvin/php-ip
  */
 
+namespace phpIP;
+
 /**
  * Class to manipulate IPv4.
  */
@@ -43,21 +45,21 @@ class IPv4 extends IP
             // on 64 bits plateform, we have to test the value
             $ip = gmp_init(sprintf('%u', $ip), 10);
             if (gmp_cmp($ip, self::MAX_INT) > 0) {
-                throw new InvalidArgumentException(sprintf('The integer %s is not a valid IPv4 address', gmp_strval($ip)));
+                throw new \InvalidArgumentException(sprintf('The integer %s is not a valid IPv4 address', gmp_strval($ip)));
             }
             $this->ip = $ip;
         } elseif (is_float($ip) && floor($ip) == $ip) {
             // float (or double) with an integer value
             $ip = gmp_init(sprintf('%s', $ip), 10);
             if (gmp_cmp($ip, 0) < 0 || gmp_cmp($ip, self::MAX_INT) > 0) {
-                throw new InvalidArgumentException(sprintf('The double %s is not a valid IPv4 address', gmp_strval($ip)));
+                throw new \InvalidArgumentException(sprintf('The double %s is not a valid IPv4 address', gmp_strval($ip)));
             }
             $this->ip = $ip;
         } elseif (is_string($ip)) {
             // binary string
             if (!ctype_print($ip)) {
                 if (4 != strlen($ip)) {
-                    throw new InvalidArgumentException('The binary string is not a valid IPv4 address');
+                    throw new \InvalidArgumentException('The binary string is not a valid IPv4 address');
                 }
                 $hex = unpack('H*', $ip);
                 $this->ip = gmp_init($hex[1], 16);
@@ -70,20 +72,20 @@ class IPv4 extends IP
             elseif (ctype_digit($ip)) {
                 $ip = gmp_init($ip);
                 if (gmp_cmp($ip, self::MAX_INT) > 0) {
-                    throw new InvalidArgumentException(sprintf('%s is not a valid decimal IPv4 address', gmp_strval($ip)));
+                    throw new \InvalidArgumentException(sprintf('%s is not a valid decimal IPv4 address', gmp_strval($ip)));
                 }
 
                 $this->ip = $ip;
             } else {
-                throw new InvalidArgumentException("$ip is not a valid IPv4 address");
+                throw new \InvalidArgumentException("$ip is not a valid IPv4 address");
             }
-        } elseif ((is_resource($ip) && 'GMP integer' == get_resource_type($ip)) || $ip instanceof GMP) {
+        } elseif ((is_resource($ip) && 'GMP integer' == get_resource_type($ip)) || $ip instanceof \GMP) {
             if (gmp_cmp($ip, 0) < 0 || gmp_cmp($ip, self::MAX_INT) > 0) {
-                throw new InvalidArgumentException(sprintf('%s is not a valid decimal IPv4 address', gmp_strval($ip)));
+                throw new \InvalidArgumentException(sprintf('%s is not a valid decimal IPv4 address', gmp_strval($ip)));
             }
             $this->ip = $ip;
         } else {
-            throw new InvalidArgumentException('Unsupported argument type: '.gettype($ip));
+            throw new \InvalidArgumentException('Unsupported argument type: '.gettype($ip));
         }
     }
 

@@ -10,10 +10,12 @@
  * @see https://github.com/rlanvin/php-ip
  */
 
+namespace phpIP;
+
 /**
  * Base class to manipulate CIDR block (aka "networks").
  */
-abstract class IPBlock implements Iterator, ArrayAccess, Countable
+abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
 {
     /**
      * @var IP
@@ -96,17 +98,17 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
     {
         try {
             return new IPv4Block($ip, $prefix);
-        } catch (InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException $e) {
             // do nothing
         }
 
         try {
             return new IPv6Block($ip, $prefix);
-        } catch (InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException $e) {
             // do nothing
         }
 
-        throw new InvalidArgumentException("$ip does not appear to be an IPv4 or IPv6 block");
+        throw new \InvalidArgumentException("$ip does not appear to be an IPv4 or IPv6 block");
     }
 
     /**
@@ -178,7 +180,7 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
         }
 
         if (!is_int($value)) {
-            throw new InvalidArgumentException('plus() takes an integer');
+            throw new \InvalidArgumentException('plus() takes an integer');
         }
 
         if (0 == $value) {
@@ -193,8 +195,8 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
                 $first_ip,
                 $this->prefix
             );
-        } catch (InvalidArgumentException $e) {
-            throw new OutOfBoundsException($e->getMessage());
+        } catch (\InvalidArgumentException $e) {
+            throw new \OutOfBoundsException($e->getMessage());
         }
     }
 
@@ -205,7 +207,7 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
         }
 
         if (!is_int($value)) {
-            throw new InvalidArgumentException('plus() takes an integer');
+            throw new \InvalidArgumentException('plus() takes an integer');
         }
 
         if (0 == $value) {
@@ -220,8 +222,8 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
                 $first_ip,
                 $this->prefix
             );
-        } catch (InvalidArgumentException $e) {
-            throw new OutOfBoundsException($e->getMessage());
+        } catch (\InvalidArgumentException $e) {
+            throw new \OutOfBoundsException($e->getMessage());
         }
     }
 
@@ -293,12 +295,12 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
      * @internal
      * Check if the prefix is valid
      *
-     * @throws InvalidArgumentException
+     * @throws \InvalidArgumentException
      */
     protected function checkPrefix($prefix)
     {
         if ('' === $prefix || null === $prefix || false === $prefix || $prefix < 0 || $prefix > $this->getMaxPrefix()) {
-            throw new InvalidArgumentException(sprintf(
+            throw new \InvalidArgumentException(sprintf(
                 "Invalid IPv%s block prefix '%s'",
                 $this->getVersion(),
                 $prefix
@@ -319,7 +321,7 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
         $this->checkPrefix($prefix);
 
         if ($prefix <= $this->prefix) {
-            throw new InvalidArgumentException("Prefix must be smaller than {$this->prefix} ($prefix given)");
+            throw new \InvalidArgumentException("Prefix must be smaller than {$this->prefix} ($prefix given)");
         }
 
         $first_block = new $this->class($this->first_ip, $prefix);
@@ -339,7 +341,7 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
         $this->checkPrefix($prefix);
 
         if ($prefix >= $this->prefix) {
-            throw new InvalidArgumentException("Prefix must be bigger than {$this->prefix} ($prefix given)");
+            throw new \InvalidArgumentException("Prefix must be bigger than {$this->prefix} ($prefix given)");
         }
 
         return new $this->class($this->first_ip, $prefix);
@@ -448,7 +450,7 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
     {
         $n = $this->getNbAddresses();
         if ($n > PHP_INT_MAX) {
-            throw new RuntimeException('The number of addresses is bigger than PHP_INT_MAX, use getNbAddresses() instead');
+            throw new \RuntimeException('The number of addresses is bigger than PHP_INT_MAX, use getNbAddresses() instead');
         }
 
         return $n;
@@ -493,7 +495,7 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
     public function offsetGet($offset)
     {
         if (!$this->offsetExists($offset)) {
-            throw new OutOfBoundsException("Offset $offset does not exists");
+            throw new \OutOfBoundsException("Offset $offset does not exists");
         }
 
         return $this->first_ip->plus($offset);
@@ -501,11 +503,11 @@ abstract class IPBlock implements Iterator, ArrayAccess, Countable
 
     public function offsetSet($offset, $value)
     {
-        throw new LogicException('Setting IP in block is not supported');
+        throw new \LogicException('Setting IP in block is not supported');
     }
 
     public function offsetUnset($offset)
     {
-        throw new LogicException('Unsetting IP in block is not supported');
+        throw new \LogicException('Unsetting IP in block is not supported');
     }
 }

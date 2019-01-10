@@ -1,6 +1,11 @@
 <?php
 
-class IPTest extends PHPUnit_Framework_TestCase
+namespace phpIP\Tests;
+
+use phpIP\IP;
+use phpIP\IPv4;
+
+class IPTest extends \PHPUnit_Framework_TestCase
 {
     public function validAddresses()
     {

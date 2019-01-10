@@ -10,6 +10,8 @@
  * @see https://github.com/rlanvin/php-ip
  */
 
+namespace phpIP;
+
 /**
  * Iterator for IPBlock. This could be a Generator in PHP 5.5.
  */

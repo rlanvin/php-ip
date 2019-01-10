@@ -10,11 +10,13 @@
  * @see https://github.com/rlanvin/php-ip
  */
 
+namespace phpIP;
+
 /**
  * An IPv6 CIDR block.
  */
 class IPv6Block extends IPBlock
 {
-    protected $ip_class = 'IPv6';
+    protected $ip_class = 'phpIP\IPv6';
     protected $class = __CLASS__;
 }

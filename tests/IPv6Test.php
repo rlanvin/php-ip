@@ -1,6 +1,10 @@
 <?php
 
-class IPv6Test extends PHPUnit_Framework_TestCase
+namespace phpIP\Tests;
+
+use phpIP\IPv6;
+
+class IPv6Test extends \PHPUnit_Framework_TestCase
 {
     public function validAddresses()
     {
@@ -44,7 +48,7 @@ class IPv6Test extends PHPUnit_Framework_TestCase
         $values = array(
             array("\t"),
             array(array()),
-            array(new stdClass()),
+            array(new \stdClass()),
             array('-1'),
             array(gmp_init('-1')),
             array(gmp_init('340282366920938463463374607431768211456')),

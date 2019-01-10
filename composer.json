@@ -13,9 +13,13 @@
         "phpunit/phpunit": "~4.0"
     },
     "autoload": {
-        "classmap": ["src/"]
+        "psr-4": {
+            "phpIP\\": "src/"
+        }
     },
     "autoload-dev": {
-        "classmap": ["tests/"]
+        "psr-4": {
+            "phpIP\\Tests\\": "tests/"
+        }
     }
 }
