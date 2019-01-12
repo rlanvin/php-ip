@@ -17,6 +17,11 @@ if (!function_exists('gmp_shiftl')) {
      * Shift left (<<).
      *
      * @see http://www.php.net/manual/en/ref.gmp.php#99788
+     *
+     * @param resource|string|\GMP $x
+     * @param int                  $n
+     *
+     * @return resource|\GMP
      */
     function gmp_shiftl($x, $n)
     {
@@ -28,6 +33,11 @@ if (!function_exists('gmp_shiftr')) {
      * Shift right (>>).
      *
      * @see http://www.php.net/manual/en/ref.gmp.php#99788
+     *
+     * @param resource|string|\GMP $x
+     * @param int                  $n
+     *
+     * @return resource|\GMP
      */
     function gmp_shiftr($x, $n)
     {
@@ -55,6 +65,11 @@ abstract class IP
     protected $is_private;
 
     /**
+     * @var string Either "IPv4" or "IPv6"
+     */
+    protected $class;
+
+    /**
      * Take an IP string/int and return an object of the correct type.
      *
      * Either IPv4 or IPv6 may be supplied, but integers less than 2^32 will
@@ -62,7 +77,7 @@ abstract class IP
      *
      * @param  $ip      mixed Anything that can be converted into an IP (string, int, bin, etc.)
      *
-     * @return IPv4 or IPv6
+     * @return IPv4|IPv6
      */
     public static function create($ip)
     {

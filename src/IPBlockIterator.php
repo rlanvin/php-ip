@@ -15,14 +15,31 @@ namespace phpIP;
 /**
  * Iterator for IPBlock. This could be a Generator in PHP 5.5.
  */
-class IPBlockIterator implements Iterator
+class IPBlockIterator implements \Iterator
 {
+    /**
+     * @var int|\GMP
+     */
     protected $position = 0;
+
+    /**
+     * @var IPBlock
+     */
     protected $current_block = null;
 
+    /**
+     * @var IPBlock
+     */
     protected $first_block = null;
+
+    /**
+     * @var int
+     */
     protected $nb_blocks = 0;
 
+    /**
+     * @var string
+     */
     protected $class = '';
 
     public function __construct(IPBlock $first_block, $nb_blocks)
