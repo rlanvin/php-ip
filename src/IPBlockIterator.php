@@ -15,44 +15,44 @@ namespace phpIP;
 /**
  * Iterator for IPBlock. This could be a Generator in PHP 5.5.
  */
-class IPBlockIterator implements \Iterator
+class IPBlockIterator implements \Iterator, \Countable
 {
     /**
-     * @var int|\GMP
+     * @var resource|\GMP
      */
-    protected $position = 0;
+    protected $position;
 
     /**
      * @var IPBlock
      */
-    protected $current_block = null;
+    protected $current_block;
 
     /**
      * @var IPBlock
      */
-    protected $first_block = null;
+    protected $first_block;
 
     /**
      * @var int
      */
-    protected $nb_blocks = 0;
+    protected $nb_blocks;
 
     /**
-     * @var string
+     * IPBlockIterator constructor.
+     *
+     * @param IPBlock $first_block
+     * @param $nb_blocks
      */
-    protected $class = '';
-
     public function __construct(IPBlock $first_block, $nb_blocks)
     {
-        $this->class = get_class($first_block);
-
-        $this->first_block = $first_block;
+        $this->first_block = $this->current_block = $first_block;
         $this->nb_blocks = $nb_blocks;
+        $this->position = gmp_init(0);
     }
 
     public function count()
     {
-        return gmp_strval($this->nb_blocks);
+        return $this->nb_blocks;
     }
 
     public function rewind()
@@ -61,6 +61,9 @@ class IPBlockIterator implements \Iterator
         $this->current_block = $this->first_block;
     }
 
+    /**
+     * @return IPBlock
+     */
     public function current()
     {
         return $this->current_block;
