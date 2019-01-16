@@ -21,12 +21,6 @@ class IPv4 extends IP
     const MAX_INT = '4294967295';
     const NB_BITS = 32;
 
-    /**
-     * Workaround for lack of late static binding in PHP 5.2
-     * so I can use "new $this->class()"" instead of "new static()".
-     */
-    protected $class = __CLASS__;
-
     public function getVersion()
     {
         return self::IP_VERSION;
