@@ -15,7 +15,7 @@ namespace phpIP;
 /**
  * Class to manipulate IPv6.
  *
- * Addresses are stored internally as GMP ressource (big int).
+ * Addresses are stored internally as GMP resource (big int).
  */
 class IPv6 extends IP
 {
@@ -35,128 +35,9 @@ class IPv6 extends IP
     }
 
     /**
-     * Constructor determines the $ip from multiple data types.
-     *
-     * @param mixed $ip
-     */
-    public function __construct($ip)
-    {
-        // integer value
-        if (is_int($ip)) {
-            $this->fromInt($ip);
-
-            return;
-        }
-
-        // float (or double) with an integer value
-        if (is_float($ip) && floor($ip) == $ip) {
-            $this->fromFloat($ip);
-
-            return;
-        }
-
-        if (is_string($ip)) {
-            $this->fromString($ip);
-
-            return;
-        }
-
-        if ((is_resource($ip) && 'GMP integer' == get_resource_type($ip)) || $ip instanceof \GMP) {
-            $this->fromGMP($ip);
-
-            return;
-        }
-
-        throw new \InvalidArgumentException('Unsupported argument type: '.gettype($ip));
-    }
-
-    /**
-     * @param int $ip
-     */
-    private function fromInt($ip)
-    {
-        $ip = gmp_init(sprintf('%u', $ip), 10);
-
-        if (gmp_cmp($ip, static::MAX_INT) > 0) {
-            throw new \InvalidArgumentException(sprintf('The integer "%s" is not a valid IPv%d address.', gmp_strval($ip), static::IP_VERSION));
-        }
-
-        $this->ip = $ip;
-    }
-
-    /**
-     * @param float $ip
-     */
-    private function fromFloat($ip)
-    {
-        $ip = gmp_init(sprintf('%s', $ip), 10);
-
-        if (gmp_cmp($ip, 0) < 0 || gmp_cmp($ip, static::MAX_INT) > 0) {
-            throw new \InvalidArgumentException(sprintf('The double "%s" is not a valid IPv%d address.', gmp_strval($ip), static::IP_VERSION));
-        }
-
-        $this->ip = $ip;
-    }
-
-    /**
-     * @param string $ip
-     */
-    private function fromString($ip)
-    {
-        // binary string
-        if (false !== @inet_ntop($ip)) {
-            $strLen = static::NB_BITS/8;
-
-            if ($strLen != strlen($ip)) {
-                throw new \InvalidArgumentException(sprintf('The binary string "%s" is not a valid IPv%d address.', $ip, static::IP_VERSION));
-            }
-
-            $hex = unpack('H*', $ip);
-            $this->ip = gmp_init($hex[1], 16);
-
-            return;
-        }
-
-        // valid human readable representation
-        $filterFlag = constant('FILTER_FLAG_IPV' . static::IP_VERSION);
-        if (filter_var($ip, FILTER_VALIDATE_IP, $filterFlag)) {
-            $ip = inet_pton($ip);
-            $hex = unpack('H*', $ip);
-            $this->ip = gmp_init($hex[1], 16);
-
-            return;
-        }
-
-        // numeric string (decimal)
-        if (ctype_digit($ip)) {
-            $ip = gmp_init($ip, 10);
-            if (gmp_cmp($ip, static::MAX_INT) > 0) {
-                throw new \InvalidArgumentException(sprintf('"%s" is not a valid decimal IPv%d address.', gmp_strval($ip), static::IP_VERSION));
-            }
-
-            $this->ip = $ip;
-
-            return;
-        }
-
-        throw new \InvalidArgumentException("$ip is not a valid IPv6 address");
-    }
-
-    /**
-     * @param \GMP|resource $ip
-     */
-    private function fromGMP($ip)
-    {
-        if (gmp_cmp($ip, 0) < 0 || gmp_cmp($ip, self::MAX_INT) > 0) {
-            throw new \InvalidArgumentException(sprintf('%s is not a valid decimal IPv6 address', gmp_strval($ip)));
-        }
-        $this->ip = $ip;
-    }
-
-    /**
      * Returns human readable representation of the IP.
      *
-     * @param $compress bool Wether to compress IPv6 or not
+     * @param $compress bool Whether to compress IPv6 or not
      *
      * @return string
      */
@@ -175,7 +56,7 @@ class IPv6 extends IP
     }
 
     /**
-     * Return true if the address is reserved per iana-ipv6-special-registry.
+     * Return true if the address is reserved per IANA IPv6 Special Registry.
      */
     public function isPrivate()
     {

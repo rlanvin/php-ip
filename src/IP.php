@@ -50,10 +50,14 @@ if (!function_exists('gmp_shiftr')) {
  */
 abstract class IP
 {
+    const MAX_INT = null;
+    const NB_BITS = null;
+    const IP_VERSION = null;
+
     /**
      * Internal representation of the IP as a numeric format.
      * For IPv4, this will be an SIGNED int (32 bits).
-     * For IPv6, this will be a GMP ressource (128 bits big int).
+     * For IPv6, this will be a GMP resource (128 bits big int).
      *
      * @var mixed
      */
@@ -68,6 +72,123 @@ abstract class IP
      * @var string Either "IPv4" or "IPv6"
      */
     protected $class;
+
+    /**
+     * Constructor tries to guess what is the $ip.
+     *
+     * @param $ip mixed String, binary string, int or float
+     */
+    public function __construct($ip)
+    {
+        if (is_int($ip)) {
+            $this->fromInt($ip);
+
+            return;
+        }
+
+        // float (or double) with an integer value
+        if (is_float($ip) && floor($ip) == $ip) {
+            $this->fromFloat($ip);
+
+            return;
+        }
+
+        if (is_string($ip)) {
+            $this->fromString($ip);
+
+            return;
+        }
+
+        if ((is_resource($ip) && 'GMP integer' === get_resource_type($ip)) || $ip instanceof \GMP) {
+            $this->fromGMP($ip);
+
+            return;
+        }
+
+        throw new \InvalidArgumentException(sprintf('Unsupported argument type: "%s".', gettype($ip)));
+    }
+
+    /**
+     * @param int $ip
+     */
+    private function fromInt($ip)
+    {
+        $ip = gmp_init(sprintf('%u', $ip), 10);
+
+        if (gmp_cmp($ip, static::MAX_INT) > 0) {
+            throw new \InvalidArgumentException(sprintf('The integer "%s" is not a valid IPv%d address.', gmp_strval($ip), static::IP_VERSION));
+        }
+
+        $this->ip = $ip;
+    }
+
+    /**
+     * @param float $ip
+     */
+    private function fromFloat($ip)
+    {
+        $ip = gmp_init(sprintf('%s', $ip), 10);
+
+        if (gmp_cmp($ip, 0) < 0 || gmp_cmp($ip, static::MAX_INT) > 0) {
+            throw new \InvalidArgumentException(sprintf('The double "%s" is not a valid IPv%d address.', gmp_strval($ip), static::IP_VERSION));
+        }
+
+        $this->ip = $ip;
+    }
+
+    /**
+     * @param string $ip
+     */
+    private function fromString($ip)
+    {
+        // binary, packed string
+        if (false !== @inet_ntop($ip)) {
+            $strLen = static::NB_BITS/8;
+
+            if ($strLen != strlen($ip)) {
+                throw new \InvalidArgumentException(sprintf('The binary string "%s" is not a valid IPv%d address.', $ip, static::IP_VERSION));
+            }
+
+            $hex = unpack('H*', $ip);
+            $this->ip = gmp_init($hex[1], 16);
+
+            return;
+        }
+
+        $filterFlag = constant('FILTER_FLAG_IPV' . static::IP_VERSION);
+        if (filter_var($ip, FILTER_VALIDATE_IP, $filterFlag)) {
+            $ip = inet_pton($ip);
+            $hex = unpack('H*', $ip);
+            $this->ip = gmp_init($hex[1], 16);
+
+            return;
+        }
+
+        // numeric string (decimal)
+        if (ctype_digit($ip)) {
+            $ip = gmp_init($ip, 10);
+            if (gmp_cmp($ip, static::MAX_INT) > 0) {
+                throw new \InvalidArgumentException(sprintf('"%s" is not a valid decimal IPv%d address.', gmp_strval($ip), static::IP_VERSION));
+            }
+
+            $this->ip = $ip;
+
+            return;
+        }
+
+        throw new \InvalidArgumentException(sprintf('The string "%s" is not a valid IPv%d address.', $ip, static::IP_VERSION));
+    }
+
+    /**
+     * @param \GMP|resource $ip
+     */
+    private function fromGMP($ip)
+    {
+        if (gmp_cmp($ip, 0) < 0 || gmp_cmp($ip, static::MAX_INT) > 0) {
+            throw new \InvalidArgumentException(sprintf('"%s" is not a valid decimal IPv%d address.', gmp_strval($ip), static::IP_VERSION));
+        }
+        $this->ip = $ip;
+    }
 
     /**
      * Take an IP string/int and return an object of the correct type.
@@ -106,7 +227,7 @@ abstract class IP
     /**
      * Return numeric representation of the IP in base $base.
      *
-     * The return value is a PHP string. It can base used for comparaison.
+     * The return value is a PHP string. It can base used for comparison.
      *
      * @param  $base  int from 2 to 36
      *
