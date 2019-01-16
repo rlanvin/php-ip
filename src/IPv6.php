@@ -75,7 +75,13 @@ class IPv6 extends IP
      */
     private function fromInt($ip)
     {
-        $this->ip = gmp_init(sprintf('%u', $ip), 10);
+        $ip = gmp_init(sprintf('%u', $ip), 10);
+
+        if (gmp_cmp($ip, static::MAX_INT) > 0) {
+            throw new \InvalidArgumentException(sprintf('The integer "%s" is not a valid IPv%d address.', gmp_strval($ip), static::IP_VERSION));
+        }
+
+        $this->ip = $ip;
     }
 
     /**
@@ -84,9 +90,11 @@ class IPv6 extends IP
     private function fromFloat($ip)
     {
         $ip = gmp_init(sprintf('%s', $ip), 10);
-        if (gmp_cmp($ip, 0) < 0 || gmp_cmp($ip, self::MAX_INT) > 0) {
-            throw new \InvalidArgumentException(sprintf('The double %s is not a valid IPv6 address', gmp_strval($ip)));
+
+        if (gmp_cmp($ip, 0) < 0 || gmp_cmp($ip, static::MAX_INT) > 0) {
+            throw new \InvalidArgumentException(sprintf('The double "%s" is not a valid IPv%d address.', gmp_strval($ip), static::IP_VERSION));
         }
+
         $this->ip = $ip;
     }
 
@@ -97,11 +105,12 @@ class IPv6 extends IP
     {
         // binary string
         if (false !== @inet_ntop($ip)) {
-            // probably the result of inet_pton
-            // must be 16 bytes exactly to be valid
-            if (16 != strlen($ip)) {
-                throw new \InvalidArgumentException('The binary string is not a valid IPv6 address');
+            $strLen = static::NB_BITS/8;
+
+            if ($strLen != strlen($ip)) {
+                throw new \InvalidArgumentException(sprintf('The binary string "%s" is not a valid IPv%d address.', $ip, static::IP_VERSION));
             }
+
             $hex = unpack('H*', $ip);
             $this->ip = gmp_init($hex[1], 16);
 
@@ -109,7 +118,8 @@ class IPv6 extends IP
         }
 
         // valid human readable representation
-        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+        $filterFlag = constant('FILTER_FLAG_IPV' . static::IP_VERSION);
+        if (filter_var($ip, FILTER_VALIDATE_IP, $filterFlag)) {
             $ip = inet_pton($ip);
             $hex = unpack('H*', $ip);
             $this->ip = gmp_init($hex[1], 16);
@@ -121,8 +131,9 @@ class IPv6 extends IP
         if (ctype_digit($ip)) {
             $ip = gmp_init($ip, 10);
             if (gmp_cmp($ip, static::MAX_INT) > 0) {
-                throw new \InvalidArgumentException(sprintf('%s is not a valid decimal IPv6 address', gmp_strval($ip)));
+                throw new \InvalidArgumentException(sprintf('"%s" is not a valid decimal IPv%d address.', gmp_strval($ip), static::IP_VERSION));
             }
+
             $this->ip = $ip;
 
             return;

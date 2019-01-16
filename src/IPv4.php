@@ -78,8 +78,9 @@ class IPv4 extends IP
         $ip = gmp_init(sprintf('%u', $ip), 10);
 
         if (gmp_cmp($ip, static::MAX_INT) > 0) {
-            throw new \InvalidArgumentException(sprintf('The integer "%s" is not a valid IPv4 address.', gmp_strval($ip)));
+            throw new \InvalidArgumentException(sprintf('The integer "%s" is not a valid IPv%d address.', gmp_strval($ip), static::IP_VERSION));
         }
+
         $this->ip = $ip;
     }
 
@@ -89,9 +90,11 @@ class IPv4 extends IP
     private function fromFloat($ip)
     {
         $ip = gmp_init(sprintf('%s', $ip), 10);
+
         if (gmp_cmp($ip, 0) < 0 || gmp_cmp($ip, static::MAX_INT) > 0) {
-            throw new \InvalidArgumentException(sprintf('The double %s is not a valid IPv4 address.', gmp_strval($ip)));
+            throw new \InvalidArgumentException(sprintf('The double "%s" is not a valid IPv%d address.', gmp_strval($ip), static::IP_VERSION));
         }
+
         $this->ip = $ip;
     }
 
@@ -102,27 +105,32 @@ class IPv4 extends IP
     {
         // binary, packed string
         if (false !== @inet_ntop($ip)) {
-            if (4 != strlen($ip)) {
-                throw new \InvalidArgumentException(sprintf('The binary string "%s" is not a valid IPv4 address.', $ip));
+            $strLen = static::NB_BITS/8;
+
+            if ($strLen != strlen($ip)) {
+                throw new \InvalidArgumentException(sprintf('The binary string "%s" is not a valid IPv%d address.', $ip, static::IP_VERSION));
             }
+
             $hex = unpack('H*', $ip);
             $this->ip = gmp_init($hex[1], 16);
 
             return;
         }
 
-        // human readable IPv4
-        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-            $this->ip = gmp_init(sprintf('%u', ip2long($ip)));
+        $filterFlag = constant('FILTER_FLAG_IPV' . static::IP_VERSION);
+        if (filter_var($ip, FILTER_VALIDATE_IP, $filterFlag)) {
+            $ip = inet_pton($ip);
+            $hex = unpack('H*', $ip);
+            $this->ip = gmp_init($hex[1], 16);
 
             return;
         }
 
         // numeric string (decimal)
         if (ctype_digit($ip)) {
-            $ip = gmp_init($ip);
+            $ip = gmp_init($ip, 10);
             if (gmp_cmp($ip, static::MAX_INT) > 0) {
-                throw new \InvalidArgumentException(sprintf('"%s" is not a valid decimal IPv4 address.', gmp_strval($ip)));
+                throw new \InvalidArgumentException(sprintf('"%s" is not a valid decimal IPv%d address.', gmp_strval($ip), static::IP_VERSION));
             }
 
             $this->ip = $ip;
@@ -130,7 +138,7 @@ class IPv4 extends IP
             return;
         }
 
-        throw new \InvalidArgumentException(sprintf('The string "%s" is not a valid IPv4 address.', $ip));
+        throw new \InvalidArgumentException(sprintf('The string "%s" is not a valid IPv%d address.', $ip, static::IP_VERSION));
     }
 
     /**
@@ -139,7 +147,7 @@ class IPv4 extends IP
     private function fromGMP($ip)
     {
         if (gmp_cmp($ip, 0) < 0 || gmp_cmp($ip, static::MAX_INT) > 0) {
-            throw new \InvalidArgumentException(sprintf('"%s" is not a valid decimal IPv4 address.', gmp_strval($ip)));
+            throw new \InvalidArgumentException(sprintf('"%s" is not a valid decimal IPv%d address.', gmp_strval($ip), static::IP_VERSION));
         }
         $this->ip = $ip;
     }
