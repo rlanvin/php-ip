@@ -115,13 +115,19 @@ abstract class IP
     /**
      * Return binary string representation.
      *
-     * @todo could be optimized with pack() instead?
-     *
      * @return string Binary string
      */
     public function binary()
     {
-        return inet_pton($this->humanReadable());
+        $padLength = 8;
+
+        if ($this instanceof IPv6) {
+            $padLength = 32;
+        }
+
+        $hex = str_pad($this->numeric(16), $padLength, '0', STR_PAD_LEFT);
+
+        return pack('H*', $hex);
     }
 
     /**
