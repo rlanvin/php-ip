@@ -1,8 +1,8 @@
 <?php
 
-namespace phpIP\Tests;
+namespace PhpIP\Tests;
 
-use phpIP\IPv4;
+use PhpIP\IPv4;
 
 class IPv4Test extends \PHPUnit_Framework_TestCase
 {

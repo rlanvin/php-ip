@@ -10,7 +10,7 @@
  * @see https://github.com/rlanvin/php-ip
  */
 
-namespace phpIP;
+namespace PhpIP;
 
 /**
  * Base class to manipulate CIDR block (aka "networks").

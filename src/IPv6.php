@@ -10,7 +10,7 @@
  * @see https://github.com/rlanvin/php-ip
  */
 
-namespace phpIP;
+namespace PhpIP;
 
 /**
  * Class to manipulate IPv6.

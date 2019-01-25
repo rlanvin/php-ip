@@ -10,7 +10,7 @@
  * @see https://github.com/rlanvin/php-ip
  */
 
-namespace phpIP;
+namespace PhpIP;
 
 if (!function_exists('gmp_shiftl')) {
     /**
