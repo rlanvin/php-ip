@@ -10,7 +10,7 @@
  * @see https://github.com/rlanvin/php-ip
  */
 
-namespace phpIP;
+namespace PhpIP;
 
 if (!function_exists('gmp_shiftl')) {
     /**
@@ -310,7 +310,7 @@ abstract class IP
             return $this->minus(-1 * $value);
         }
 
-        if (0 == $value) {
+        if ($value == 0) {
             return clone $this;
         }
 
@@ -342,7 +342,7 @@ abstract class IP
             return $this->plus(-1 * $value);
         }
 
-        if (0 == $value) {
+        if ($value == 0) {
             return clone $this;
         }
 

@@ -1,9 +1,9 @@
 <?php
 
-namespace phpIP\Tests;
+namespace PhpIP\Tests;
 
-use phpIP\IP;
-use phpIP\IPv4;
+use PhpIP\IP;
+use PhpIP\IPv4;
 
 class IPTest extends \PHPUnit_Framework_TestCase
 {
