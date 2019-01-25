@@ -69,8 +69,8 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
      */
     public function getMask()
     {
-        if (null === $this->mask) {
-            if (0 == $this->prefix) {
+        if ($this->mask === null) {
+            if ($this->prefix == 0) {
                 $this->mask = new $this->ip_class(0);
             } else {
                 $max_int = gmp_init(constant("$this->ip_class::MAX_INT"));
@@ -90,8 +90,8 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
      */
     public function getDelta()
     {
-        if (null === $this->delta) {
-            if (0 == $this->prefix) {
+        if ($this->delta === null) {
+            if ($this->prefix == 0) {
                 $this->delta = new $this->ip_class(constant("$this->ip_class::MAX_INT"));
             } else {
                 $this->delta = new $this->ip_class(gmp_sub(gmp_shiftl(1, constant("$this->ip_class::NB_BITS") - $this->prefix), 1));
@@ -134,7 +134,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
     public function __construct($ip_or_cidr, $prefix = '')
     {
         $this->given_ip = $ip_or_cidr;
-        if (false !== strpos($ip_or_cidr, '/')) {
+        if (strpos($ip_or_cidr, '/') !== false) {
             list($this->given_ip, $prefix) = explode('/', $ip_or_cidr, 2);
         }
 
@@ -210,7 +210,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
             throw new \InvalidArgumentException('plus() takes an integer');
         }
 
-        if (0 == $value) {
+        if ($value == 0) {
             return clone $this;
         }
 
@@ -242,7 +242,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
             throw new \InvalidArgumentException('plus() takes an integer');
         }
 
-        if (0 == $value) {
+        if ($value == 0) {
             return clone $this;
         }
 

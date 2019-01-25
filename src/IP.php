@@ -53,7 +53,7 @@ abstract class IP
     /**
      * Internal representation of the IP as a numeric format.
      * For IPv4, this will be an SIGNED int (32 bits).
-     * For IPv6, this will be a GMP ressource (128 bits big int).
+     * For IPv6, this will be a GMP resource (128 bits big int).
      *
      * @var mixed
      */
@@ -106,7 +106,7 @@ abstract class IP
     /**
      * Return numeric representation of the IP in base $base.
      *
-     * The return value is a PHP string. It can base used for comparaison.
+     * The return value is a PHP string. It can base used for comparison.
      *
      * @param  $base  int from 2 to 36
      *
@@ -189,7 +189,7 @@ abstract class IP
             return $this->minus(-1 * $value);
         }
 
-        if (0 == $value) {
+        if ($value == 0) {
             return clone $this;
         }
 
@@ -221,7 +221,7 @@ abstract class IP
             return $this->plus(-1 * $value);
         }
 
-        if (0 == $value) {
+        if ($value == 0) {
             return clone $this;
         }
 

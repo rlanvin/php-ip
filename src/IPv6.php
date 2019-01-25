@@ -56,7 +56,7 @@ class IPv6 extends IP
             if (!ctype_print($ip)) {
                 // probably the result of inet_pton
                 // must be 16 bytes exactly to be valid
-                if (16 != strlen($ip)) {
+                if (strlen($ip) != 16) {
                     throw new \InvalidArgumentException('The binary string is not a valid IPv6 address');
                 }
                 $hex = unpack('H*', $ip);
