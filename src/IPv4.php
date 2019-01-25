@@ -20,6 +20,7 @@ class IPv4 extends IP
     const IP_VERSION = 4;
     const MAX_INT = '4294967295';
     const NB_BITS = 32;
+    const NB_BYTES = 4;
 
     /**
      * Workaround for lack of late static binding in PHP 5.2

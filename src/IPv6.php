@@ -22,6 +22,7 @@ class IPv6 extends IP
     const IP_VERSION = 6;
     const MAX_INT = '340282366920938463463374607431768211455';
     const NB_BITS = 128;
+    const NB_BYTES = 16;
 
     /**
      * Workaround for lack of late static binding in PHP 5.2

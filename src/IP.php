@@ -52,6 +52,7 @@ abstract class IP
 {
     const MAX_INT = null;
     const NB_BITS = null;
+    const NB_BYTES = null;
     const IP_VERSION = null;
 
     /**
@@ -143,9 +144,7 @@ abstract class IP
     {
         // binary, packed string
         if (false !== @inet_ntop($ip)) {
-            $strLen = static::NB_BITS/8;
-
-            if ($strLen != strlen($ip)) {
+            if (static::NB_BYTES != strlen($ip)) {
                 throw new \InvalidArgumentException(sprintf('The binary string "%s" is not a valid IPv%d address.', $ip, static::IP_VERSION));
             }
 
