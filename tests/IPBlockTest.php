@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Licensed under the MIT license.
+ *
+ * For the full copyright and license information, please view the LICENSE file.
+ *
+ * @author Rémi Lanvin <remi@cloudconnected.fr>
+ *
+ * @see https://github.com/rlanvin/php-ip
+ */
+
 namespace PhpIP\Tests;
 
 use PhpIP\IPBlock;
@@ -23,10 +33,10 @@ class IPBlockTest extends \PHPUnit_Framework_TestCase
     public function testPlusMinus($block, $plus, $minus, $result)
     {
         $block = IPBlock::create($block);
-        if (null !== $plus) {
+        if ($plus !== null) {
             $this->assertEquals($result, (string) $block->plus($plus), "$block + $plus = $result");
             $this->assertEquals((string) $block, (string) IPBlock::create($result)->minus($plus), "$result - $plus = $block");
-        } elseif (null !== $minus) {
+        } elseif ($minus !== null) {
             $this->assertEquals($result, (string) $block->minus($minus), "$block - $minus = $result");
             $this->assertEquals((string) $block, (string) IPBlock::create($result)->plus($minus), "$result + $minus = $block");
         }
@@ -59,9 +69,9 @@ class IPBlockTest extends \PHPUnit_Framework_TestCase
     public function testPlusMinusOob($block, $plus, $minus)
     {
         $block = IPBlock::create($block);
-        if (null !== $plus) {
+        if ($plus !== null) {
             $block->plus($plus);
-        } elseif (null !== $minus) {
+        } elseif ($minus !== null) {
             $block->minus($minus);
         }
     }

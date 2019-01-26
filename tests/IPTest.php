@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Licensed under the MIT license.
+ *
+ * For the full copyright and license information, please view the LICENSE file.
+ *
+ * @author Rémi Lanvin <remi@cloudconnected.fr>
+ *
+ * @see https://github.com/rlanvin/php-ip
+ */
+
 namespace PhpIP\Tests;
 
 use PhpIP\IP;
@@ -81,10 +91,10 @@ class IPTest extends \PHPUnit_Framework_TestCase
     public function testPlusMinus($ip, $plus, $minus, $result)
     {
         $ip = IP::create($ip);
-        if (null !== $plus) {
+        if ($plus !== null) {
             $this->assertEquals($result, (string) $ip->plus($plus), "$ip + $plus = $result");
             $this->assertEquals((string) $ip, (string) IP::create($result)->minus($plus), "$result - $plus = $ip");
-        } elseif (null !== $minus) {
+        } elseif ($minus !== null) {
             $this->assertEquals($result, (string) $ip->minus($minus), "$ip - $minus = $result");
             $this->assertEquals((string) $ip, (string) IP::create($result)->plus($minus), "$result + $minus = $ip");
         }
@@ -123,9 +133,9 @@ class IPTest extends \PHPUnit_Framework_TestCase
     public function testPlusMinusOob($ip, $plus, $minus)
     {
         $ip = IP::create($ip);
-        if (null !== $plus) {
+        if ($plus !== null) {
             $ip->plus($plus);
-        } elseif (null !== $minus) {
+        } elseif ($minus !== null) {
             $ip->minus($minus);
         }
     }

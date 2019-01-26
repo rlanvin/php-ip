@@ -122,7 +122,7 @@ abstract class IP
 
         // fix for newer versions of GMP (> 5.0) in PHP 5.4+ that removes
         // the leading 0 in base 2
-        if (2 == $base) {
+        if ($base == 2) {
             $n = constant("$this->class::NB_BITS"); // ugly, but necessary because of PHP 5.2
             $value = str_pad($value, $n, '0', STR_PAD_LEFT);
         }

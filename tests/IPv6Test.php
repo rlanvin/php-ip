@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Licensed under the MIT license.
+ *
+ * For the full copyright and license information, please view the LICENSE file.
+ *
+ * @author Rémi Lanvin <remi@cloudconnected.fr>
+ *
+ * @see https://github.com/rlanvin/php-ip
+ */
+
 namespace PhpIP\Tests;
 
 use PhpIP\IPv6;

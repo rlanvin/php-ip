@@ -333,7 +333,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
      */
     protected function checkPrefix($prefix)
     {
-        if ('' === $prefix || null === $prefix || false === $prefix || $prefix < 0 || $prefix > $this->getMaxPrefix()) {
+        if ($prefix === '' || $prefix === null || $prefix === false || $prefix < 0 || $prefix > $this->getMaxPrefix()) {
             throw new \InvalidArgumentException(sprintf(
                 "Invalid IPv%s block prefix '%s'",
                 $this->getVersion(),
@@ -394,7 +394,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
      */
     public function contains($ip_or_block)
     {
-        if ((is_string($ip_or_block) && false !== strpos($ip_or_block, '/')) || $ip_or_block instanceof IPBlock) {
+        if ((is_string($ip_or_block) && strpos($ip_or_block, '/') !== false) || $ip_or_block instanceof IPBlock) {
             return $this->containsBlock($ip_or_block);
         } else {
             return $this->containsIP($ip_or_block);
@@ -476,7 +476,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
      */
     public function getNbAddresses()
     {
-        if (null === $this->nb_addresses) {
+        if ($this->nb_addresses === null) {
             $this->nb_addresses = gmp_strval(gmp_pow(2, $this->getMaxPrefix() - $this->prefix));
         }
 

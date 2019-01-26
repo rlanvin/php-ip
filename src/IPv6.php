@@ -44,7 +44,7 @@ class IPv6 extends IP
         if (is_int($ip)) {
             // always a valid IP, since even in 64bits plateform, it's less than max value
             $this->ip = gmp_init(sprintf('%u', $ip), 10);
-        } elseif (is_float($ip) && floor($ip) == $ip) {
+        } elseif (is_float($ip) && $ip == floor($ip)) {
             // float (or double) with an integer value
             $ip = gmp_init(sprintf('%s', $ip), 10);
             if (gmp_cmp($ip, 0) < 0 || gmp_cmp($ip, self::MAX_INT) > 0) {
@@ -78,7 +78,7 @@ class IPv6 extends IP
             } else {
                 throw new \InvalidArgumentException("$ip is not a valid IPv6 address");
             }
-        } elseif ((is_resource($ip) && 'GMP integer' == get_resource_type($ip)) || $ip instanceof \GMP) {
+        } elseif ((is_resource($ip) && get_resource_type($ip) == 'GMP integer') || $ip instanceof \GMP) {
             if (gmp_cmp($ip, 0) < 0 || gmp_cmp($ip, self::MAX_INT) > 0) {
                 throw new \InvalidArgumentException(sprintf('%s is not a valid decimal IPv6 address', gmp_strval($ip)));
             }
@@ -114,7 +114,7 @@ class IPv6 extends IP
      */
     public function isPrivate()
     {
-        if (null === $this->is_private) {
+        if ($this->is_private === null) {
             $this->is_private =
                 $this->isIn('::1/128') ||
                 $this->isIn('::/128') ||
