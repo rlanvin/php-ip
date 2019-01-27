@@ -25,12 +25,6 @@ class IPv6 extends IP
     const NB_BYTES = 16;
 
     /**
-     * Workaround for lack of late static binding in PHP 5.2
-     * so I can use "new $this->class()"" instead of "new static()".
-     */
-    protected $class = __CLASS__;
-
-    /**
      * Returns human readable representation of the IP.
      *
      * @param $compress bool Wether to compress IPv6 or not

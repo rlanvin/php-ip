@@ -70,11 +70,6 @@ abstract class IP
     protected $is_private;
 
     /**
-     * @var string Either "IPv4" or "IPv6"
-     */
-    protected $class;
-
-    /**
      * Constructor tries to guess what is the $ip.
      *
      * @param $ip mixed String, binary string, int or float
@@ -243,8 +238,7 @@ abstract class IP
         // fix for newer versions of GMP (> 5.0) in PHP 5.4+ that removes
         // the leading 0 in base 2
         if ($base == 2) {
-            $n = constant("$this->class::NB_BITS"); // ugly, but necessary because of PHP 5.2
-            $value = str_pad($value, $n, '0', STR_PAD_LEFT);
+            $value = str_pad($value, static::NB_BITS, '0', STR_PAD_LEFT);
         }
 
         return $value;
@@ -272,10 +266,10 @@ abstract class IP
     public function bit_and($value)
     {
         if (!$value instanceof self) {
-            $value = new $this->class($value);
+            $value = new static($value);
         }
 
-        return new $this->class(gmp_and($this->ip, $value->ip));
+        return new static(gmp_and($this->ip, $value->ip));
     }
 
     /**
@@ -288,10 +282,10 @@ abstract class IP
     public function bit_or($value)
     {
         if (!$value instanceof self) {
-            $value = new $this->class($value);
+            $value = new static($value);
         }
 
-        return new $this->class(gmp_or($this->ip, $value->ip));
+        return new static(gmp_or($this->ip, $value->ip));
     }
 
     /**
@@ -314,7 +308,7 @@ abstract class IP
         }
 
         if (!$value instanceof self) {
-            $value = new $this->class($value);
+            $value = new static($value);
         }
 
         $result = gmp_add($this->ip, $value->ip);
@@ -323,7 +317,7 @@ abstract class IP
             throw new \OutOfBoundsException();
         }
 
-        return new $this->class($result);
+        return new static($result);
     }
 
     /**
@@ -346,7 +340,7 @@ abstract class IP
         }
 
         if (!$value instanceof self) {
-            $value = new $this->class($value);
+            $value = new static($value);
         }
 
         $result = gmp_sub($this->ip, $value->ip);
@@ -355,7 +349,7 @@ abstract class IP
             throw new \OutOfBoundsException();
         }
 
-        return new $this->class($result);
+        return new static($result);
     }
 
     /**

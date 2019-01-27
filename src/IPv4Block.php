@@ -18,5 +18,4 @@ namespace PhpIP;
 class IPv4Block extends IPBlock
 {
     protected $ip_class = 'PhpIP\IPv4';
-    protected $class = __CLASS__;
 }

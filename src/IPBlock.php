@@ -218,7 +218,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
         try {
             $first_ip = $this->first_ip->plus(gmp_mul($value, $this->getNbAddresses()));
 
-            return new $this->class(
+            return new static(
                 $first_ip,
                 $this->prefix
             );
@@ -250,7 +250,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
         try {
             $first_ip = $this->first_ip->minus(gmp_mul($value, $this->getNbAddresses()));
 
-            return new $this->class(
+            return new static(
                 $first_ip,
                 $this->prefix
             );
@@ -360,7 +360,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
             throw new \InvalidArgumentException("Prefix must be smaller than {$this->prefix} ($prefix given)");
         }
 
-        $first_block = new $this->class($this->first_ip, $prefix);
+        $first_block = new static($this->first_ip, $prefix);
         $number_of_blocks = gmp_pow(2, $prefix - $this->prefix);
 
         return new IPBlockIterator($first_block, $number_of_blocks);
@@ -382,7 +382,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
             throw new \InvalidArgumentException("Prefix must be bigger than {$this->prefix} ($prefix given)");
         }
 
-        return new $this->class($this->first_ip, $prefix);
+        return new static($this->first_ip, $prefix);
     }
 
     /**
@@ -431,7 +431,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
     public function containsBlock($block)
     {
         if (!$block instanceof IPBlock) {
-            $block = new $this->class($block);
+            $block = new static($block);
         }
 
         return $block->getFirstIp()->numeric() >= $this->first_ip->numeric() && $block->getLastIp()->numeric() <= $this->last_ip->numeric();
@@ -447,7 +447,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
     public function isIn($block)
     {
         if (!$block instanceof IPBlock) {
-            $block = new $this->class($block);
+            $block = new static($block);
         }
 
         return $block->containsBlock($this);
@@ -463,7 +463,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
     public function overlaps($block)
     {
         if (!$block instanceof IPBlock) {
-            $block = new $this->class($block);
+            $block = new static($block);
         }
 
         return !($block->getFirstIp()->numeric() > $this->last_ip->numeric() || $block->getLastIp()->numeric() < $this->first_ip->numeric());
