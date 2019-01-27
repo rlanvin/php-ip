@@ -67,7 +67,12 @@ abstract class IP
     /**
      * @var bool
      */
-    protected $is_private;
+    private $is_private;
+
+    /**
+     * @var array
+     */
+    protected static $privateRanges;
 
     /**
      * Constructor tries to guess what is the $ip.
@@ -386,7 +391,24 @@ abstract class IP
         return $block->contains($this);
     }
 
-    abstract public function isPrivate();
+    /**
+     * Return true if the address is reserved per IANA IPv4/6 Special Registry.
+     *
+     * @return bool
+     */
+    public function isPrivate()
+    {
+        if ($this->is_private !== null) {
+            return $this->is_private;
+        }
+
+        $this->is_private = false;
+        foreach (static::$privateRanges as $range) {
+            $this->is_private |= $this->isIn($range);
+        }
+
+        return (bool) $this->is_private;
+    }
 
     /**
      * Return true if the address is allocated for public networks.

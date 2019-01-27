@@ -24,6 +24,19 @@ class IPv6 extends IP
     const NB_BITS = 128;
     const NB_BYTES = 16;
 
+    protected static $privateRanges = array(
+        '::1/128',
+        '::/128',
+        '::ffff:0:0/96',
+        '100::/64',
+        '2001::/23',
+        '2001:2::/48',
+        '2001:db8::/32',
+        '2001:10::/28',
+        'fc00::/7',
+        'fe80::/10',
+    );
+
     /**
      * Returns human readable representation of the IP.
      *
@@ -43,27 +56,5 @@ class IPv6 extends IP
         }
 
         return $ip;
-    }
-
-    /**
-     * Return true if the address is reserved per iana-ipv6-special-registry.
-     */
-    public function isPrivate()
-    {
-        if ($this->is_private === null) {
-            $this->is_private =
-                $this->isIn('::1/128') ||
-                $this->isIn('::/128') ||
-                $this->isIn('::ffff:0:0/96') ||
-                $this->isIn('100::/64') ||
-                $this->isIn('2001::/23') ||
-                $this->isIn('2001:2::/48') ||
-                $this->isIn('2001:db8::/32') ||
-                $this->isIn('2001:10::/28') ||
-                $this->isIn('fc00::/7') ||
-                $this->isIn('fe80::/10');
-        }
-
-        return $this->is_private;
     }
 }
