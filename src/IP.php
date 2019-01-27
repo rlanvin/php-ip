@@ -116,7 +116,7 @@ abstract class IP
     {
         $ip = gmp_init(sprintf('%u', $ip), 10);
 
-        if (gmp_cmp($ip, static::MAX_INT) > 0) {
+        if (!self::isInRange($ip)) {
             throw new \InvalidArgumentException(sprintf('The integer "%s" is not a valid IPv%d address.', gmp_strval($ip), static::IP_VERSION));
         }
 
@@ -130,7 +130,7 @@ abstract class IP
     {
         $ip = gmp_init(sprintf('%s', $ip), 10);
 
-        if (gmp_cmp($ip, 0) < 0 || gmp_cmp($ip, static::MAX_INT) > 0) {
+        if (!self::isInRange($ip)) {
             throw new \InvalidArgumentException(sprintf('The double "%s" is not a valid IPv%d address.', gmp_strval($ip), static::IP_VERSION));
         }
 
@@ -166,7 +166,7 @@ abstract class IP
         // numeric string (decimal)
         if (ctype_digit($ip)) {
             $ip = gmp_init($ip, 10);
-            if (gmp_cmp($ip, static::MAX_INT) > 0) {
+            if (!self::isInRange($ip)) {
                 throw new \InvalidArgumentException(sprintf('"%s" is not a valid decimal IPv%d address.', gmp_strval($ip), static::IP_VERSION));
             }
 
@@ -183,7 +183,7 @@ abstract class IP
      */
     private function fromGMP($ip)
     {
-        if (gmp_cmp($ip, 0) < 0 || gmp_cmp($ip, static::MAX_INT) > 0) {
+        if (!self::isInRange($ip)) {
             throw new \InvalidArgumentException(sprintf('"%s" is not a valid decimal IPv%d address.', gmp_strval($ip), static::IP_VERSION));
         }
         $this->ip = $ip;
@@ -319,7 +319,7 @@ abstract class IP
 
         $result = gmp_add($this->ip, $value->ip);
 
-        if (gmp_cmp($result, 0) < 0 || gmp_cmp($result, constant("$this->class::MAX_INT")) > 0) {
+        if (!self::isInRange($result)) {
             throw new \OutOfBoundsException();
         }
 
@@ -351,7 +351,7 @@ abstract class IP
 
         $result = gmp_sub($this->ip, $value->ip);
 
-        if (gmp_cmp($result, 0) < 0 || gmp_cmp($result, constant("$this->class::MAX_INT")) > 0) {
+        if (!self::isInRange($result)) {
             throw new \OutOfBoundsException();
         }
 
@@ -402,5 +402,17 @@ abstract class IP
     public function isPublic()
     {
         return !$this->isPrivate();
+    }
+
+    /**
+     * Ensures that a given $ip is within the range of a valid IPvX address.
+     *
+     * @param \GMP|resource $ip a GMP object or resource
+     *
+     * @return bool
+     */
+    private static function isInRange($ip)
+    {
+        return (gmp_cmp($ip, 0) >= 0) && (gmp_cmp($ip, static::MAX_INT) <= 0);
     }
 }
