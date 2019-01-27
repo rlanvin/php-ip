@@ -144,7 +144,7 @@ abstract class IP
     {
         // binary, packed string
         if (@inet_ntop($ip) !== false) {
-            if (static::NB_BYTES != strlen($ip)) {
+            if (strlen($ip) != static::NB_BYTES) {
                 throw new \InvalidArgumentException(sprintf('The binary string "%s" is not a valid IPv%d address.', $ip, static::IP_VERSION));
             }
 
