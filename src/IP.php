@@ -12,39 +12,6 @@
 
 namespace PhpIP;
 
-if (!function_exists('gmp_shiftl')) {
-    /**
-     * Shift left (<<).
-     *
-     * @see http://www.php.net/manual/en/ref.gmp.php#99788
-     *
-     * @param resource|string|\GMP $x
-     * @param int                  $n
-     *
-     * @return resource|\GMP
-     */
-    function gmp_shiftl($x, $n)
-    {
-        return gmp_mul($x, gmp_pow('2', $n));
-    }
-}
-if (!function_exists('gmp_shiftr')) {
-    /**
-     * Shift right (>>).
-     *
-     * @see http://www.php.net/manual/en/ref.gmp.php#99788
-     *
-     * @param resource|string|\GMP $x
-     * @param int                  $n
-     *
-     * @return resource|\GMP
-     */
-    function gmp_shiftr($x, $n)
-    {
-        return gmp_div($x, gmp_pow('2', $n));
-    }
-}
-
 /**
  * Base class to manipulate an IP address.
  */
