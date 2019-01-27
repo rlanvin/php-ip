@@ -367,14 +367,14 @@ abstract class IP
     }
 
     /**
-     * Return the version number (4 or 6).
-     *
-     * Note: this is left abstract because there is not late static binding
-     * in PHP 5.2 (which I need to support).
+     * Return the IP version number (4 or 6).
      *
      * @return int
      */
-    abstract public function getVersion();
+    public function getVersion()
+    {
+        return static::IP_VERSION;
+    }
 
     /**
      * Check if the IP is contained in given block.

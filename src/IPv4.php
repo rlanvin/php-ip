@@ -29,14 +29,6 @@ class IPv4 extends IP
     protected $class = __CLASS__;
 
     /**
-     * {@inheritdoc}
-     */
-    public function getVersion()
-    {
-        return self::IP_VERSION;
-    }
-
-    /**
      * Returns human readable representation of the IP.
      *
      * @param $compress bool Wether to compress IPv4 or not
