@@ -13,8 +13,9 @@
 namespace PhpIP\Tests;
 
 use PhpIP\IPv6;
+use PHPUnit\Framework\TestCase;
 
-class IPv6Test extends \PHPUnit_Framework_TestCase
+class IPv6Test extends TestCase
 {
     public function validAddresses()
     {
