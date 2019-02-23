@@ -430,7 +430,7 @@ abstract class IP
      *
      * @return bool
      */
-    private static function isValid($ip)
+    protected static function isValid($ip)
     {
         return (gmp_cmp($ip, 0) >= 0) && (gmp_cmp($ip, static::MAX_INT) <= 0);
     }
