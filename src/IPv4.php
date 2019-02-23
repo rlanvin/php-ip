@@ -28,11 +28,6 @@ class IPv4 extends IP
      */
     protected $class = __CLASS__;
 
-    public function getVersion()
-    {
-        return self::IP_VERSION;
-    }
-
     /**
      * Returns human readable representation of the IP.
      *

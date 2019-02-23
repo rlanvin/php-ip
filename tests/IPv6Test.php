@@ -107,4 +107,10 @@ class IPv6Test extends TestCase
         $this->assertEquals(ltrim($array[1], 0), $instance->numeric(16), "Base 16 of $compressed");
         $this->assertEquals($dec, $instance->numeric(10), "Base 10 of $compressed");
     }
+
+    public function testGetVersion()
+    {
+        $ipv6 = new IPv6('2001:acad::8888');
+        $this->assertEquals(6, $ipv6->getVersion());
+    }
 }

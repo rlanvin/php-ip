@@ -126,4 +126,10 @@ class IPv4Test extends TestCase
         $this->assertTrue($ip->isPrivate(), "$ip is private");
         $this->assertFalse($ip->isPublic(), "$ip is not public");
     }
+
+    public function testGetVersion()
+    {
+        $ipv4 = new IPv4('10.0.0.1');
+        $this->assertEquals(4, $ipv4->getVersion());
+    }
 }
