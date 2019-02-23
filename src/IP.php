@@ -72,7 +72,7 @@ abstract class IP
     /**
      * @var array
      */
-    protected static $privateRanges;
+    protected static $private_ranges;
 
     /**
      * Constructor tries to guess what is the $ip.
@@ -116,7 +116,7 @@ abstract class IP
     {
         $ip = gmp_init(sprintf('%u', $ip), 10);
 
-        if (!self::isInRange($ip)) {
+        if (!self::isValid($ip)) {
             throw new \InvalidArgumentException(sprintf('The integer "%s" is not a valid IPv%d address.', gmp_strval($ip), static::IP_VERSION));
         }
 
@@ -130,7 +130,7 @@ abstract class IP
     {
         $ip = gmp_init(sprintf('%s', $ip), 10);
 
-        if (!self::isInRange($ip)) {
+        if (!self::isValid($ip)) {
             throw new \InvalidArgumentException(sprintf('The double "%s" is not a valid IPv%d address.', gmp_strval($ip), static::IP_VERSION));
         }
 
@@ -166,7 +166,7 @@ abstract class IP
         // numeric string (decimal)
         if (ctype_digit($ip)) {
             $ip = gmp_init($ip, 10);
-            if (!self::isInRange($ip)) {
+            if (!self::isValid($ip)) {
                 throw new \InvalidArgumentException(sprintf('"%s" is not a valid decimal IPv%d address.', gmp_strval($ip), static::IP_VERSION));
             }
 
@@ -183,7 +183,7 @@ abstract class IP
      */
     private function fromGMP($ip)
     {
-        if (!self::isInRange($ip)) {
+        if (!self::isValid($ip)) {
             throw new \InvalidArgumentException(sprintf('"%s" is not a valid decimal IPv%d address.', gmp_strval($ip), static::IP_VERSION));
         }
         $this->ip = $ip;
@@ -318,7 +318,7 @@ abstract class IP
 
         $result = gmp_add($this->ip, $value->ip);
 
-        if (!self::isInRange($result)) {
+        if (!self::isValid($result)) {
             throw new \OutOfBoundsException();
         }
 
@@ -350,7 +350,7 @@ abstract class IP
 
         $result = gmp_sub($this->ip, $value->ip);
 
-        if (!self::isInRange($result)) {
+        if (!self::isValid($result)) {
             throw new \OutOfBoundsException();
         }
 
@@ -403,11 +403,13 @@ abstract class IP
         }
 
         $this->is_private = false;
-        foreach (static::$privateRanges as $range) {
-            $this->is_private |= $this->isIn($range);
+        foreach (static::$private_ranges as $range) {
+            if ($this->isIn($range)) {
+                return $this->is_private = true;
+            }
         }
 
-        return (bool) $this->is_private;
+        return false;
     }
 
     /**
@@ -427,7 +429,7 @@ abstract class IP
      *
      * @return bool
      */
-    private static function isInRange($ip)
+    private static function isValid($ip)
     {
         return (gmp_cmp($ip, 0) >= 0) && (gmp_cmp($ip, static::MAX_INT) <= 0);
     }

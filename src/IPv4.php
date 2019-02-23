@@ -22,7 +22,7 @@ class IPv4 extends IP
     const NB_BITS = 32;
     const NB_BYTES = 4;
 
-    protected static $privateRanges = array(
+    protected static $private_ranges = array(
         '0.0.0.0/8',
         '10.0.0.0/8',
         '127.0.0.0/8',

@@ -24,7 +24,7 @@ class IPv6 extends IP
     const NB_BITS = 128;
     const NB_BYTES = 16;
 
-    protected static $privateRanges = array(
+    protected static $private_ranges = array(
         '::1/128',
         '::/128',
         '::ffff:0:0/96',
