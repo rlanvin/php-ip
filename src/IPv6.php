@@ -89,24 +89,17 @@ class IPv6 extends IP
     }
 
     /**
-     * Returns human readable representation of the IP.
-     *
-     * @param $compress bool Wether to compress IPv6 or not
-     *
-     * @return string
+     * {@inheritdoc}
      */
-    public function humanReadable($compress = true)
+    public function humanReadable(bool $short_form = true): string
     {
-        $hex = $this->numeric(16);
-        $hex = str_pad($hex, 32, '0', STR_PAD_LEFT);
-        $bytes = str_split($hex, 4);
-        $ip = implode(':', $bytes);
-
-        if ($compress) {
-            $ip = @inet_ntop(@inet_pton($ip));
+        if ($short_form) {
+            return inet_ntop($this->binary());
         }
 
-        return $ip;
+        $hex = str_pad($this->numeric(16), 32, '0', STR_PAD_LEFT);
+
+        return implode(':', str_split($hex, 4));
     }
 
     /**

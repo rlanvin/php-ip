@@ -99,9 +99,11 @@ abstract class IP
     /**
      * Return human readable representation of the IP (e.g. 127.0.0.1 or ::1).
      *
+     * @param bool $short_form
+     *
      * @return string
      */
-    abstract public function humanReadable();
+    abstract public function humanReadable(bool $short_form = true): string;
 
     /**
      * Return numeric representation of the IP in base $base.
