@@ -15,7 +15,7 @@ namespace PhpIP;
 /**
  * Iterator for IPBlock. This could be a Generator in PHP 5.5.
  */
-class IPBlockIterator implements \Iterator
+class IPBlockIterator implements \Iterator, \Countable
 {
     /**
      * @var int|\GMP
@@ -47,7 +47,9 @@ class IPBlockIterator implements \Iterator
         $this->class = get_class($first_block);
 
         $this->first_block = $first_block;
+        $this->current_block = $first_block;
         $this->nb_blocks = $nb_blocks;
+        $this->position = gmp_init(0);
     }
 
     public function count()
