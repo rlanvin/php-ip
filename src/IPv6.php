@@ -23,12 +23,6 @@ class IPv6 extends IP
     const MAX_INT = '340282366920938463463374607431768211455';
     const NB_BITS = 128;
 
-    /**
-     * Workaround for lack of late static binding in PHP 5.2
-     * so I can use "new $this->class()"" instead of "new static()".
-     */
-    protected $class = __CLASS__;
-
     public function getVersion()
     {
         return self::IP_VERSION;

@@ -17,6 +17,5 @@ namespace PhpIP;
  */
 class IPv6Block extends IPBlock
 {
-    protected $ip_class = 'PhpIP\IPv6';
-    protected $class = __CLASS__;
+    protected static $ip_class = IPv6::class;
 }
