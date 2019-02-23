@@ -13,8 +13,9 @@
 namespace PhpIP\Tests;
 
 use PhpIP\IPv6Block;
+use PHPUnit\Framework\TestCase;
 
-class IPv6BlockTest extends \PHPUnit_Framework_TestCase
+class IPv6BlockTest extends TestCase
 {
     // see http://www.miniwebtool.com/ip-address-to-binary-converter/
     // and http://www.miniwebtool.com/ip-address-to-hex-converter

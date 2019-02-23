@@ -14,8 +14,9 @@ namespace PhpIP\Tests;
 
 use PhpIP\IPBlock;
 use PhpIP\IP;
+use PHPUnit\Framework\TestCase;
 
-class IPBlockTest extends \PHPUnit_Framework_TestCase
+class IPBlockTest extends TestCase
 {
     public function validOperations()
     {

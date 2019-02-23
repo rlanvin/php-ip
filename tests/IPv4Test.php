@@ -13,8 +13,9 @@
 namespace PhpIP\Tests;
 
 use PhpIP\IPv4;
+use PHPUnit\Framework\TestCase;
 
-class IPv4Test extends \PHPUnit_Framework_TestCase
+class IPv4Test extends TestCase
 {
     // see http://www.miniwebtool.com/ip-address-to-binary-converter/
     // and http://www.miniwebtool.com/ip-address-to-hex-converter
