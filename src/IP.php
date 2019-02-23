@@ -252,13 +252,13 @@ abstract class IP
     /**
      * Return binary string representation.
      *
-     * @todo could be optimized with pack() instead?
-     *
      * @return string Binary string
      */
     public function binary()
     {
-        return inet_pton($this->humanReadable());
+        $hex = str_pad($this->numeric(16), static::NB_BITS/4, '0', STR_PAD_LEFT);
+
+        return pack('H*', $hex);
     }
 
     /**
