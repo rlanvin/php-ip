@@ -22,7 +22,7 @@ $config = PhpCsFixer\Config::create()
         'header_comment' => array('header' => $header, 'comment_type' => 'PHPDoc',),
         'array_syntax' => array('syntax' => 'long'),
         'yoda_style' => array(
-            'always_move_variable' => true,
+            'always_move_variable' => false,
             'equal' => false,
             'identical' => false,
             'less_and_greater' => false,
