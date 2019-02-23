@@ -127,6 +127,7 @@ abstract class IP
 
     /**
      * @param float $ip
+     *
      * @return \GMP
      */
     private static function fromFloat(float $ip): \GMP
@@ -142,6 +143,7 @@ abstract class IP
 
     /**
      * @param string $ip
+     *
      * @return \GMP
      */
     private static function fromString(string $ip): \GMP
@@ -260,7 +262,7 @@ abstract class IP
      */
     public function binary()
     {
-        $hex = str_pad($this->numeric(16), static::NB_BITS/4, '0', STR_PAD_LEFT);
+        $hex = str_pad($this->numeric(16), static::NB_BITS / 4, '0', STR_PAD_LEFT);
 
         return pack('H*', $hex);
     }
