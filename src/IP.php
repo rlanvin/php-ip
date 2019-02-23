@@ -82,26 +82,26 @@ abstract class IP
     public function __construct($ip)
     {
         if (is_int($ip)) {
-            $this->fromInt($ip);
+            $this->ip = self::fromInt($ip);
 
             return;
         }
 
         // float (or double) with an integer value
         if (is_float($ip) && $ip == floor($ip)) {
-            $this->fromFloat($ip);
+            $this->ip = self::fromFloat($ip);
 
             return;
         }
 
         if (is_string($ip)) {
-            $this->fromString($ip);
+            $this->ip = self::fromString($ip);
 
             return;
         }
 
         if ((is_resource($ip) && get_resource_type($ip) === 'GMP integer') || $ip instanceof \GMP) {
-            $this->fromGMP($ip);
+            $this->ip = self::fromGMP($ip);
 
             return;
         }
@@ -111,8 +111,10 @@ abstract class IP
 
     /**
      * @param int $ip
+     *
+     * @return \GMP
      */
-    private function fromInt($ip)
+    private static function fromInt(int $ip): \GMP
     {
         $ip = gmp_init(sprintf('%u', $ip), 10);
 
@@ -120,13 +122,14 @@ abstract class IP
             throw new \InvalidArgumentException(sprintf('The integer "%s" is not a valid IPv%d address.', gmp_strval($ip), static::IP_VERSION));
         }
 
-        $this->ip = $ip;
+        return $ip;
     }
 
     /**
      * @param float $ip
+     * @return \GMP
      */
-    private function fromFloat($ip)
+    private static function fromFloat(float $ip): \GMP
     {
         $ip = gmp_init(sprintf('%s', $ip), 10);
 
@@ -134,13 +137,14 @@ abstract class IP
             throw new \InvalidArgumentException(sprintf('The double "%s" is not a valid IPv%d address.', gmp_strval($ip), static::IP_VERSION));
         }
 
-        $this->ip = $ip;
+        return $ip;
     }
 
     /**
      * @param string $ip
+     * @return \GMP
      */
-    private function fromString($ip)
+    private static function fromString(string $ip): \GMP
     {
         // binary, packed string
         if (@inet_ntop($ip) !== false) {
@@ -149,18 +153,16 @@ abstract class IP
             }
 
             $hex = unpack('H*', $ip);
-            $this->ip = gmp_init($hex[1], 16);
 
-            return;
+            return gmp_init($hex[1], 16);
         }
 
         $filterFlag = constant('FILTER_FLAG_IPV'.static::IP_VERSION);
         if (filter_var($ip, FILTER_VALIDATE_IP, $filterFlag)) {
             $ip = inet_pton($ip);
             $hex = unpack('H*', $ip);
-            $this->ip = gmp_init($hex[1], 16);
 
-            return;
+            return gmp_init($hex[1], 16);
         }
 
         // numeric string (decimal)
@@ -170,23 +172,24 @@ abstract class IP
                 throw new \InvalidArgumentException(sprintf('"%s" is not a valid decimal IPv%d address.', gmp_strval($ip), static::IP_VERSION));
             }
 
-            $this->ip = $ip;
-
-            return;
+            return $ip;
         }
 
         throw new \InvalidArgumentException(sprintf('The string "%s" is not a valid IPv%d address.', $ip, static::IP_VERSION));
     }
 
     /**
-     * @param \GMP|resource $ip
+     * @param \GMP $ip
+     *
+     * @return \GMP
      */
-    private function fromGMP($ip)
+    private function fromGMP(\GMP $ip): \GMP
     {
         if (gmp_cmp($ip, 0) < 0 || gmp_cmp($ip, static::MAX_INT) > 0) {
             throw new \InvalidArgumentException(sprintf('"%s" is not a valid decimal IPv%d address.', gmp_strval($ip), static::IP_VERSION));
         }
-        $this->ip = $ip;
+
+        return $ip;
     }
 
     /**
