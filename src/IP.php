@@ -405,11 +405,12 @@ abstract class IP
         $this->is_private = false;
         foreach (static::$private_ranges as $range) {
             if ($this->isIn($range)) {
-                return $this->is_private = true;
+                $this->is_private = true;
+                break;
             }
         }
 
-        return false;
+        return $this->is_private;
     }
 
     /**
