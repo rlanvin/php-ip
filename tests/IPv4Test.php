@@ -13,8 +13,9 @@
 namespace PhpIP\Tests;
 
 use PhpIP\IPv4;
+use PHPUnit\Framework\TestCase;
 
-class IPv4Test extends \PHPUnit_Framework_TestCase
+class IPv4Test extends TestCase
 {
     // see http://www.miniwebtool.com/ip-address-to-binary-converter/
     // and http://www.miniwebtool.com/ip-address-to-hex-converter
@@ -124,5 +125,11 @@ class IPv4Test extends \PHPUnit_Framework_TestCase
         $ip = new IPv4($ip);
         $this->assertTrue($ip->isPrivate(), "$ip is private");
         $this->assertFalse($ip->isPublic(), "$ip is not public");
+    }
+
+    public function testGetVersion()
+    {
+        $ipv4 = new IPv4('10.0.0.1');
+        $this->assertEquals(4, $ipv4->getVersion());
     }
 }
