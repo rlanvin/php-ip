@@ -14,6 +14,8 @@ namespace PhpIP\Tests;
 
 use PhpIP\IPBlock;
 use PhpIP\IP;
+use PhpIP\IPv4Block;
+use PhpIP\IPv6Block;
 
 class IPBlockTest extends \PHPUnit_Framework_TestCase
 {
@@ -208,5 +210,37 @@ class IPBlockTest extends \PHPUnit_Framework_TestCase
             $this->fail('Expected InvalidArgumentException has not be thrown');
         } catch (\InvalidArgumentException $e) {
         }
+    }
+
+    /**
+     * Tests the generator
+     */
+    public function testGetAddresses()
+    {
+        $subnet = new IPv4Block('192.168.0.0/28');
+        $prefix = '192.168.0.';
+        $n = 0;
+
+        foreach ($subnet->getAddresses() as $ip) {
+            $this->assertEquals($prefix.$n, $ip->humanReadable());
+            $n++;
+        }
+
+        $this->assertEquals(16, $n);
+    }
+
+    public function testIterator()
+    {
+        $subnet = new IPv6Block('::/124');
+        $prefix = '::';
+        $n = 0;
+
+        foreach ($subnet as $ip) {
+            $expectation = $n === 0 ? $prefix : $prefix.dechex($n);
+            $this->assertEquals($expectation, $ip->humanReadable());
+            $n++;
+        }
+
+        $this->assertEquals(16, $n);
     }
 }
