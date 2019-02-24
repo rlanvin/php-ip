@@ -22,6 +22,23 @@ class IPv4 extends IP
     const NB_BITS = 32;
     const NB_BYTES = 4;
 
+    protected static $private_ranges = array(
+        '0.0.0.0/8',
+        '10.0.0.0/8',
+        '127.0.0.0/8',
+        '169.254.0.0/16',
+        '172.16.0.0/12',
+        '192.0.0.0/29',
+        '192.0.0.170/31',
+        '192.0.2.0/24',
+        '192.168.0.0/16',
+        '198.18.0.0/15',
+        '198.51.100.0/24',
+        '203.0.113.0/24',
+        '240.0.0.0/4',
+        '255.255.255.255/32',
+    );
+
     /**
      * Workaround for lack of late static binding in PHP 5.2
      * so I can use "new $this->class()"" instead of "new static()".
@@ -50,31 +67,5 @@ class IPv4 extends IP
         }
 
         return $ip;
-    }
-
-    /**
-     * Return true if the address is reserved per iana-ipv4-special-registry.
-     */
-    public function isPrivate()
-    {
-        if ($this->is_private === null) {
-            $this->is_private =
-                $this->isIn('0.0.0.0/8') ||
-                $this->isIn('10.0.0.0/8') ||
-                $this->isIn('127.0.0.0/8') ||
-                $this->isIn('169.254.0.0/16') ||
-                $this->isIn('172.16.0.0/12') ||
-                $this->isIn('192.0.0.0/29') ||
-                $this->isIn('192.0.0.170/31') ||
-                $this->isIn('192.0.2.0/24') ||
-                $this->isIn('192.168.0.0/16') ||
-                $this->isIn('198.18.0.0/15') ||
-                $this->isIn('198.51.100.0/24') ||
-                $this->isIn('203.0.113.0/24') ||
-                $this->isIn('240.0.0.0/4') ||
-                $this->isIn('255.255.255.255/32');
-        }
-
-        return $this->is_private;
     }
 }

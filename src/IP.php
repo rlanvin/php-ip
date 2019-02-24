@@ -73,6 +73,13 @@ abstract class IP
     protected $class;
 
     /**
+     * Array of reserved IP ranges.
+     *
+     * @var array
+     */
+    protected static $private_ranges;
+
+    /**
      * Constructor tries to guess what is the $ip.
      *
      * @param mixed $ip string, binary string, int, float or \GMP instance
@@ -393,7 +400,27 @@ abstract class IP
         return $block->contains($this);
     }
 
-    abstract public function isPrivate();
+    /**
+     * Return true if the address is reserved per IANA IPv4/6 Special Registry.
+     *
+     * @return bool
+     */
+    public function isPrivate(): bool
+    {
+        if ($this->is_private !== null) {
+            return $this->is_private;
+        }
+
+        $this->is_private = false;
+        foreach (static::$private_ranges as $range) {
+            if ($this->isIn($range)) {
+                $this->is_private = true;
+                break;
+            }
+        }
+
+        return $this->is_private;
+    }
 
     /**
      * Return true if the address is allocated for public networks.
