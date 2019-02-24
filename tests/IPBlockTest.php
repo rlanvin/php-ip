@@ -14,8 +14,9 @@ namespace PhpIP\Tests;
 
 use PhpIP\IPBlock;
 use PhpIP\IP;
+use PHPUnit\Framework\TestCase;
 
-class IPBlockTest extends \PHPUnit_Framework_TestCase
+class IPBlockTest extends TestCase
 {
     public function validOperations()
     {
@@ -189,7 +190,17 @@ class IPBlockTest extends \PHPUnit_Framework_TestCase
 
     public function testGetSubblocks()
     {
-        // todo
+        $block = IPBlock::create('192.168.8.0/24');
+        $subnets = $block->getSubblocks('/28');
+
+        $this->assertCount(16, $subnets);
+        $this->assertEquals('192.168.8.0', $subnets->current()->getFirstIp()->humanReadable());
+        $this->assertEquals(28, $subnets->current()->getPrefix());
+
+        $subnets->next();
+        $subnets->next();
+
+        $this->assertEquals('192.168.8.32/28', $subnets->current()->getGivenIpWithPrefixlen());
     }
 
     public function testGetSuper()

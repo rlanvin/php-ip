@@ -14,8 +14,9 @@ namespace PhpIP\Tests;
 
 use PhpIP\IP;
 use PhpIP\IPv4;
+use PHPUnit\Framework\TestCase;
 
-class IPTest extends \PHPUnit_Framework_TestCase
+class IPTest extends TestCase
 {
     public function validAddresses()
     {
