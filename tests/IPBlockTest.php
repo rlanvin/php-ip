@@ -17,7 +17,9 @@ use PhpIP\IP;
 use PhpIP\IPv4Block;
 use PhpIP\IPv6Block;
 
-class IPBlockTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class IPBlockTest extends TestCase
 {
     public function validOperations()
     {
@@ -143,7 +145,7 @@ class IPBlockTest extends \PHPUnit_Framework_TestCase
             $this->assertTrue(IPBlock::create($block2)->overlaps($block), "$block2 is overlapping $block");
         }
         foreach ($not_overlapping as $block2) {
-            $this->assertFalse($block->overlaps($block2, "$block is not overlapping $block2"));
+            $this->assertFalse($block->overlaps($block2), "$block is not overlapping $block2");
             $this->assertFalse(IPBlock::create($block2)->overlaps($block), "$block2 is not overlappping $block");
         }
     }
@@ -191,7 +193,17 @@ class IPBlockTest extends \PHPUnit_Framework_TestCase
 
     public function testGetSubblocks()
     {
-        // todo
+        $block = IPBlock::create('192.168.8.0/24');
+        $subnets = $block->getSubblocks('/28');
+
+        $this->assertCount(16, $subnets);
+        $this->assertEquals('192.168.8.0', $subnets->current()->getFirstIp()->humanReadable());
+        $this->assertEquals(28, $subnets->current()->getPrefix());
+
+        $subnets->next();
+        $subnets->next();
+
+        $this->assertEquals('192.168.8.32/28', $subnets->current()->getGivenIpWithPrefixlen());
     }
 
     public function testGetSuper()
@@ -210,37 +222,5 @@ class IPBlockTest extends \PHPUnit_Framework_TestCase
             $this->fail('Expected InvalidArgumentException has not be thrown');
         } catch (\InvalidArgumentException $e) {
         }
-    }
-
-    /**
-     * Tests the generator
-     */
-    public function testGetAddresses()
-    {
-        $subnet = new IPv4Block('192.168.0.0/28');
-        $prefix = '192.168.0.';
-        $n = 0;
-
-        foreach ($subnet->getAddresses() as $ip) {
-            $this->assertEquals($prefix.$n, $ip->humanReadable());
-            $n++;
-        }
-
-        $this->assertEquals(16, $n);
-    }
-
-    public function testIterator()
-    {
-        $subnet = new IPv6Block('::/124');
-        $prefix = '::';
-        $n = 0;
-
-        foreach ($subnet as $ip) {
-            $expectation = $n === 0 ? $prefix : $prefix.dechex($n);
-            $this->assertEquals($expectation, $ip->humanReadable());
-            $n++;
-        }
-
-        $this->assertEquals(16, $n);
     }
 }
