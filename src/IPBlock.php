@@ -497,7 +497,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
     /**
      * @return \Generator|IP[]
      */
-    public function getAddresses(): \Generator
+    public function getIterator(): \Generator
     {
         $position = gmp_init(0);
 
@@ -505,16 +505,6 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
             yield $this->first_ip->plus(gmp_strval($position));
             $position = gmp_add($position, 1);
         }
-    }
-
-    /**
-     * \IteratorAggregate
-     *
-     * {@inheritdoc}
-     */
-    public function getIterator()
-    {
-        return $this->getAddresses();
     }
 
     // ArrayAccess
