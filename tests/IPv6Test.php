@@ -108,9 +108,39 @@ class IPv6Test extends TestCase
         $this->assertEquals($dec, $instance->numeric(10), "Base 10 of $compressed");
     }
 
+
     public function testGetVersion()
     {
         $ipv6 = new IPv6('2001:acad::8888');
         $this->assertEquals(6, $ipv6->getVersion());
+    }
+
+    /**
+     * @return array
+     */
+    public function humanReadableAddresses(): array
+    {
+        return array(
+            array('2a01:8200::', '2a01:8200:0000:0000:0000:0000:0000:0000'),
+            array('2001:db8:85a3::8a2e:370:7334', '2001:0db8:85a3:0000:0000:8a2e:0370:7334'),
+            array('ffff:db8::', 'ffff:0db8:0000:0000:0000:0000:0000:0000'),
+            array('ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff', 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff'),
+            array('::1', '0000:0000:0000:0000:0000:0000:0000:0001'),
+            array('::', '0000:0000:0000:0000:0000:0000:0000:0000'),
+        );
+    }
+
+    /**
+     * @dataProvider humanReadableAddresses
+     *
+     * @param $shortForm
+     * @param $longForm
+     */
+    public function testHumanReadable($shortForm, $longForm)
+    {
+        $ip = new IPv6($shortForm);
+        $this->assertEquals($shortForm, $ip->humanReadable(true));
+        $this->assertEquals($shortForm, $ip->humanReadable());
+        $this->assertEquals($longForm, $ip->humanReadable(false));
     }
 }

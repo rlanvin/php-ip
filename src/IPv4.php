@@ -22,53 +22,34 @@ class IPv4 extends IP
     const NB_BITS = 32;
     const NB_BYTES = 4;
 
-    /**
-     * Returns human readable representation of the IP.
-     *
-     * @param $compress bool Wether to compress IPv4 or not
-     *
-     * @return string
-     */
-    public function humanReadable($compress = true)
-    {
-        if ($compress) {
-            $ip = long2ip(intval(doubleval($this->numeric())));
-        } else {
-            $hex = $this->numeric(16);
-            $hex = str_pad($hex, 8, '0', STR_PAD_LEFT);
-            $segments = str_split($hex, 2);
-            foreach ($segments as &$s) {
-                $s = str_pad(base_convert($s, 16, 10), 3, '0', STR_PAD_LEFT);
-            }
-            $ip = implode('.', $segments);
-        }
-
-        return $ip;
-    }
+    protected static $private_ranges = array(
+        '0.0.0.0/8',
+        '10.0.0.0/8',
+        '127.0.0.0/8',
+        '169.254.0.0/16',
+        '172.16.0.0/12',
+        '192.0.0.0/29',
+        '192.0.0.170/31',
+        '192.0.2.0/24',
+        '192.168.0.0/16',
+        '198.18.0.0/15',
+        '198.51.100.0/24',
+        '203.0.113.0/24',
+        '240.0.0.0/4',
+        '255.255.255.255/32',
+    );
 
     /**
-     * Return true if the address is reserved per iana-ipv4-special-registry.
+     * {@inheritdoc}
      */
-    public function isPrivate()
+    public function humanReadable(bool $short_form = true): string
     {
-        if ($this->is_private === null) {
-            $this->is_private =
-                $this->isIn('0.0.0.0/8') ||
-                $this->isIn('10.0.0.0/8') ||
-                $this->isIn('127.0.0.0/8') ||
-                $this->isIn('169.254.0.0/16') ||
-                $this->isIn('172.16.0.0/12') ||
-                $this->isIn('192.0.0.0/29') ||
-                $this->isIn('192.0.0.170/31') ||
-                $this->isIn('192.0.2.0/24') ||
-                $this->isIn('192.168.0.0/16') ||
-                $this->isIn('198.18.0.0/15') ||
-                $this->isIn('198.51.100.0/24') ||
-                $this->isIn('203.0.113.0/24') ||
-                $this->isIn('240.0.0.0/4') ||
-                $this->isIn('255.255.255.255/32');
+        if ($short_form) {
+            return inet_ntop($this->binary());
         }
 
-        return $this->is_private;
+        $octets = explode('.', inet_ntop($this->binary()));
+
+        return sprintf('%03d.%03d.%03d.%03d', ...$octets);
     }
 }

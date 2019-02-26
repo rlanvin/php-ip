@@ -215,9 +215,13 @@ abstract class IP
     /**
      * Return human readable representation of the IP (e.g. 127.0.0.1 or ::1).
      *
+     * @param bool $short_form Whether to express the IP address in the short form (::1 or 172.16.0.1), or to express it
+     *                         in the long form (0000:0000:0000:0000:0000:0000:0000:0001 or 172.016.000.001). The
+     *                         default it the short form.
+     *
      * @return string
      */
-    abstract public function humanReadable();
+    abstract public function humanReadable(bool $short_form = true): string;
 
     /**
      * Return numeric representation of the IP in base $base.
@@ -387,7 +391,27 @@ abstract class IP
         return $block->contains($this);
     }
 
-    abstract public function isPrivate();
+    /**
+     * Return true if the address is reserved per IANA IPv4/6 Special Registry.
+     *
+     * @return bool
+     */
+    public function isPrivate(): bool
+    {
+        if ($this->is_private !== null) {
+            return $this->is_private;
+        }
+
+        $this->is_private = false;
+        foreach (static::$private_ranges as $range) {
+            if ($this->isIn($range)) {
+                $this->is_private = true;
+                break;
+            }
+        }
+
+        return $this->is_private;
+    }
 
     /**
      * Return true if the address is allocated for public networks.
