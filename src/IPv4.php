@@ -46,26 +46,16 @@ class IPv4 extends IP
     protected $class = __CLASS__;
 
     /**
-     * Returns human readable representation of the IP.
-     *
-     * @param $compress bool Wether to compress IPv4 or not
-     *
-     * @return string
+     * {@inheritdoc}
      */
-    public function humanReadable($compress = true)
+    public function humanReadable(bool $short_form = true): string
     {
-        if ($compress) {
-            $ip = long2ip(intval(doubleval($this->numeric())));
-        } else {
-            $hex = $this->numeric(16);
-            $hex = str_pad($hex, 8, '0', STR_PAD_LEFT);
-            $segments = str_split($hex, 2);
-            foreach ($segments as &$s) {
-                $s = str_pad(base_convert($s, 16, 10), 3, '0', STR_PAD_LEFT);
-            }
-            $ip = implode('.', $segments);
+        if ($short_form) {
+            return inet_ntop($this->binary());
         }
 
-        return $ip;
+        $octets = explode('.', inet_ntop($this->binary()));
+
+        return sprintf('%03d.%03d.%03d.%03d', ...$octets);
     }
 }

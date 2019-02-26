@@ -132,4 +132,31 @@ class IPv4Test extends TestCase
         $ipv4 = new IPv4('10.0.0.1');
         $this->assertEquals(4, $ipv4->getVersion());
     }
+
+    public function humanReadableAddresses()
+    {
+        return array(
+            array('0.0.0.0', '000.000.000.000'),
+            array('1.1.1.1', '001.001.001.001'),
+            array('127.0.0.1', '127.000.000.001'),
+            array('10.8.8.8', '010.008.008.008'),
+            array('10.20.30.40', '010.020.030.040'),
+            array('99.100.100.1', '099.100.100.001'),
+            array('255.255.255.255', '255.255.255.255'),
+        );
+    }
+
+    /**
+     * @dataProvider humanReadableAddresses
+     *
+     * @param $shortForm
+     * @param $longForm
+     */
+    public function testHumanReadable($shortForm, $longForm)
+    {
+        $ip = new IPv4($shortForm);
+        $this->assertEquals($shortForm, $ip->humanReadable(true));
+        $this->assertEquals($shortForm, $ip->humanReadable());
+        $this->assertEquals($longForm, $ip->humanReadable(false));
+    }
 }
