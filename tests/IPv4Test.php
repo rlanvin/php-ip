@@ -159,4 +159,35 @@ class IPv4Test extends TestCase
         $this->assertEquals($shortForm, $ip->humanReadable());
         $this->assertEquals($longForm, $ip->humanReadable(false));
     }
+
+    /**
+     * @return array
+     */
+    public function getLoopbackTestAddresses(): array
+    {
+        return array(
+            array('127.0.0.0', '0.0.0.0'),
+            array('127.0.0.1', '1.1.1.1'),
+            array('127.10.0.1', '10.8.8.8'),
+            array('127.10.99.1', '10.20.30.40'),
+            array('127.10.99.87', '99.100.100.1'),
+            array('127.255.255.255', '255.255.255.255'),
+            array('127.255.255.0', '119.15.96.43'),
+        );
+    }
+
+    /**
+     * @dataProvider getLoopbackTestAddresses
+     *
+     * @param string $validLoopback
+     * @param string $invalidLoopback
+     */
+    public function testIsLoopback(string $validLoopback, string $invalidLoopback)
+    {
+        $valid = new IPv4($validLoopback);
+        $invalid = new IPv4($invalidLoopback);
+
+        $this->assertTrue($valid->isLoopback());
+        $this->assertFalse($invalid->isLoopback());
+    }
 }

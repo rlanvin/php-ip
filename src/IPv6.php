@@ -37,6 +37,8 @@ class IPv6 extends IP
         'fe80::/10',
     );
 
+    protected static $loopback_range = '::1/128';
+
     /**
      * Workaround for lack of late static binding in PHP 5.2
      * so I can use "new $this->class()"" instead of "new static()".

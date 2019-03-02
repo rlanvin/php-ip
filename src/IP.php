@@ -68,6 +68,11 @@ abstract class IP
     protected $is_private;
 
     /**
+     * @var bool
+     */
+    protected $is_loopback;
+
+    /**
      * @var string Either "IPv4" or "IPv6"
      */
     protected $class;
@@ -78,6 +83,13 @@ abstract class IP
      * @var array
      */
     protected static $private_ranges;
+
+    /**
+     * The range reserved for loopback addresses.
+     *
+     * @var string
+     */
+    protected static $loopback_range;
 
     /**
      * Constructor tries to guess what is the $ip.
@@ -434,5 +446,19 @@ abstract class IP
     public function isPublic()
     {
         return !$this->isPrivate();
+    }
+
+    /**
+     * Return true if the address is within the loopback range.
+     *
+     * @return bool
+     */
+    public function isLoopback(): bool
+    {
+        if ($this->is_loopback === null) {
+            $this->is_loopback = $this->isIn(static::$loopback_range);
+        }
+
+        return $this->is_loopback;
     }
 }
