@@ -38,12 +38,6 @@ class IPv6 extends IP
     );
 
     /**
-     * Workaround for lack of late static binding in PHP 5.2
-     * so I can use "new $this->class()"" instead of "new static()".
-     */
-    protected $class = __CLASS__;
-
-    /**
      * {@inheritdoc}
      */
     public function humanReadable(bool $short_form = true): string
