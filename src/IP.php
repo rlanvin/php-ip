@@ -18,12 +18,12 @@ if (!function_exists('gmp_shiftl')) {
      *
      * @see http://www.php.net/manual/en/ref.gmp.php#99788
      *
-     * @param resource|string|\GMP $x
-     * @param int                  $n
+     * @param string|\GMP $x
+     * @param int         $n
      *
-     * @return resource|\GMP
+     * @return \GMP
      */
-    function gmp_shiftl($x, $n)
+    function gmp_shiftl($x, int $n): \GMP
     {
         return gmp_mul($x, gmp_pow('2', $n));
     }
@@ -34,12 +34,12 @@ if (!function_exists('gmp_shiftr')) {
      *
      * @see http://www.php.net/manual/en/ref.gmp.php#99788
      *
-     * @param resource|string|\GMP $x
-     * @param int                  $n
+     * @param string|\GMP $x
+     * @param int         $n
      *
-     * @return resource|\GMP
+     * @return \GMP
      */
-    function gmp_shiftr($x, $n)
+    function gmp_shiftr($x, int $n): \GMP
     {
         return gmp_div($x, gmp_pow('2', $n));
     }
@@ -105,7 +105,7 @@ abstract class IP
             return;
         }
 
-        if ((is_resource($ip) && get_resource_type($ip) === 'GMP integer') || $ip instanceof \GMP) {
+        if ($ip instanceof \GMP) {
             $this->ip = self::fromGMP($ip);
 
             return;
