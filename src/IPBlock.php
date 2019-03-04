@@ -474,7 +474,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
      *
      * @return string numeric string (can be huge)
      */
-    public function getNbAddresses()
+    public function getNbAddresses(): string
     {
         if ($this->nb_addresses === null) {
             $this->nb_addresses = gmp_strval(gmp_pow(2, $this->getMaxPrefix() - $this->prefix));
@@ -483,15 +483,21 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
         return $this->nb_addresses;
     }
 
-    // Countable
-    public function count()
+    /**
+     * Count the number of addresses contained with the address block. May exceed PHP's internal maximum integer.
+     *
+     * @return int
+     *
+     * @throws \RuntimeException thrown if the number of addresses exceeds PHP_INT_MAX
+     */
+    public function count(): int
     {
-        $n = $this->getNbAddresses();
-        if ($n > PHP_INT_MAX) {
+        $network_size = gmp_init($this->getNbAddresses());
+        if (gmp_cmp($network_size, PHP_INT_MAX) > 0) {
             throw new \RuntimeException('The number of addresses is bigger than PHP_INT_MAX, use getNbAddresses() instead');
         }
 
-        return $n;
+        return gmp_intval($network_size);
     }
 
     // Iterator
