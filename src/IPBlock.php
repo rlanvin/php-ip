@@ -15,7 +15,7 @@ namespace PhpIP;
 /**
  * Base class to manipulate CIDR block (aka "networks").
  */
-abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
+abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
 {
     /**
      * @var IP
@@ -495,33 +495,17 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
         return gmp_intval($network_size);
     }
 
-    // Iterator
-
-    protected $position = 0;
-
-    public function rewind()
+    /**
+     * @return \Generator|IP[]
+     */
+    public function getIterator(): \Generator
     {
-        $this->position = gmp_init(0);
-    }
+        $position = gmp_init(0);
 
-    public function current()
-    {
-        return $this->first_ip->plus(gmp_strval($this->position));
-    }
-
-    public function key()
-    {
-        return $this->position;
-    }
-
-    public function next()
-    {
-        $this->position = gmp_add($this->position, 1);
-    }
-
-    public function valid()
-    {
-        return gmp_cmp($this->position, 0) >= 0 && gmp_cmp($this->position, $this->getNbAddresses()) < 0;
+        while (gmp_cmp($position, 0) >= 0 && gmp_cmp($position, $this->getNbAddresses()) < 0) {
+            yield $this->first_ip->plus(gmp_strval($position));
+            $position = gmp_add($position, 1);
+        }
     }
 
     // ArrayAccess

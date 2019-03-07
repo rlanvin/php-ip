@@ -14,6 +14,9 @@ namespace PhpIP\Tests;
 
 use PhpIP\IPBlock;
 use PhpIP\IP;
+use PhpIP\IPv4Block;
+use PhpIP\IPv6Block;
+
 use PHPUnit\Framework\TestCase;
 
 class IPBlockTest extends TestCase

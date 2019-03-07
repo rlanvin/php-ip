@@ -97,4 +97,30 @@ class IPv4BlockTest extends TestCase
     {
         $instance = new IPv4Block($block);
     }
+
+    public function testIterator()
+    {
+        $expectation = array(
+            '192.168.0.0',
+            '192.168.0.1',
+            '192.168.0.2',
+            '192.168.0.3',
+            '192.168.0.4',
+            '192.168.0.5',
+            '192.168.0.6',
+            '192.168.0.7',
+            '192.168.0.8',
+            '192.168.0.9',
+            '192.168.0.10',
+            '192.168.0.11',
+            '192.168.0.12',
+            '192.168.0.13',
+            '192.168.0.14',
+            '192.168.0.15',
+        );
+
+        $subnet = new IPv4Block('192.168.0.0/28');
+
+        $this->assertEquals($expectation, iterator_to_array($subnet->getIterator()));
+    }
 }
