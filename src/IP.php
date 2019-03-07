@@ -110,7 +110,7 @@ abstract class IP
     private static function fromInt(int $ip): \GMP
     {
         $ip = gmp_init(sprintf('%u', $ip), 10);
-        if (gmp_cmp($ip, static::MAX_INT) > 0) {
+        if (!self::isValid($ip)) {
             throw new \InvalidArgumentException(sprintf('The integer "%s" is not a valid IPv%d address.', gmp_strval($ip), static::IP_VERSION));
         }
 
@@ -125,7 +125,7 @@ abstract class IP
     private static function fromFloat(float $ip): \GMP
     {
         $ip = gmp_init(sprintf('%s', $ip), 10);
-        if (gmp_cmp($ip, 0) < 0 || gmp_cmp($ip, static::MAX_INT) > 0) {
+        if (!self::isValid($ip)) {
             throw new \InvalidArgumentException(sprintf('The double "%s" is not a valid IPv%d address.', gmp_strval($ip), static::IP_VERSION));
         }
 
@@ -161,7 +161,7 @@ abstract class IP
         // numeric string (decimal)
         if (ctype_digit($ip)) {
             $ip = gmp_init($ip, 10);
-            if (gmp_cmp($ip, static::MAX_INT) > 0) {
+            if (!self::isValid($ip)) {
                 throw new \InvalidArgumentException(sprintf('"%s" is not a valid decimal IPv%d address.', gmp_strval($ip), static::IP_VERSION));
             }
 
@@ -178,7 +178,7 @@ abstract class IP
      */
     private static function fromGMP(\GMP $ip): \GMP
     {
-        if (gmp_cmp($ip, 0) < 0 || gmp_cmp($ip, static::MAX_INT) > 0) {
+        if (!static::isValid($ip)) {
             throw new \InvalidArgumentException(sprintf('"%s" is not a valid decimal IPv%d address.', gmp_strval($ip), static::IP_VERSION));
         }
 
@@ -217,7 +217,7 @@ abstract class IP
      *
      * @param bool $short_form Whether to express the IP address in the short form (::1 or 172.16.0.1), or to express it
      *                         in the long form (0000:0000:0000:0000:0000:0000:0000:0001 or 172.016.000.001). The
-     *                         default it the short form.
+     *                         default is the short form.
      *
      * @return string
      */
@@ -302,7 +302,7 @@ abstract class IP
      *
      * @return IP
      */
-    public function plus($value)
+    public function plus($value): IP
     {
         if ($value < 0) {
             return $this->minus(-1 * $value);
@@ -318,8 +318,13 @@ abstract class IP
 
         $result = gmp_add($this->ip, $value->ip);
 
-        if (gmp_cmp($result, 0) < 0 || gmp_cmp($result, static::MAX_INT) > 0) {
-            throw new \OutOfBoundsException();
+        if (!self::isValid($result)) {
+            throw new \OutOfBoundsException(sprintf(
+                'The sum of "%s" and "%s" is not a valid IPv%d address.',
+                $this->humanReadable(),
+                $value->humanReadable(),
+                static::IP_VERSION
+            ));
         }
 
         return new static($result);
@@ -334,7 +339,7 @@ abstract class IP
      *
      * @return IP
      */
-    public function minus($value)
+    public function minus($value): IP
     {
         if ($value < 0) {
             return $this->plus(-1 * $value);
@@ -350,8 +355,13 @@ abstract class IP
 
         $result = gmp_sub($this->ip, $value->ip);
 
-        if (gmp_cmp($result, 0) < 0 || gmp_cmp($result, static::MAX_INT) > 0) {
-            throw new \OutOfBoundsException();
+        if (!self::isValid($result)) {
+            throw new \OutOfBoundsException(sprintf(
+                'The difference of "%s" and "%s" is not a valid IPv%d address.',
+                $this->humanReadable(),
+                $value->humanReadable(),
+                static::IP_VERSION
+            ));
         }
 
         return new static($result);
@@ -421,5 +431,17 @@ abstract class IP
     public function isPublic()
     {
         return !$this->isPrivate();
+    }
+
+    /**
+     * Ensure the give $ip (as a \GMP object) is on the range [0, MAX_INT].
+     *
+     * @param \GMP $ip
+     *
+     * @return bool
+     */
+    protected static function isValid(\GMP $ip): bool
+    {
+        return (gmp_cmp($ip, 0) >= 0) && (gmp_cmp($ip, static::MAX_INT) <= 0);
     }
 }
