@@ -142,31 +142,82 @@ class IPBlockTest extends TestCase
             $this->assertTrue(IPBlock::create($block2)->overlaps($block), "$block2 is overlapping $block");
         }
         foreach ($not_overlapping as $block2) {
-            $this->assertFalse($block->overlaps($block2, "$block is not overlapping $block2"));
+            $this->assertFalse($block->overlaps($block2), "$block is not overlapping $block2");
             $this->assertFalse(IPBlock::create($block2)->overlaps($block), "$block2 is not overlappping $block");
         }
     }
 
-    public function testCountable()
+    public function getIpBlockCounts(): array
     {
-        $block = IPBlock::create('192.168.0.0/24');
-        $this->assertEquals(256, sizeof($block));
+        return array(
+            array('192.168.0.0/24', 256),
+            array('0.0.0.0/0', 4294967296),
+            array('192.168.0.10/24', 256),
+            array('::1/124', 16),
+            array('::f:0/112', 65536),
+            array('2001:acad::0/109', 524288),
+            array('::1/128', 1),
+            array('0.0.0.0/8', 16777216),
+        );
+    }
 
-        $block = IPBlock::create('::1/128');
-        $this->assertEquals(1, sizeof($block));
+    /**
+     * @dataProvider getIpBlockCounts
+     *
+     * @param string $subnet
+     * @param int    $expectedCount
+     */
+    public function testCountable(string $subnet, int $expectedCount)
+    {
+        $block = IPBlock::create($subnet);
+        $this->assertCount($expectedCount, $block);
+    }
 
-        $block = IPBlock::create('0.0.0.0/8');
-        $this->assertEquals(16777216, sizeof($block));
+    /**
+     * @return array
+     */
+    public function getOversizeAddressBlocks(): array
+    {
+        return array(
+            array('ffff::1/64'),
+            array('aaaa::1/60'),
+            array('b::/10'),
+        );
+    }
 
-        try {
-            $block = IPBlock::create('0.0.0.0/1');
-            sizeof($block);
-            $this->fail('Sizeof should fail if number of addresses is bigger than PHP_INT_MAX');
-        } catch (\RuntimeException $e) {
-        }
+    /**
+     * @dataProvider getOversizeAddressBlocks
+     * @expectedException \RuntimeException
+     */
+    public function testCountableThrowsException($subnet)
+    {
+        $block = IPBlock::create($subnet);
+        count($block);
+    }
 
-        $block = IPBlock::create('0.0.0.0/0');
-        $this->assertEquals('4294967296', $block->getNbAddresses());
+    /**
+     * @return array
+     */
+    public function getAddressBlocksWithSizes(): array
+    {
+        return array(
+            array('0.0.0.0/0', '4294967296'),
+            array('192.168.0.10/24', '256'),
+            array('::1/124', '16'),
+            array('::f:0/112', '65536'),
+        );
+    }
+
+    /**
+     * @dataProvider getAddressBlocksWithSizes
+     *
+     * @param string $subnet
+     * @param string $size
+     */
+    public function testGetNbAddresses(string $subnet, string $size)
+    {
+        $block = IPBlock::create($subnet);
+        $this->assertEquals($size, $block->getNbAddresses());
     }
 
     public function testArrayAccess()
