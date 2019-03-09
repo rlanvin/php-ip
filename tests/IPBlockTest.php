@@ -14,9 +14,6 @@ namespace PhpIP\Tests;
 
 use PhpIP\IPBlock;
 use PhpIP\IP;
-use PhpIP\IPv4Block;
-use PhpIP\IPv6Block;
-
 use PHPUnit\Framework\TestCase;
 
 class IPBlockTest extends TestCase
@@ -68,10 +65,11 @@ class IPBlockTest extends TestCase
 
     /**
      * @dataProvider invalidOperations
-     * @expectedException \OutOfBoundsException
      */
     public function testPlusMinusOob($block, $plus, $minus)
     {
+        $this->expectException(\OutOfBoundsException::class);
+
         $block = IPBlock::create($block);
         if ($plus !== null) {
             $block->plus($plus);
@@ -190,10 +188,11 @@ class IPBlockTest extends TestCase
 
     /**
      * @dataProvider getOversizeAddressBlocks
-     * @expectedException \RuntimeException
      */
     public function testCountableThrowsException($subnet)
     {
+        $this->expectException(\RuntimeException::class);
+
         $block = IPBlock::create($subnet);
         count($block);
     }

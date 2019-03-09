@@ -91,10 +91,11 @@ class IPv4Test extends TestCase
 
     /**
      * @dataProvider invalidAddresses
-     * @expectedException \InvalidArgumentException
      */
     public function testConstructInvalid($ip)
     {
+        $this->expectException(\InvalidArgumentException::class);
+
         $instance = new IPv4($ip);
     }
 
