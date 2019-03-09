@@ -163,31 +163,56 @@ class IPv4Test extends TestCase
     /**
      * @return array
      */
-    public function getLoopbackTestAddresses(): array
+    public function getInvalidLoopbackTestAddresses(): array
     {
         return array(
-            array('127.0.0.0', '0.0.0.0'),
-            array('127.0.0.1', '1.1.1.1'),
-            array('127.10.0.1', '10.8.8.8'),
-            array('127.10.99.1', '10.20.30.40'),
-            array('127.10.99.87', '99.100.100.1'),
-            array('127.255.255.255', '255.255.255.255'),
-            array('127.255.255.0', '119.15.96.43'),
+            array('0.0.0.0'),
+            array('1.1.1.1'),
+            array('10.8.8.8'),
+            array('10.20.30.40'),
+            array('99.100.100.1'),
+            array('255.255.255.255'),
+            array('119.15.96.43'),
         );
     }
 
     /**
-     * @dataProvider getLoopbackTestAddresses
+     * @return array
+     */
+    public function getValidLoopbackTestAddresses(): array
+    {
+        return array(
+            array('127.0.0.0'),
+            array('127.0.0.1'),
+            array('127.10.0.1'),
+            array('127.10.99.1'),
+            array('127.10.99.87'),
+            array('127.255.255.255'),
+            array('127.255.255.0'),
+        );
+    }
+
+    /**
+     * @dataProvider getValidLoopbackTestAddresses
      *
      * @param string $validLoopback
-     * @param string $invalidLoopback
      */
-    public function testIsLoopback(string $validLoopback, string $invalidLoopback)
+    public function testIsLoopbackIsTrueForValidLoopbackAddresses(string $validLoopback)
     {
         $valid = new IPv4($validLoopback);
-        $invalid = new IPv4($invalidLoopback);
 
         $this->assertTrue($valid->isLoopback());
-        $this->assertFalse($invalid->isLoopback());
+    }
+
+    /**
+     * @dataProvider getInvalidLoopbackTestAddresses
+     *
+     * @param string $invalidLoopback
+     */
+    public function testIsLoopbackIsFalseForInvalidLoopbackAddresses(string $invalidLoopback)
+    {
+        $valid = new IPv4($invalidLoopback);
+
+        $this->assertFalse($valid->isLoopback());
     }
 }
