@@ -15,7 +15,7 @@ namespace PhpIP;
 /**
  * Base class to manipulate CIDR block (aka "networks").
  */
-abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
+abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
 {
     /**
      * @var IP
@@ -53,14 +53,9 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
     protected $nb_addresses;
 
     /**
-     * @var string Either "IPv4Block" or "IPv6Block"
-     */
-    protected $class;
-
-    /**
      * @var string Either "IPv4" or "IPv6"
      */
-    protected $ip_class;
+    protected static $ip_class;
 
     /**
      * Return netmask.
@@ -71,12 +66,12 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
     {
         if ($this->mask === null) {
             if ($this->prefix == 0) {
-                $this->mask = new $this->ip_class(0);
+                $this->mask = new static::$ip_class(0);
             } else {
-                $max_int = gmp_init(constant("$this->ip_class::MAX_INT"));
-                $mask = gmp_shiftl($max_int, constant("$this->ip_class::NB_BITS") - $this->prefix);
+                $max_int = gmp_init(static::$ip_class::MAX_INT);
+                $mask = gmp_shiftl($max_int, static::$ip_class::NB_BITS - $this->prefix);
                 $mask = gmp_and($mask, $max_int); // truncate to 128 bits only
-                $this->mask = new $this->ip_class($mask);
+                $this->mask = new static::$ip_class($mask);
             }
         }
 
@@ -92,9 +87,9 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
     {
         if ($this->delta === null) {
             if ($this->prefix == 0) {
-                $this->delta = new $this->ip_class(constant("$this->ip_class::MAX_INT"));
+                $this->delta = new static::$ip_class(static::$ip_class::MAX_INT);
             } else {
-                $this->delta = new $this->ip_class(gmp_sub(gmp_shiftl(1, constant("$this->ip_class::NB_BITS") - $this->prefix), 1));
+                $this->delta = new static::$ip_class(gmp_sub(gmp_shiftl(1, static::$ip_class::NB_BITS - $this->prefix), 1));
             }
         }
 
@@ -139,7 +134,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
         }
 
         if (!$this->given_ip instanceof IP) {
-            $this->given_ip = new $this->ip_class($this->given_ip);
+            $this->given_ip = new static::$ip_class($this->given_ip);
         }
 
         $this->checkPrefix($prefix);
@@ -184,7 +179,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
      */
     public function getMaxPrefix()
     {
-        return constant("$this->ip_class::NB_BITS");
+        return static::$ip_class::NB_BITS;
     }
 
     /**
@@ -192,7 +187,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
      */
     public function getVersion()
     {
-        return constant("$this->ip_class::IP_VERSION");
+        return static::$ip_class::IP_VERSION;
     }
 
     /**
@@ -218,7 +213,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
         try {
             $first_ip = $this->first_ip->plus(gmp_mul($value, $this->getNbAddresses()));
 
-            return new $this->class(
+            return new static(
                 $first_ip,
                 $this->prefix
             );
@@ -250,7 +245,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
         try {
             $first_ip = $this->first_ip->minus(gmp_mul($value, $this->getNbAddresses()));
 
-            return new $this->class(
+            return new static(
                 $first_ip,
                 $this->prefix
             );
@@ -360,7 +355,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
             throw new \InvalidArgumentException("Prefix must be smaller than {$this->prefix} ($prefix given)");
         }
 
-        $first_block = new $this->class($this->first_ip, $prefix);
+        $first_block = new static($this->first_ip, $prefix);
         $number_of_blocks = gmp_pow(2, $prefix - $this->prefix);
 
         return new IPBlockIterator($first_block, $number_of_blocks);
@@ -382,7 +377,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
             throw new \InvalidArgumentException("Prefix must be bigger than {$this->prefix} ($prefix given)");
         }
 
-        return new $this->class($this->first_ip, $prefix);
+        return new static($this->first_ip, $prefix);
     }
 
     /**
@@ -431,7 +426,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
     public function containsBlock($block)
     {
         if (!$block instanceof IPBlock) {
-            $block = new $this->class($block);
+            $block = new static($block);
         }
 
         return $block->getFirstIp()->numeric() >= $this->first_ip->numeric() && $block->getLastIp()->numeric() <= $this->last_ip->numeric();
@@ -447,7 +442,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
     public function isIn($block)
     {
         if (!$block instanceof IPBlock) {
-            $block = new $this->class($block);
+            $block = new static($block);
         }
 
         return $block->containsBlock($this);
@@ -463,7 +458,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
     public function overlaps($block)
     {
         if (!$block instanceof IPBlock) {
-            $block = new $this->class($block);
+            $block = new static($block);
         }
 
         return !($block->getFirstIp()->numeric() > $this->last_ip->numeric() || $block->getLastIp()->numeric() < $this->first_ip->numeric());
@@ -474,7 +469,7 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
      *
      * @return string numeric string (can be huge)
      */
-    public function getNbAddresses()
+    public function getNbAddresses(): string
     {
         if ($this->nb_addresses === null) {
             $this->nb_addresses = gmp_strval(gmp_pow(2, $this->getMaxPrefix() - $this->prefix));
@@ -483,44 +478,34 @@ abstract class IPBlock implements \Iterator, \ArrayAccess, \Countable
         return $this->nb_addresses;
     }
 
-    // Countable
-    public function count()
+    /**
+     * Count the number of addresses contained with the address block. May exceed PHP's internal maximum integer.
+     *
+     * @return int
+     *
+     * @throws \RuntimeException thrown if the number of addresses exceeds PHP_INT_MAX
+     */
+    public function count(): int
     {
-        $n = $this->getNbAddresses();
-        if ($n > PHP_INT_MAX) {
+        $network_size = gmp_init($this->getNbAddresses());
+        if (gmp_cmp($network_size, PHP_INT_MAX) > 0) {
             throw new \RuntimeException('The number of addresses is bigger than PHP_INT_MAX, use getNbAddresses() instead');
         }
 
-        return $n;
+        return gmp_intval($network_size);
     }
 
-    // Iterator
-
-    protected $position = 0;
-
-    public function rewind()
+    /**
+     * @return \Generator|IP[]
+     */
+    public function getIterator(): \Generator
     {
-        $this->position = gmp_init(0);
-    }
+        $position = gmp_init(0);
 
-    public function current()
-    {
-        return $this->first_ip->plus(gmp_strval($this->position));
-    }
-
-    public function key()
-    {
-        return $this->position;
-    }
-
-    public function next()
-    {
-        $this->position = gmp_add($this->position, 1);
-    }
-
-    public function valid()
-    {
-        return gmp_cmp($this->position, 0) >= 0 && gmp_cmp($this->position, $this->getNbAddresses()) < 0;
+        while (gmp_cmp($position, 0) >= 0 && gmp_cmp($position, $this->getNbAddresses()) < 0) {
+            yield $this->first_ip->plus(gmp_strval($position));
+            $position = gmp_add($position, 1);
+        }
     }
 
     // ArrayAccess

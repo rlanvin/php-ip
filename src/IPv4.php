@@ -42,12 +42,6 @@ class IPv4 extends IP
     protected static $loopback_range = '127.0.0.0/8';
 
     /**
-     * Workaround for lack of late static binding in PHP 5.2
-     * so I can use "new $this->class()"" instead of "new static()".
-     */
-    protected $class = __CLASS__;
-
-    /**
      * {@inheritdoc}
      */
     public function humanReadable(bool $short_form = true): string
