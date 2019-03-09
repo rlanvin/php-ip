@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Licensed under the MIT license.
  *
@@ -14,9 +16,6 @@ namespace PhpIP\Tests;
 
 use PhpIP\IPBlock;
 use PhpIP\IP;
-use PhpIP\IPv4Block;
-use PhpIP\IPv6Block;
-
 use PHPUnit\Framework\TestCase;
 
 class IPBlockTest extends TestCase
