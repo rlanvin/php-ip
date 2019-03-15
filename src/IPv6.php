@@ -15,7 +15,9 @@ namespace PhpIP;
 /**
  * Class to manipulate IPv6.
  *
- * Addresses are stored internally as GMP ressource (big int).
+ * Addresses are stored internally as GMP resource (big int).
+ *
+ * @see https://tools.ietf.org/html/rfc4291 IP Version 6 Addressing Architecture
  */
 class IPv6 extends IP
 {
@@ -36,6 +38,11 @@ class IPv6 extends IP
         'fc00::/7',
         'fe80::/10',
     );
+
+    /**
+     * @var string
+     */
+    protected static $link_local_block = 'fe80::/10';
 
     /**
      * {@inheritdoc}

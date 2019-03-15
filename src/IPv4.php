@@ -40,6 +40,13 @@ class IPv4 extends IP
     );
 
     /**
+     * @see https://tools.ietf.org/html/rfc3927 Dynamic Configuration of IPv4 Link-Local Addresses
+     *
+     * @var string
+     */
+    protected static $link_local_block = '169.254.0.0/16';
+
+    /**
      * {@inheritdoc}
      */
     public function humanReadable(bool $short_form = true): string

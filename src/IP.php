@@ -68,6 +68,16 @@ abstract class IP
     protected $is_private;
 
     /**
+     * @var bool
+     */
+    protected $is_link_local;
+
+    /**
+     * @var string
+     */
+    protected static $link_local_block;
+
+    /**
      * Constructor tries to guess what is the $ip.
      *
      * @param mixed $ip string, binary string, int, float or \GMP instance
@@ -431,6 +441,20 @@ abstract class IP
     public function isPublic()
     {
         return !$this->isPrivate();
+    }
+
+    /**
+     * Determine if the address is a Link-Local address.
+     *
+     * @return bool
+     */
+    public function isLinkLocal(): bool
+    {
+        if ($this->is_link_local === null) {
+            $this->is_link_local = $this->isIn(static::$link_local_block);
+        }
+
+        return $this->is_link_local;
     }
 
     /**
