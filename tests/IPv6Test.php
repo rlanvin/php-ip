@@ -90,10 +90,11 @@ class IPv6Test extends TestCase
 
     /**
      * @dataProvider invalidAddresses
-     * @expectedException \InvalidArgumentException
      */
     public function testConstructInvalid($ip)
     {
+        $this->expectException(\InvalidArgumentException::class);
+
         $instance = new IPv6($ip);
     }
 
@@ -178,5 +179,33 @@ class IPv6Test extends TestCase
     {
         $ipv6 = new IPv6($ip);
         $this->assertEquals($reversePointer, $ipv6->reversePointer());
+    }
+
+    public function getInvalidLoopbackAddresses(): array
+    {
+        return array(
+            array('2a01:8200::'),
+            array('2001:db8:85a3::8a2e:370:7334'),
+            array('ffff:db8::'),
+            array('ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff'),
+        );
+    }
+
+    public function testIsLoopbackReturnsTrue()
+    {
+        $ip = new IPv6('::1');
+        $this->assertTrue($ip->isLoopback());
+    }
+
+    /**
+     * @dataProvider getInvalidLoopbackAddresses
+     *
+     * @param string $invalidLoopback
+     */
+    public function testIsLoopbackReturnsFalseForOtherAddresses(string $invalidLoopback)
+    {
+        $address = new IPv6($invalidLoopback);
+
+        $this->assertFalse($address->isLoopback());
     }
 }
