@@ -20,9 +20,9 @@ namespace PhpIP;
 class IPBlockIterator implements \Iterator, \Countable
 {
     /**
-     * @var int|\GMP
+     * @var \GMP
      */
-    protected $position = 0;
+    protected $position;
 
     /**
      * @var IPBlock
@@ -37,7 +37,7 @@ class IPBlockIterator implements \Iterator, \Countable
     /**
      * @var \GMP
      */
-    protected $nb_blocks = 0;
+    protected $nb_blocks;
 
     /**
      * @var string

@@ -55,7 +55,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
     protected $nb_addresses;
 
     /**
-     * @var string|IP
+     * @var string Either "IPv4" or "IPv6"
      */
     protected static $ip_class;
 
