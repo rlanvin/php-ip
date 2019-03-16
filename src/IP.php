@@ -434,6 +434,13 @@ abstract class IP
     }
 
     /**
+     * The name of the reverse DNS PTR record for the IP address.
+     *
+     * @return string
+     */
+    public abstract function reversePointer(): string;
+
+    /**
      * Ensure the give $ip (as a \GMP object) is on the range [0, MAX_INT].
      *
      * @param \GMP $ip

@@ -50,4 +50,17 @@ class IPv6 extends IP
 
         return implode(':', str_split($hex, 4));
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function reversePointer(): string
+    {
+        $ip = str_replace(':', '', $this->humanReadable(false));
+        $ip = strrev($ip);
+        $ip = implode('.', str_split($ip));
+        $ip .= '.ip6.arpa.';
+
+        return $ip;
+    }
 }
