@@ -142,4 +142,35 @@ class IPv6Test extends TestCase
         $this->assertEquals($shortForm, $ip->humanReadable());
         $this->assertEquals($longForm, $ip->humanReadable(false));
     }
+
+    /**
+     * @return array
+     */
+    public function getInvalidLoopbackAddresses(): array
+    {
+        return array(
+            array('2a01:8200::'),
+            array('2001:db8:85a3::8a2e:370:7334'),
+            array('ffff:db8::'),
+            array('ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff'),
+        );
+    }
+
+    public function testIsLoopbackReturnsTrue()
+    {
+        $ip = new IPv6('::1');
+        $this->assertTrue($ip->isLoopback());
+    }
+
+    /**
+     * @dataProvider getInvalidLoopbackAddresses
+     *
+     * @param string $invalidLoopback
+     */
+    public function testIsLoopbackReturnsFalseForOtherAddresses(string $invalidLoopback)
+    {
+        $address = new IPv6($invalidLoopback);
+
+        $this->assertFalse($address->isLoopback());
+    }
 }
