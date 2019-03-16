@@ -90,10 +90,11 @@ class IPv6Test extends TestCase
 
     /**
      * @dataProvider invalidAddresses
-     * @expectedException \InvalidArgumentException
      */
     public function testConstructInvalid($ip)
     {
+        $this->expectException(\InvalidArgumentException::class);
+
         $instance = new IPv6($ip);
     }
 

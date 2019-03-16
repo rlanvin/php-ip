@@ -62,10 +62,11 @@ class IPTest extends TestCase
 
     /**
      * @dataProvider invalidAddresses
-     * @expectedException \InvalidArgumentException
      */
     public function testConstructInvalid($ip)
     {
+        $this->expectException(\InvalidArgumentException::class);
+
         $instance = IP::create($ip);
     }
 
@@ -129,10 +130,11 @@ class IPTest extends TestCase
 
     /**
      * @dataProvider invalidOperations
-     * @expectedException \OutOfBoundsException
      */
     public function testPlusMinusOob($ip, $plus, $minus)
     {
+        $this->expectException(\OutOfBoundsException::class);
+
         $ip = IP::create($ip);
         if ($plus !== null) {
             $ip->plus($plus);
