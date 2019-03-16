@@ -65,10 +65,11 @@ class IPv6BlockTest extends TestCase
 
     /**
      * @dataProvider invalidBlocks
-     * @expectedException \InvalidArgumentException
      */
     public function testConstructInvalid($block)
     {
+        $this->expectException(\InvalidArgumentException::class);
+
         $instance = new IPv6Block($block);
     }
 
