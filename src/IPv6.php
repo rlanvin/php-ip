@@ -39,6 +39,8 @@ class IPv6 extends IP
         'fe80::/10',
     );
 
+    protected static $loopback_range = '::1/128';
+
     /**
      * @var string
      */

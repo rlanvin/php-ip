@@ -39,6 +39,8 @@ class IPv4 extends IP
         '255.255.255.255/32',
     );
 
+    protected static $loopback_range = '127.0.0.0/8';
+
     /**
      * @see https://tools.ietf.org/html/rfc3927 Dynamic Configuration of IPv4 Link-Local Addresses
      *
