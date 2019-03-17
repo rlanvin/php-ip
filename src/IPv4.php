@@ -63,4 +63,14 @@ class IPv4 extends IP
 
         return sprintf('%03d.%03d.%03d.%03d', ...$octets);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function reversePointer(): string
+    {
+        $octets = array_reverse(explode('.', $this->humanReadable()));
+
+        return implode('.', $octets).'.in-addr.arpa.';
+    }
 }

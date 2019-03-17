@@ -470,6 +470,13 @@ abstract class IP
     }
 
     /**
+     * The name of the reverse DNS PTR record for the IP address.
+     *
+     * @return string
+     */
+    abstract public function reversePointer(): string;
+
+    /**
      * Determine if the address is a Link-Local address.
      *
      * @return bool
