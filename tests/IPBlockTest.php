@@ -243,10 +243,10 @@ class IPBlockTest extends TestCase
         }
     }
 
-    public function testGetSubblocks()
+    public function testGetSubBlocks()
     {
         $block = IPBlock::create('192.168.8.0/24');
-        $subnets = $block->getSubblocks('/28');
+        $subnets = $block->getSubBlocks('/28');
 
         $this->assertCount(16, $subnets);
         $this->assertEquals('192.168.8.0', $subnets->current()->getFirstIp()->humanReadable());
@@ -255,22 +255,22 @@ class IPBlockTest extends TestCase
         $subnets->next();
         $subnets->next();
 
-        $this->assertEquals('192.168.8.32/28', $subnets->current()->getGivenIpWithPrefixlen());
+        $this->assertEquals('192.168.8.32/28', $subnets->current()->getGivenIpWithPrefixLen());
     }
 
-    public function testGetSuper()
+    public function testGetSuperBlock()
     {
         $block = IPBlock::create('192.168.42.0/24');
-        $this->assertEquals('192.168.0.0/16', (string) $block->getSuper('/16'));
+        $this->assertEquals('192.168.0.0/16', (string) $block->getSuperBlock('/16'));
 
         try {
-            $block->getSuper('');
+            $block->getSuperBlock('');
             $this->fail('Expected InvalidArgumentException has not be thrown');
         } catch (\InvalidArgumentException $e) {
         }
 
         try {
-            $block->getSuper('/32');
+            $block->getSuperBlock('/32');
             $this->fail('Expected InvalidArgumentException has not be thrown');
         } catch (\InvalidArgumentException $e) {
         }
