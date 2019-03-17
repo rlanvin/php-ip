@@ -28,7 +28,7 @@ class IPv6 extends IP
     const NB_BITS = 128;
     const NB_BYTES = 16;
 
-    protected static $private_ranges = array(
+    protected static $private_ranges = [
         '::1/128',
         '::/128',
         '::ffff:0:0/96',
@@ -39,7 +39,7 @@ class IPv6 extends IP
         '2001:10::/28',
         'fc00::/7',
         'fe80::/10',
-    );
+    ];
 
     protected static $loopback_range = '::1/128';
 

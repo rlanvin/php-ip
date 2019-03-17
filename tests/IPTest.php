@@ -22,14 +22,14 @@ class IPTest extends TestCase
 {
     public function validAddresses()
     {
-        return array(
-            array('127.0.0.1', '127.0.0.1', 4),
-            array('4294967296', '::1:0:0', 6),
-            array('2a01:8200::', '2a01:8200::', 6),
-            array('::1', '::1', 6),
-            array(inet_pton('::1'), '::1', 6),
-            array(inet_pton('127.0.0.1'), '127.0.0.1', 4),
-        );
+        return [
+            ['127.0.0.1', '127.0.0.1', 4],
+            ['4294967296', '::1:0:0', 6],
+            ['2a01:8200::', '2a01:8200::', 6],
+            ['::1', '::1', 6],
+            [inet_pton('::1'), '::1', 6],
+            [inet_pton('127.0.0.1'), '127.0.0.1', 4],
+        ];
     }
 
     /**
@@ -53,13 +53,13 @@ class IPTest extends TestCase
 
     public function invalidAddresses()
     {
-        return array(
-            array("\t"),
-            array('abc'),
-            array(12.3),
-            array(-12.3),
-            array('-1'),
-        );
+        return [
+            ["\t"],
+            ['abc'],
+            [12.3],
+            [-12.3],
+            ['-1'],
+        ];
     }
 
     /**
@@ -74,19 +74,19 @@ class IPTest extends TestCase
 
     public function validOperations()
     {
-        return array(
+        return [
             //     IP                plus              minus             result
-            array('255.255.255.255', null,             1,                '255.255.255.254'),
-            array('255.255.255.255', -1,               null,             '255.255.255.254'),
-            array('0.0.0.0',        '255.255.255.255', null,             '255.255.255.255'),
-            array('255.255.255.255', null,            '255.255.255.255', '0.0.0.0'),
-            array('0.0.0.0',         1,                null,             '0.0.0.1'),
-            array('0.0.0.0',         null,              -1,              '0.0.0.1'),
-            array('ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff', null, 1, 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:fffe'),
-            array('ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff', -1, null, 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:fffe'),
-            array('::', 1, null, '::1'),
-            array('::', null, -1, '::1'),
-        );
+            ['255.255.255.255', null,             1,                '255.255.255.254'],
+            ['255.255.255.255', -1,               null,             '255.255.255.254'],
+            ['0.0.0.0',        '255.255.255.255', null,             '255.255.255.255'],
+            ['255.255.255.255', null,            '255.255.255.255', '0.0.0.0'],
+            ['0.0.0.0',         1,                null,             '0.0.0.1'],
+            ['0.0.0.0',         null,              -1,              '0.0.0.1'],
+            ['ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff', null, 1, 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:fffe'],
+            ['ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff', -1, null, 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:fffe'],
+            ['::', 1, null, '::1'],
+            ['::', null, -1, '::1'],
+        ];
     }
 
     /**
@@ -106,28 +106,28 @@ class IPTest extends TestCase
 
     public function invalidOperations()
     {
-        return array(
+        return [
             // IP   plus   minus
-            array('255.255.255.255', 1, null),
-            array('255.255.255.254', 2, null),
-            array('255.255.255.255', null, -1),
-            array('255.255.255.254', null, -2),
-            array('255.255.255.255', '255.255.255.255', null),
-            array('255.255.255.255', IPv4::MAX_INT, null),
-            array('0.0.0.0', -1, null),
-            array('0.0.0.1', -2, null),
-            array('0.0.0.0', null, 1),
-            array('0.0.0.1', null, 2),
+            ['255.255.255.255', 1, null],
+            ['255.255.255.254', 2, null],
+            ['255.255.255.255', null, -1],
+            ['255.255.255.254', null, -2],
+            ['255.255.255.255', '255.255.255.255', null],
+            ['255.255.255.255', IPv4::MAX_INT, null],
+            ['0.0.0.0', -1, null],
+            ['0.0.0.1', -2, null],
+            ['0.0.0.0', null, 1],
+            ['0.0.0.1', null, 2],
             // IP   plus   minus
-            array('ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff', 1, null),
-            array('ffff:ffff:ffff:ffff:ffff:ffff:ffff:fffe', 2, null),
-            array('ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff', null, -1),
-            array('ffff:ffff:ffff:ffff:ffff:ffff:ffff:fffe', null, -2),
-            array('::', -1, null),
-            array('::1', -2, null),
-            array('::', null, 1),
-            array('::1', null, 2),
-        );
+            ['ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff', 1, null],
+            ['ffff:ffff:ffff:ffff:ffff:ffff:ffff:fffe', 2, null],
+            ['ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff', null, -1],
+            ['ffff:ffff:ffff:ffff:ffff:ffff:ffff:fffe', null, -2],
+            ['::', -1, null],
+            ['::1', -2, null],
+            ['::', null, 1],
+            ['::1', null, 2],
+        ];
     }
 
     /**

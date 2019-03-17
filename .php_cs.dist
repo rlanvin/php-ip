@@ -20,7 +20,7 @@ $config = PhpCsFixer\Config::create()
     ->setRules(array(
         '@Symfony' => true,
         'header_comment' => array('header' => $header, 'comment_type' => 'PHPDoc',),
-        'array_syntax' => array('syntax' => 'long'),
+        'array_syntax' => array('syntax' => 'short'),
         'yoda_style' => array(
             'always_move_variable' => false,
             'equal' => false,
