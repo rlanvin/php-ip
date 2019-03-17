@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Licensed under the MIT license.
  *
@@ -105,7 +107,7 @@ class IPv6Test extends TestCase
     {
         $instance = new IPv6($ip);
         $array = unpack('H*', inet_pton($compressed));
-        $this->assertEquals(ltrim($array[1], 0), $instance->numeric(16), "Base 16 of $compressed");
+        $this->assertEquals(ltrim($array[1], '0'), $instance->numeric(16), "Base 16 of $compressed");
         $this->assertEquals($dec, $instance->numeric(10), "Base 10 of $compressed");
     }
 

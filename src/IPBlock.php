@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Licensed under the MIT license.
  *
@@ -62,7 +64,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * @return IP
      */
-    public function getMask()
+    public function getMask(): IP
     {
         if ($this->mask === null) {
             if ($this->prefix == 0) {
@@ -83,7 +85,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * @return IP
      */
-    public function getDelta()
+    public function getDelta(): IP
     {
         if ($this->delta === null) {
             if ($this->prefix == 0) {
@@ -102,7 +104,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * @return IPv4Block|IPv6Block
      */
-    public static function create($ip, $prefix = '')
+    public static function create($ip, $prefix = ''): IPBlock
     {
         try {
             return new IPv4Block($ip, $prefix);
@@ -129,7 +131,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
     public function __construct($ip_or_cidr, $prefix = '')
     {
         $this->given_ip = $ip_or_cidr;
-        if (strpos($ip_or_cidr, '/') !== false) {
+        if (is_string($ip_or_cidr) && strpos($ip_or_cidr, '/') !== false) {
             list($this->given_ip, $prefix) = explode('/', $ip_or_cidr, 2);
         }
 
@@ -147,7 +149,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return (string) $this->first_ip.'/'.$this->prefix;
     }
@@ -159,7 +161,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * @return IP
      */
-    public function getGivenIp()
+    public function getGivenIp(): IP
     {
         return $this->given_ip;
     }
@@ -169,7 +171,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * @return int
      */
-    public function getPrefix()
+    public function getPrefix(): int
     {
         return $this->prefix;
     }
@@ -177,7 +179,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
     /**
      * @return int
      */
-    public function getMaxPrefix()
+    public function getMaxPrefix(): int
     {
         return static::$ip_class::NB_BITS;
     }
@@ -185,7 +187,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
     /**
      * @return int
      */
-    public function getVersion()
+    public function getVersion(): int
     {
         return static::$ip_class::IP_VERSION;
     }
@@ -195,14 +197,10 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * @return IPBlock
      */
-    public function plus($value)
+    public function plus(int $value): IPBlock
     {
         if ($value < 0) {
             return $this->minus(-1 * $value);
-        }
-
-        if (!is_int($value)) {
-            throw new \InvalidArgumentException('plus() takes an integer');
         }
 
         if ($value == 0) {
@@ -227,14 +225,10 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * @return IPBlock
      */
-    public function minus($value)
+    public function minus(int $value): IPBlock
     {
         if ($value < 0) {
             return $this->plus(-1 * $value);
-        }
-
-        if (!is_int($value)) {
-            throw new \InvalidArgumentException('plus() takes an integer');
         }
 
         if ($value == 0) {
@@ -259,7 +253,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * @return IP
      */
-    public function getFirstIp()
+    public function getFirstIp(): IP
     {
         return $this->first_ip;
     }
@@ -269,7 +263,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * @return IP
      */
-    public function getLastIp()
+    public function getLastIp(): IP
     {
         return $this->last_ip;
     }
@@ -281,7 +275,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * @return IP
      */
-    public function getNetworkAddress()
+    public function getNetworkAddress(): IP
     {
         return $this->first_ip;
     }
@@ -293,7 +287,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * @return IP
      */
-    public function getBroadcastAddress()
+    public function getBroadcastAddress(): IP
     {
         return $this->last_ip;
     }
@@ -303,7 +297,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * @return string
      */
-    public function getGivenIpWithPrefixlen()
+    public function getGivenIpWithPrefixlen(): string
     {
         return $this->given_ip.'/'.$this->prefix;
     }
@@ -313,7 +307,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * @return string
      **/
-    public function getGivenIpWithNetmask()
+    public function getGivenIpWithNetmask(): string
     {
         return $this->given_ip.'/'.$this->getMask();
     }
@@ -346,7 +340,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * @return IPBlockIterator
      */
-    public function getSubblocks($prefix)
+    public function getSubblocks($prefix): IPBlockIterator
     {
         $prefix = ltrim($prefix, '/');
         $this->checkPrefix($prefix);
@@ -368,7 +362,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * @return IPBlock
      */
-    public function getSuper($prefix)
+    public function getSuper($prefix): IPBlock
     {
         $prefix = ltrim($prefix, '/');
         $this->checkPrefix($prefix);
@@ -387,7 +381,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * @return bool
      */
-    public function contains($ip_or_block)
+    public function contains($ip_or_block): bool
     {
         if ((is_string($ip_or_block) && strpos($ip_or_block, '/') !== false) || $ip_or_block instanceof IPBlock) {
             return $this->containsBlock($ip_or_block);
@@ -403,7 +397,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * @return bool
      */
-    public function containsIP($ip)
+    public function containsIP($ip): bool
     {
         if (!$ip instanceof IP) {
             $ip = IP::create($ip);
@@ -423,7 +417,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * @return bool
      */
-    public function containsBlock($block)
+    public function containsBlock($block): bool
     {
         if (!$block instanceof IPBlock) {
             $block = new static($block);
@@ -439,7 +433,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * @return bool
      */
-    public function isIn($block)
+    public function isIn($block): bool
     {
         if (!$block instanceof IPBlock) {
             $block = new static($block);
@@ -455,7 +449,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * @return bool
      */
-    public function overlaps($block)
+    public function overlaps($block): bool
     {
         if (!$block instanceof IPBlock) {
             $block = new static($block);
@@ -508,14 +502,18 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
         }
     }
 
-    // ArrayAccess
-
-    public function offsetExists($offset)
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetExists($offset): bool
     {
         return gmp_cmp($offset, 0) >= 0 && gmp_cmp($offset, $this->getNbAddresses()) < 0;
     }
 
-    public function offsetGet($offset)
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetGet($offset): IP
     {
         if (!$this->offsetExists($offset)) {
             throw new \OutOfBoundsException("Offset $offset does not exists");
@@ -524,11 +522,21 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
         return $this->first_ip->plus($offset);
     }
 
+    /**
+     * Method is logically unsupported.
+     *
+     * {@inheritdoc}
+     */
     public function offsetSet($offset, $value)
     {
         throw new \LogicException('Setting IP in block is not supported');
     }
 
+    /**
+     * Method is logically unsupported.
+     *
+     * {@inheritdoc}
+     */
     public function offsetUnset($offset)
     {
         throw new \LogicException('Unsetting IP in block is not supported');
