@@ -27,6 +27,7 @@ $config = PhpCsFixer\Config::create()
             'identical' => false,
             'less_and_greater' => false,
         ),
+        'declare_strict_types' => true,
     ))
     ->setFinder($finder)
 ;

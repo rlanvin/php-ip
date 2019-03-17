@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Licensed under the MIT license.
  *
@@ -18,9 +20,9 @@ namespace PhpIP;
 class IPBlockIterator implements \Iterator, \Countable
 {
     /**
-     * @var int|\GMP
+     * @var \GMP
      */
-    protected $position = 0;
+    protected $position;
 
     /**
      * @var IPBlock
@@ -33,16 +35,22 @@ class IPBlockIterator implements \Iterator, \Countable
     protected $first_block = null;
 
     /**
-     * @var int
+     * @var \GMP
      */
-    protected $nb_blocks = 0;
+    protected $nb_blocks;
 
     /**
      * @var string
      */
     protected $class = '';
 
-    public function __construct(IPBlock $first_block, $nb_blocks)
+    /**
+     * IPBlockIterator constructor.
+     *
+     * @param IPBlock $first_block
+     * @param \GMP    $nb_blocks
+     */
+    public function __construct(IPBlock $first_block, \GMP $nb_blocks)
     {
         $this->class = get_class($first_block);
 
@@ -52,35 +60,65 @@ class IPBlockIterator implements \Iterator, \Countable
         $this->position = gmp_init(0);
     }
 
-    public function count()
+    /**
+     * {@inheritdoc}
+     */
+    public function count(): int
     {
-        return gmp_strval($this->nb_blocks);
+        if (gmp_cmp($this->nb_blocks, PHP_INT_MAX) > 0) {
+            throw new \RuntimeException('The number of address blocks is bigger than PHP_INT_MAX, use getNbBlocks() instead');
+        }
+
+        return gmp_intval($this->nb_blocks);
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function rewind()
     {
         $this->position = gmp_init(0);
         $this->current_block = $this->first_block;
     }
 
-    public function current()
+    /**
+     * {@inheritdoc}
+     */
+    public function current(): IPBlock
     {
         return $this->current_block;
     }
 
-    public function key()
+    /**
+     * {@inheritdoc}
+     */
+    public function key(): \GMP
     {
         return $this->position;
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function next()
     {
         $this->position = gmp_add($this->position, 1);
         $this->current_block = $this->current_block->plus(1);
     }
 
-    public function valid()
+    /**
+     * {@inheritdoc}
+     */
+    public function valid(): bool
     {
         return gmp_cmp($this->position, 0) >= 0 && gmp_cmp($this->position, $this->nb_blocks) < 0;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNbBlocks(): string
+    {
+        return gmp_strval($this->nb_blocks);
     }
 }

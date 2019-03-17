@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Licensed under the MIT license.
  *
@@ -50,10 +52,10 @@ if (!function_exists('gmp_shiftr')) {
  */
 abstract class IP
 {
-    const IP_VERSION = null;
-    const MAX_INT = null;
-    const NB_BITS = null;
-    const NB_BYTES = null;
+    const IP_VERSION = 0;
+    const MAX_INT = 0;
+    const NB_BITS = 0;
+    const NB_BYTES = 0;
 
     /**
      * Internal representation of the IP as a numeric format.
@@ -66,6 +68,16 @@ abstract class IP
      * @var bool
      */
     protected $is_private;
+
+    /**
+     * @var bool
+     */
+    protected $is_link_local;
+
+    /**
+     * @var string
+     */
+    protected static $link_local_block;
 
     /**
      * @var bool
@@ -215,11 +227,11 @@ abstract class IP
      * Either IPv4 or IPv6 may be supplied, but integers less than 2^32 will
      * be considered to be IPv4 by default.
      *
-     * @param  $ip      mixed Anything that can be converted into an IP (string, int, bin, etc.)
+     * @param mixed $ip Anything that can be converted into an IP (string, int, bin, etc.)
      *
      * @return IPv4|IPv6
      */
-    public static function create($ip)
+    public static function create($ip): IP
     {
         try {
             return new IPv4($ip);
@@ -256,7 +268,7 @@ abstract class IP
      *
      * @return string
      */
-    public function numeric($base = 10)
+    public function numeric(int $base = 10): string
     {
         if ($base < 2 || $base > 36) {
             throw new \InvalidArgumentException('Base must be between 2 and 36 (included)');
@@ -278,7 +290,7 @@ abstract class IP
      *
      * @return string Binary string
      */
-    public function binary()
+    public function binary(): string
     {
         $hex = str_pad($this->numeric(16), static::NB_BITS / 4, '0', STR_PAD_LEFT);
 
@@ -292,7 +304,7 @@ abstract class IP
      *
      * @return IP
      */
-    public function bit_and($value)
+    public function bit_and($value): IP
     {
         if (!$value instanceof self) {
             $value = new static($value);
@@ -308,7 +320,7 @@ abstract class IP
      *
      * @return IP
      */
-    public function bit_or($value)
+    public function bit_or($value): IP
     {
         if (!$value instanceof self) {
             $value = new static($value);
@@ -394,7 +406,7 @@ abstract class IP
     /**
      * @see humanReadable()
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->humanReadable();
     }
@@ -416,7 +428,7 @@ abstract class IP
      *
      * @return bool
      */
-    public function isIn($block)
+    public function isIn($block): bool
     {
         if (!$block instanceof IPBlock) {
             $block = IPBlock::create($block);
@@ -452,7 +464,7 @@ abstract class IP
      *
      * @return bool
      */
-    public function isPublic()
+    public function isPublic(): bool
     {
         return !$this->isPrivate();
     }
@@ -462,7 +474,21 @@ abstract class IP
      *
      * @return string
      */
-    public abstract function reversePointer(): string;
+    abstract public function reversePointer(): string;
+
+    /**
+     * Determine if the address is a Link-Local address.
+     *
+     * @return bool
+     */
+    public function isLinkLocal(): bool
+    {
+        if ($this->is_link_local === null) {
+            $this->is_link_local = $this->isIn(static::$link_local_block);
+        }
+
+        return $this->is_link_local;
+    }
 
     /**
      * Return true if the address is within the loopback range.
