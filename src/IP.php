@@ -264,25 +264,17 @@ abstract class IP
      *
      * The return value is a PHP string. It can base used for comparison.
      *
-     * @param  $base  int from 2 to 36
+     * @param int $base integer between 2 to 36 inclusive
      *
      * @return string
      */
     public function numeric(int $base = 10): string
     {
         if ($base < 2 || $base > 36) {
-            throw new \InvalidArgumentException('Base must be between 2 and 36 (included)');
+            throw new \InvalidArgumentException('Base must be between 2 and 36 (inclusive).');
         }
 
-        $value = gmp_strval($this->ip, $base);
-
-        // fix for newer versions of GMP (> 5.0) in PHP 5.4+ that removes
-        // the leading 0 in base 2
-        if ($base == 2) {
-            $value = str_pad($value, static::NB_BITS, '0', STR_PAD_LEFT);
-        }
-
-        return $value;
+        return gmp_strval($this->ip, $base);
     }
 
     /**
