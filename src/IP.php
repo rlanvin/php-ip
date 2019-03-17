@@ -72,6 +72,16 @@ abstract class IP
     /**
      * @var bool
      */
+    protected $is_link_local;
+
+    /**
+     * @var string
+     */
+    protected static $link_local_block;
+
+    /**
+     * @var bool
+     */
     protected $is_loopback;
 
     /**
@@ -457,6 +467,20 @@ abstract class IP
     public function isPublic(): bool
     {
         return !$this->isPrivate();
+    }
+
+    /**
+     * Determine if the address is a Link-Local address.
+     *
+     * @return bool
+     */
+    public function isLinkLocal(): bool
+    {
+        if ($this->is_link_local === null) {
+            $this->is_link_local = $this->isIn(static::$link_local_block);
+        }
+
+        return $this->is_link_local;
     }
 
     /**

@@ -167,6 +167,31 @@ class IPv4Test extends TestCase
     /**
      * @return array
      */
+    public function getValidLinkLocalAddresses(): array
+    {
+        return array(
+            array('169.254.0.0'),
+            array('169.254.65.180'),
+            array('169.254.99.24'),
+            array('169.254.122.33'),
+            array('169.254.250.163'),
+            array('169.254.211.154'),
+            array('169.254.23.170'),
+            array('169.254.123.129'),
+            array('169.254.158.199'),
+            array('169.254.252.99'),
+            array('169.254.136.202'),
+            array('169.254.131.23'),
+            array('169.254.153.225'),
+            array('169.254.21.109'),
+            array('169.254.197.155'),
+            array('169.254.255.255'),
+        );
+    }
+
+    /**
+     * @return array
+     */
     public function getInvalidLoopbackTestAddresses(): array
     {
         return array(
@@ -177,6 +202,31 @@ class IPv4Test extends TestCase
             array('99.100.100.1'),
             array('255.255.255.255'),
             array('119.15.96.43'),
+        );
+    }
+
+    /**
+     * @return array
+     */
+    public function getInvalidLinkLocalAddresses(): array
+    {
+        return array(
+            array('169.255.0.0'),
+            array('25.78.116.246'),
+            array('139.19.73.252'),
+            array('89.183.190.208'),
+            array('158.220.39.20'),
+            array('59.185.255.194'),
+            array('34.229.155.121'),
+            array('200.18.62.158'),
+            array('125.10.42.112'),
+            array('96.214.253.80'),
+            array('252.230.210.27'),
+            array('159.125.194.188'),
+            array('111.19.68.231'),
+            array('43.201.45.207'),
+            array('128.163.145.183'),
+            array('118.223.86.83'),
         );
     }
 
@@ -197,6 +247,28 @@ class IPv4Test extends TestCase
     }
 
     /**
+     * @dataProvider getValidLinkLocalAddresses
+     *
+     * @param string $address
+     */
+    public function testIsLinkLocalReturnsTrueForValidAddresses(string $address)
+    {
+        $ip = new IPv4($address);
+        $this->assertTrue($ip->isLinkLocal());
+    }
+
+    /**
+     * @dataProvider getInvalidLinkLocalAddresses
+     *
+     * @param string $address
+     */
+    public function testIsLinkLocalReturnsFalseForInvalidAddresses(string $address)
+    {
+        $ip = new IPv4($address);
+        $this->assertFalse($ip->isLinkLocal());
+    }
+
+    /**
      * @dataProvider getValidLoopbackTestAddresses
      *
      * @param string $validLoopback
@@ -204,7 +276,6 @@ class IPv4Test extends TestCase
     public function testIsLoopbackIsTrueForValidLoopbackAddresses(string $validLoopback)
     {
         $valid = new IPv4($validLoopback);
-
         $this->assertTrue($valid->isLoopback());
     }
 
@@ -216,7 +287,6 @@ class IPv4Test extends TestCase
     public function testIsLoopbackIsFalseForInvalidLoopbackAddresses(string $invalidLoopback)
     {
         $valid = new IPv4($invalidLoopback);
-
         $this->assertFalse($valid->isLoopback());
     }
 }
