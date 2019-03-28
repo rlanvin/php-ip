@@ -24,7 +24,7 @@ class IPv4Test extends TestCase
     public function validAddresses()
     {
         $values = [
-            //    IP                            String             Decimal       Binary                              Hexadecimal
+            //IP                           String             Decimal       Binary                              Hexadecimal
             ['127.0.0.1',                  '127.0.0.1',       '2130706433', '01111111000000000000000000000001', '7f000001'],
             ['10.0.0.1',                   '10.0.0.1',        '167772161',  '00001010000000000000000000000001', 'a000001'],
             ['0.0.0.0',                    '0.0.0.0',         '0',          '00000000000000000000000000000000', '0'],
@@ -228,6 +228,18 @@ class IPv4Test extends TestCase
             ['255.255.255.255'],
             ['119.15.96.43'],
         ];
+    }
+
+    /**
+     * @dataProvider getValidIpReversePointerPairs
+     *
+     * @param string $ip
+     * @param string $reversePointer
+     */
+    public function testGetReversePointer(string $ip, string $reversePointer)
+    {
+        $ipv4 = new IPv4($ip);
+        $this->assertEquals($reversePointer, $ipv4->reversePointer());
     }
 
     /**

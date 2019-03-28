@@ -209,6 +209,18 @@ class IPv6Test extends TestCase
     }
 
     /**
+     * @dataProvider getValidIpReversePointerPairs
+     *
+     * @param string $ip
+     * @param string $reversePointer
+     */
+    public function testGetReversePointer(string $ip, string $reversePointer)
+    {
+        $ipv6 = new IPv6($ip);
+        $this->assertEquals($reversePointer, $ipv6->reversePointer());
+    }
+
+    /**
      * @return array
      */
     public function getInvalidLinkLocalAddresses(): array
