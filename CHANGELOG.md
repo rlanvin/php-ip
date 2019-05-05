@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Backward Compatibility Breaking Changes
+- All classes now reside within `PhpIP` namespace. [#14](https://github.com/rlanvin/php-ip/pull/14)
+- Deprecated `IPBlock::getSuper`, use `IPBlock::getSuperBlock()` instead. [#46](https://github.com/rlanvin/php-ip/pull/46)
+
 ### Added
 
 - New method `isLoopback()` [#37](https://github.com/rlanvin/php-ip/pull/37)
@@ -17,7 +21,7 @@
 
 ### Fixed
 
-- Compatibiliy issues with PHP 5.4, 5.5 and 5.6
+- Compatibility issues with PHP 5.4, 5.5 and 5.6
 
 ## 1.0.0 - 2015-04-03
 
