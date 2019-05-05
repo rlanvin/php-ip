@@ -24,7 +24,7 @@ class IPv4BlockTest extends TestCase
     public function validBlocks()
     {
         return [
-            //     CIDR            Mask               Delta              First IP          Last IP
+            //CIDR            Mask               Delta              First IP          Last IP
             ['0.0.0.0/0',    '0.0.0.0',         '255.255.255.255', '0.0.0.0',        '255.255.255.255'],
             ['130.0.0.0/1',  '128.0.0.0',       '127.255.255.255', '128.0.0.0',      '255.255.255.255'],
             ['130.0.0.0/2',  '192.0.0.0',       '63.255.255.255',  '128.0.0.0',      '191.255.255.255'],
