@@ -23,7 +23,7 @@ class IPBlockTest extends TestCase
     public function validOperations()
     {
         return [
-            // block                plus  minus  result
+            // block           plus  minus  result
             ['192.168.0.0/24', 5,    null, '192.168.5.0/24'],
             ['192.168.0.0/24', 256,  null, '192.169.0.0/24'],
             ['0.0.0.0/1',      1,    null, '128.0.0.0/1'],
@@ -48,20 +48,14 @@ class IPBlockTest extends TestCase
     public function invalidOperations()
     {
         return [
-            // IP   plus   minus
+            // IP                 plus minus
             ['255.255.255.255/32', 1, null],
             ['255.255.255.254/32', 2, null],
-            // array('255.255.255.255/32', null, -1),
-            // array('255.255.255.254/32', null, -2),
-            // array('255.255.255.255', '255.255.255.255', null),
-            // array('255.255.255.255', IPv4::MAX_INT, null),
-            ['0.0.0.0/0', 1, null],
-            ['0.0.0.0/0', -1, null],
-            ['0.0.0.0/1', 2, null],
-            ['0.0.0.0/32', -1, null],
-            ['0.0.0.1/32', -2, null],
-            // array('0.0.0.0', null, 1),
-            // array('0.0.0.1', null, 2)
+            ['0.0.0.0/0',          1, null],
+            ['0.0.0.0/0',         -1, null],
+            ['0.0.0.0/1',          2, null],
+            ['0.0.0.0/32',        -1, null],
+            ['0.0.0.1/32',        -2, null],
         ];
     }
 

@@ -75,7 +75,7 @@ class IPTest extends TestCase
     public function validOperations()
     {
         return [
-            //     IP                plus              minus             result
+            //IP                plus              minus             result
             ['255.255.255.255', null,             1,                '255.255.255.254'],
             ['255.255.255.255', -1,               null,             '255.255.255.254'],
             ['0.0.0.0',        '255.255.255.255', null,             '255.255.255.255'],
@@ -118,7 +118,6 @@ class IPTest extends TestCase
             ['0.0.0.1', -2, null],
             ['0.0.0.0', null, 1],
             ['0.0.0.1', null, 2],
-            // IP   plus   minus
             ['ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff', 1, null],
             ['ffff:ffff:ffff:ffff:ffff:ffff:ffff:fffe', 2, null],
             ['ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff', null, -1],

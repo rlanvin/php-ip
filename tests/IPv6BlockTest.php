@@ -24,8 +24,7 @@ class IPv6BlockTest extends TestCase
     public function validBlocks()
     {
         return [
-            //     CIDR            Mask               Delta              First IP          Last IP
-            // array('0.0.0.0/0',    '0.0.0.0',         '255.255.255.255', '0.0.0.0',        '255.255.255.255'),
+            //CIDR                                 Mask                             Delta                                 First IP               Last IP
             ['2001:0db8::/30',                    'ffff:fffc::',                   '0:3:ffff:ffff:ffff:ffff:ffff:ffff',  '2001:db8::',          '2001:dbb:ffff:ffff:ffff:ffff:ffff:ffff'],
             ['2001:0db8::/31',                    'ffff:fffe::',                   '0:1:ffff:ffff:ffff:ffff:ffff:ffff',  '2001:db8::',          '2001:db9:ffff:ffff:ffff:ffff:ffff:ffff'],
             ['2001:0db8::/32',                    'ffff:ffff::',                   '::ffff:ffff:ffff:ffff:ffff:ffff',  '2001:db8::',            '2001:db8:ffff:ffff:ffff:ffff:ffff:ffff'],
