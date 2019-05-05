@@ -22,12 +22,12 @@ class IPBlockTest extends TestCase
 {
     public function validOperations()
     {
-        return array(
+        return [
             // block                plus  minus  result
-            array('192.168.0.0/24', 5,    null, '192.168.5.0/24'),
-            array('192.168.0.0/24', 256,  null, '192.169.0.0/24'),
-            array('0.0.0.0/1',      1,    null, '128.0.0.0/1'),
-        );
+            ['192.168.0.0/24', 5,    null, '192.168.5.0/24'],
+            ['192.168.0.0/24', 256,  null, '192.169.0.0/24'],
+            ['0.0.0.0/1',      1,    null, '128.0.0.0/1'],
+        ];
     }
 
     /**
@@ -47,22 +47,22 @@ class IPBlockTest extends TestCase
 
     public function invalidOperations()
     {
-        return array(
+        return [
             // IP   plus   minus
-            array('255.255.255.255/32', 1, null),
-            array('255.255.255.254/32', 2, null),
+            ['255.255.255.255/32', 1, null],
+            ['255.255.255.254/32', 2, null],
             // array('255.255.255.255/32', null, -1),
             // array('255.255.255.254/32', null, -2),
             // array('255.255.255.255', '255.255.255.255', null),
             // array('255.255.255.255', IPv4::MAX_INT, null),
-            array('0.0.0.0/0', 1, null),
-            array('0.0.0.0/0', -1, null),
-            array('0.0.0.0/1', 2, null),
-            array('0.0.0.0/32', -1, null),
-            array('0.0.0.1/32', -2, null),
+            ['0.0.0.0/0', 1, null],
+            ['0.0.0.0/0', -1, null],
+            ['0.0.0.0/1', 2, null],
+            ['0.0.0.0/32', -1, null],
+            ['0.0.0.1/32', -2, null],
             // array('0.0.0.0', null, 1),
             // array('0.0.0.1', null, 2)
-        );
+        ];
     }
 
     /**
@@ -82,22 +82,22 @@ class IPBlockTest extends TestCase
 
     public function blockContent()
     {
-        return array(
-            array(
+        return [
+            [
                 '192.168.0.0/24',
-                array('192.168.0.0', '192.168.0.42', '192.168.0.255'),
-                array('192.168.0.128/25'),
-                array('10.0.0.1', '192.167.255.255', '192.169.0.0'),
-                array('10.0.0.1/24'),
-            ),
-            array(
+                ['192.168.0.0', '192.168.0.42', '192.168.0.255'],
+                ['192.168.0.128/25'],
+                ['10.0.0.1', '192.167.255.255', '192.169.0.0'],
+                ['10.0.0.1/24'],
+            ],
+            [
                 '2001:0db8::/32',
-                array('2001:db8::', '2001:0db8:85a3::8a2e:0370:7334', '2001:db8:ffff:ffff:ffff:ffff:ffff:ffff'),
-                array('2001:db8::/64'),
-                array('::1'),
-                array('::1/128'),
-            ),
-        );
+                ['2001:db8::', '2001:0db8:85a3::8a2e:0370:7334', '2001:db8:ffff:ffff:ffff:ffff:ffff:ffff'],
+                ['2001:db8::/64'],
+                ['::1'],
+                ['::1/128'],
+            ],
+        ];
     }
 
     /**
@@ -125,13 +125,13 @@ class IPBlockTest extends TestCase
 
     public function overlappingBlocks()
     {
-        return array(
-            array(
+        return [
+            [
                 '192.168.0.0/24',
-                array('192.168.0.128/25', '192.168.0.0/23'),
-                array('10.0.0.1/24'),
-            ),
-        );
+                ['192.168.0.128/25', '192.168.0.0/23'],
+                ['10.0.0.1/24'],
+            ],
+        ];
     }
 
     /**
@@ -152,16 +152,16 @@ class IPBlockTest extends TestCase
 
     public function getIpBlockCounts(): array
     {
-        return array(
-            array('192.168.0.0/24', 256),
-            array('0.0.0.0/0', 4294967296),
-            array('192.168.0.10/24', 256),
-            array('::1/124', 16),
-            array('::f:0/112', 65536),
-            array('2001:acad::0/109', 524288),
-            array('::1/128', 1),
-            array('0.0.0.0/8', 16777216),
-        );
+        return [
+            ['192.168.0.0/24', 256],
+            ['0.0.0.0/0', 4294967296],
+            ['192.168.0.10/24', 256],
+            ['::1/124', 16],
+            ['::f:0/112', 65536],
+            ['2001:acad::0/109', 524288],
+            ['::1/128', 1],
+            ['0.0.0.0/8', 16777216],
+        ];
     }
 
     /**
@@ -181,11 +181,11 @@ class IPBlockTest extends TestCase
      */
     public function getOversizeAddressBlocks(): array
     {
-        return array(
-            array('ffff::1/64'),
-            array('aaaa::1/60'),
-            array('b::/10'),
-        );
+        return [
+            ['ffff::1/64'],
+            ['aaaa::1/60'],
+            ['b::/10'],
+        ];
     }
 
     /**
@@ -204,12 +204,12 @@ class IPBlockTest extends TestCase
      */
     public function getAddressBlocksWithSizes(): array
     {
-        return array(
-            array('0.0.0.0/0', '4294967296'),
-            array('192.168.0.10/24', '256'),
-            array('::1/124', '16'),
-            array('::f:0/112', '65536'),
-        );
+        return [
+            ['0.0.0.0/0', '4294967296'],
+            ['192.168.0.10/24', '256'],
+            ['::1/124', '16'],
+            ['::f:0/112', '65536'],
+        ];
     }
 
     /**

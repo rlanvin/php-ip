@@ -24,7 +24,7 @@ class IPv4 extends IP
     const NB_BITS = 32;
     const NB_BYTES = 4;
 
-    protected static $private_ranges = array(
+    protected static $private_ranges = [
         '0.0.0.0/8',
         '10.0.0.0/8',
         '127.0.0.0/8',
@@ -39,7 +39,7 @@ class IPv4 extends IP
         '203.0.113.0/24',
         '240.0.0.0/4',
         '255.255.255.255/32',
-    );
+    ];
 
     protected static $loopback_range = '127.0.0.0/8';
 
