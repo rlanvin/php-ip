@@ -17,18 +17,18 @@ $finder = PhpCsFixer\Finder::create()
 
 $config = PhpCsFixer\Config::create()
     ->setRiskyAllowed(true)
-    ->setRules(array(
+    ->setRules([
         '@Symfony' => true,
-        'header_comment' => array('header' => $header, 'comment_type' => 'PHPDoc',),
-        'array_syntax' => array('syntax' => 'short'),
-        'yoda_style' => array(
+        'header_comment' => ['header' => $header, 'comment_type' => 'PHPDoc',],
+        'array_syntax' => ['syntax' => 'short'],
+        'yoda_style' => [
             'always_move_variable' => false,
             'equal' => false,
             'identical' => false,
             'less_and_greater' => false,
-        ),
+        ],
         'declare_strict_types' => true,
-    ))
+    ])
     ->setFinder($finder)
 ;
 
