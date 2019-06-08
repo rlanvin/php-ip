@@ -297,7 +297,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * @return string
      */
-    public function getGivenIpWithPrefixlen(): string
+    public function getGivenIpWithPrefixLen(): string
     {
         return $this->given_ip.'/'.$this->prefix;
     }
@@ -340,7 +340,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * @return IPBlockIterator
      */
-    public function getSubblocks($prefix): IPBlockIterator
+    public function getSubBlocks($prefix): IPBlockIterator
     {
         $prefix = ltrim($prefix, '/');
         $this->checkPrefix($prefix);
@@ -356,13 +356,27 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
     }
 
     /**
-     * Return the superblock containing the current block.
+     * @deprecated since version 2.0 and will be removed in 3.0. Use IPBlock::getSuperBlock() instead.
      *
      * @param mixed $prefix
      *
      * @return IPBlock
      */
     public function getSuper($prefix): IPBlock
+    {
+        @trigger_error('IPBlock::getSuper() is deprecated since version 2.0 and will be removed in 3.0. Use IPBlock::getSuperBlock() instead.', E_USER_DEPRECATED);
+
+        return $this->getSuperBlock($prefix);
+    }
+
+    /**
+     * Return the super block containing the current block.
+     *
+     * @param mixed $prefix
+     *
+     * @return IPBlock
+     */
+    public function getSuperBlock($prefix): IPBlock
     {
         $prefix = ltrim($prefix, '/');
         $this->checkPrefix($prefix);

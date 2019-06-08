@@ -28,7 +28,7 @@ class IPv6 extends IP
     const NB_BITS = 128;
     const NB_BYTES = 16;
 
-    protected static $private_ranges = array(
+    protected static $private_ranges = [
         '::1/128',
         '::/128',
         '::ffff:0:0/96',
@@ -39,7 +39,7 @@ class IPv6 extends IP
         '2001:10::/28',
         'fc00::/7',
         'fe80::/10',
-    );
+    ];
 
     protected static $loopback_range = '::1/128';
 
@@ -60,5 +60,18 @@ class IPv6 extends IP
         $hex = str_pad($this->numeric(16), 32, '0', STR_PAD_LEFT);
 
         return implode(':', str_split($hex, 4));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function reversePointer(): string
+    {
+        $ip = str_replace(':', '', $this->humanReadable(false));
+        $ip = strrev($ip);
+        $ip = implode('.', str_split($ip));
+        $ip .= '.ip6.arpa.';
+
+        return $ip;
     }
 }
