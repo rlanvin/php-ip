@@ -84,6 +84,142 @@ class IPv4Test extends TestCase
     }
 
     /**
+     * Data provider for testBit_xor().
+     *
+     * @return array
+     */
+    public function getXorData(): array
+    {
+        return [
+            //IP_1              IP_2               IP_1 XOR IP_2
+            ['102.166.162.196', '147.124.132.249', '245.218.38.61'],
+            ['16.52.37.123',    '218.145.148.156', '202.165.177.231'],
+            ['71.177.119.225',  '3.54.9.220',      '68.135.126.61'],
+            ['7.180.145.95',    '39.79.79.104',    '32.251.222.55'],
+            ['82.204.197.236',  '171.80.138.27',   '249.156.79.247'],
+            ['243.100.68.134',  '10.217.229.5',    '249.189.161.131'],
+            ['211.229.158.56',  '155.177.219.63',  '72.84.69.7'],
+            ['118.92.141.120',  '205.98.66.143',   '187.62.207.247'],
+            ['134.194.211.62',  '55.115.130.222',  '177.177.81.224'],
+            ['27.88.157.167',   '192.120.65.232',  '219.32.220.79'],
+        ];
+    }
+
+    /**
+     * Data provider for testBit_negate().
+     *
+     * @return array
+     */
+    public function getNegateData(): array
+    {
+        return [
+            //IP                Negation
+            ['255.255.255.255', '0.0.0.0'],
+            ['255.255.255.0',   '0.0.0.255'],
+            ['255.255.254.0',   '0.0.1.255'],
+            ['255.255.252.0',   '0.0.3.255'],
+            ['255.255.248.0',   '0.0.7.255'],
+            ['255.255.240.0',   '0.0.15.255'],
+            ['255.255.224.0',   '0.0.31.255'],
+            ['255.255.192.0',   '0.0.63.255'],
+            ['255.255.128.0',   '0.0.127.255'],
+            ['255.255.0.0',     '0.0.0.255'],
+            ['0.0.0.0',         '255.255.255.255'],
+            ['128.3.1.1',       '127.252.254.254'],
+        ];
+    }
+
+    /**
+     * Data provider for testMatches().
+     *
+     * @return array
+     */
+    public function getMatchesData(): array
+    {
+        $data = [];
+
+        //Match all addresses within 192.168.0.0/23.
+        $data[] = [
+            'ip' => '192.168.1.1',
+            'mask' => '0.0.1.255',
+            'matches' => [
+                '192.168.0.0',
+                '192.168.0.15',
+                '192.168.0.64',
+                '192.168.0.255',
+                '192.168.1.0',
+                '192.168.1.31',
+                '192.168.1.192',
+                '192.168.1.255',
+            ],
+            'non_matches' => [
+                '192.167.255.255',
+                '192.168.2.0',
+                '127.0.0.0',
+                '0.0.0.0',
+                '255.255.255.255',
+                '10.0.0.1',
+                '200.100.50.0',
+                '172.16.1.42',
+            ],
+        ];
+
+        //Match all addresses in 10.0.0.0/8 where the last octet is an even number.
+        $data[] = [
+            'ip' => '10.0.0.0',
+            'mask' => '0.255.255.254',
+            'matches' => [
+                '10.0.0.0',
+                '10.0.0.2',
+                '10.1.10.64',
+                '10.3.10.254',
+                '10.10.10.4',
+                '10.13.13.6',
+                '10.64.73.88',
+                '10.255.255.254',
+            ],
+            'non_matches' => [
+                '10.0.0.1',
+                '10.3.3.3',
+                '10.4.4.7',
+                '10.10.10.9',
+                '10.23.32.41',
+                '10.254.254.253',
+                '10.255.255.255',
+                '192.168.2.2',
+            ],
+        ];
+
+        //Match any address whose third octet is 2.
+        $data[] = [
+            'ip' => '123.123.2.13',
+            'mask' => IPv4::create('255.255.0.255'),
+            'matches' => [
+                '0.0.2.0',
+                '127.0.2.1',
+                '192.168.2.3',
+                '2.2.2.2',
+                '255.255.2.1',
+                '172.16.2.255',
+                '224.169.2.15',
+                '255.255.2.255',
+            ],
+            'non_matches' => [
+                '2.2.0.2',
+                '2.2.22.2',
+                '102.166.162.196',
+                '16.52.37.123',
+                '71.177.119.225',
+                '7.180.42.95',
+                '82.204.197.236',
+                '243.100.68.134',
+            ],
+        ];
+
+        return $data;
+    }
+
+    /**
      * @dataProvider validAddresses
      */
     public function testConstructValid($ip, $string)
@@ -325,5 +461,60 @@ class IPv4Test extends TestCase
     {
         $valid = new IPv4($invalidLoopback);
         $this->assertFalse($valid->isLoopback());
+    }
+
+    /**
+     * @dataProvider getXorData
+     *
+     * @param string $ip_1
+     * @param string $ip_2
+     * @param string $xor
+     */
+    public function testBit_xor(string $ip_1, string $ip_2, string $xor)
+    {
+        $this->assertEquals(IPv4::create($xor), IPv4::create($ip_1)->bit_xor($ip_2));
+    }
+
+    /**
+     * @dataProvider getNegateData
+     *
+     * @param string $ip
+     * @param string $negation
+     */
+    public function testBit_negate(string $ip, string $negation)
+    {
+        $this->assertEquals(IPv4::create($negation), IPv4::create($ip));
+    }
+
+    /**
+     * @dataProvider getMatchesData
+     *
+     * @param mixed $ip
+     * @param mixed $mask
+     * @param array $matches
+     * @param array $non_matches
+     */
+    public function testMatches($ip, $mask, array $matches, array $non_matches)
+    {
+        $ip = IPv4::create($ip);
+
+        foreach ($matches as $hostIP) {
+            $this->assertTrue($ip->matches($hostIP, $mask), sprintf('Failed asserting host IP "%s" matches with IP: %s and mask %s.', $hostIP, $ip, $mask));
+        }
+
+        foreach ($non_matches as $hostIP) {
+            $this->assertFalse($ip->matches($hostIP, $mask), sprintf('Failed asserting host IP "%s" DOES NOT match with IP: %s and mask %s.', $hostIP, $ip, $mask));
+        }
+    }
+
+    /**
+     * Test that the IP::matches() mask default of 0 matches the entire IP address exactly.
+     */
+    public function testDefaultMaskValueMatchesEntireIpAddress()
+    {
+        $ip = IPv4::create('172.16.3.5');
+
+        $this->assertTrue($ip->matches('172.16.3.5'));
+        $this->assertFalse($ip->matches('172.16.3.4'));
     }
 }
