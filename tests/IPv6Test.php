@@ -287,8 +287,8 @@ class IPv6Test extends TestCase
 
         //Match all addresses whose 4th octet is "1337".
         $data[] = [
-            'ip' => 'fe80:0:1337::',
-            'mask' => '0:0:0:ffff::',
+            'ip' => 'fe80:0:0:1337::',
+            'mask' => 'ffff:ffff:ffff:0:ffff:ffff:ffff:ffff',
             'matches' => [
                 'c30d:ec5c:ff82:1337:358d:631e:2918:e812',
                 'b7bc:af65:ec86:1337:7d96:51eb:7955:4a65',
@@ -314,7 +314,7 @@ class IPv6Test extends TestCase
         //Match all addresses in a220:db8:c3b0::/48 where the last octet is an even number.
         $data[] = [
             'ip' => 'a220:db8:c3b0::',
-            'mask' => '::fffe',
+            'mask' => '::ffff:ffff:ffff:ffff:fffe',
             'matches' => [
                 'a220:db8:c3b0:09a0:ff6d:7e70:8763:9668',
                 'a220:db8:c3b0:87a9:c49c:669c:1083:6ff2',
@@ -414,6 +414,27 @@ class IPv6Test extends TestCase
     public function testBit_negate(string $ip, string $negation)
     {
         $this->assertEquals(IPv6::create($negation), IPv6::create($ip));
+    }
+
+    /**
+     * @dataProvider getMatchesData
+     *
+     * @param mixed $ip
+     * @param mixed $mask
+     * @param array $matches
+     * @param array $non_matches
+     */
+    public function testMatches($ip, $mask, array $matches, array $non_matches)
+    {
+        $ip = IPv6::create($ip);
+
+        foreach ($matches as $hostIP) {
+            $this->assertTrue($ip->matches($hostIP, $mask), sprintf('Failed asserting host IP "%s" matches with IP: %s and mask %s.', $hostIP, $ip, $mask));
+        }
+
+        foreach ($non_matches as $hostIP) {
+            $this->assertFalse($ip->matches($hostIP, $mask), sprintf('Failed asserting host IP "%s" DOES NOT match with IP: %s and mask %s.', $hostIP, $ip, $mask));
+        }
     }
 
     /**
