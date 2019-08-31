@@ -287,7 +287,7 @@ class IPv6Test extends TestCase
 
         //Match all addresses whose 4th octet is "1337".
         $data[] = [
-            'ip' => 'fe80:0:01337::',
+            'ip' => 'fe80:0:1337::',
             'mask' => '0:0:0:ffff::',
             'matches' => [
                 'c30d:ec5c:ff82:1337:358d:631e:2918:e812',
