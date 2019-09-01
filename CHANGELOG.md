@@ -2,7 +2,9 @@
 
 ## [Unreleased]
 
-n/a
+### Added
+
+- New method `matches($ip, $mask)` to perform wildcard mask matching common in network Access Control Lists and OSPF dynamic routing [#51](https://github.com/rlanvin/php-ip/pull/51)
 
 ## [2.0.0] - 2019-09-01
 
