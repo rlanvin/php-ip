@@ -330,6 +330,59 @@ abstract class IP
     }
 
     /**
+     * Bitwise XOR.
+     *
+     * @param $value mixed anything that can be converted into an IP object
+     *
+     * @return IP
+     */
+    public function bit_xor($value): IP
+    {
+        if (!$value instanceof self) {
+            $value = new static($value);
+        }
+
+        return new static(gmp_xor($this->ip, $value->ip));
+    }
+
+    /**
+     * Bitwise Negation.
+     *
+     * Inverse each bit of the IP address.
+     * E.g. 255.255.248.0 -> 0.0.7.255
+     *
+     * @return IP
+     */
+    public function bit_negate(): IP
+    {
+        return new static(gmp_and(gmp_com($this->ip), static::MAX_INT));
+    }
+
+    /**
+     * Bitwise comparison of the IP object and the $ip with respect to the $mask parameter.
+     *
+     * @param $ip mixed The IP address to be matched. Anything that can be converted into an IP object.
+     * @param $mask mixed A bit mask indicating which parts of the IP address to examine. A mask of all zeroes (default) matches the IP address in its entirety.
+     *
+     * @return bool
+     */
+    public function matches($ip, $mask = 0): bool
+    {
+        if (!$ip instanceof self) {
+            $ip = new static($ip);
+        }
+
+        if (!$mask instanceof self) {
+            $mask = new static($mask);
+        }
+
+        // This is the boolean expression "¬(A⊕B)∧¬C∨C" where A and B are IP bits and C is the equivalent wildcard mask bit.
+        $value = $this->bit_xor($ip)->bit_negate()->bit_and($mask->bit_negate())->bit_or($mask);
+
+        return gmp_cmp($value->ip, static::MAX_INT) === 0;
+    }
+
+    /**
      * Plus (+).
      *
      * @throws \OutOfBoundsException

@@ -234,6 +234,113 @@ class IPv6Test extends TestCase
     }
 
     /**
+     * Data provider for testBit_xor().
+     *
+     * @return array
+     */
+    public function getXorData(): array
+    {
+        return [
+            //IP_1                                      IP_2                                       IP_1 XOR IP_2
+            ['de73:9b08:52f7:2026:b159:b25e:7ddb:a552', 'a63e:4497:ff76:460f:efca:8620:803f:4872', '784d:df9f:ad81:6629:5e93:347e:fde4:ed20'],
+            ['5f4b:8229:1220:efec:eda2:2df1:ebf9:1d2e', 'df5f:b54e:463b:50c9:f1de:9801:7eaa:5667', '8014:3767:541b:bf25:1c7c:b5f0:9553:4b49'],
+            ['f5e9:213a:19b0:75e8:785e:9cc9:d378:a469', '1081:0ddc:f92d:b99e:c997:505c:64a3:5c29', 'e568:2ce6:e09d:cc76:b1c9:cc95:b7db:f840'],
+            ['a9b3:701e:ca1c:5eb5:95e8:de8f:98bb:c612', '6167:12ca:ac0b:a3a1:311e:49c0:9184:f783', 'c8d4:62d4:6617:fd14:a4f6:974f:093f:3191'],
+            ['4588:15a5:809d:a693:08e3:b6a4:3c22:549f', '0049:db10:882a:8af9:57b6:ec2c:20f6:88a9', '45c1:ceb5:08b7:2c6a:5f55:5a88:1cd4:dc36'],
+            ['d342:69a2:b73f:fd84:5b7e:44ea:054b:b788', '1d0a:e852:8586:ed03:d6c3:bc3c:9d9b:fd79', 'ce48:81f0:32b9:1087:8dbd:f8d6:98d0:4af1'],
+            ['ca48:9506:4896:c62e:90e1:df74:0a17:3640', '491d:315f:c20e:fa82:bb79:55f5:6df1:8319', '8355:a459:8a98:3cac:2b98:8a81:67e6:b559'],
+            ['a373:e407:5296:3f84:9985:2081:86ac:8b71', '1b42:d2eb:2039:fc20:9ff2:315a:f6d1:0349', 'b831:36ec:72af:c3a4:0677:11db:707d:8838'],
+            ['083c:887f:b043:dfd3:5e49:e15b:f2c6:847b', 'd3b9:4313:56d4:b35c:3c83:f61d:0948:4371', 'db85:cb6c:e697:6c8f:62ca:1746:fb8e:c70a'],
+            ['6831:fea2:f4c3:bea4:e61d:47ec:ad61:0ce7', '5fe8:c991:e17b:e136:7b76:38ef:57fd:9fe5', '37d9:3733:15b8:5f92:9d6b:7f03:fa9c:9302'],
+        ];
+    }
+
+    /**
+     * Data provider for testBit_negate().
+     *
+     * @return array
+     */
+    public function getNegateData(): array
+    {
+        return [
+            ['1e11:629a:b16e:ae60:aea4:1996:a8af:3711', 'e1ee:9d65:4e91:519f:515b:e669:5750:c8ee'],
+            ['b26b:5c0f:f85:e738:d73e:2371:3b29:c58e', '4d94:a3f0:f07a:18c7:28c1:dc8e:c4d6:3a71'],
+            ['d3af:91af:8f9a:520d:4716:123d:bd77:c943', '2c50:6e50:7065:adf2:b8e9:edc2:4288:36bc'],
+            ['bc61:39b0:5186:f704:b395:fc8a:62e:1947', '439e:c64f:ae79:8fb:4c6a:375:f9d1:e6b8'],
+            ['d7fe:7772:5c74:7034:473a:cb6d:b428:714d', '2801:888d:a38b:8fcb:b8c5:3492:4bd7:8eb2'],
+            ['913:50a3:5718:21b9:7db6:8db3:a186:48a8', 'f6ec:af5c:a8e7:de46:8249:724c:5e79:b757'],
+            ['5d4:6e2c:e25d:e477:fda6:a923:a927:3592', 'fa2b:91d3:1da2:1b88:259:56dc:56d8:ca6d'],
+            ['1abc:79b3:6800:45ae:da3c:399:e26f:f867', 'e543:864c:97ff:ba51:25c3:fc66:1d90:798'],
+            ['901b:31b6:3ddb:7218:45b1:7ba0:4024:fd90', '6fe4:ce49:c224:8de7:ba4e:845f:bfdb:26f'],
+            ['23fb:1c0d:db1f:14b1:9634:3ec2:8743:e7c2', 'dc04:e3f2:24e0:eb4e:69cb:c13d:78bc:183d'],
+        ];
+    }
+
+    /**
+     * Data provider for testMatches().
+     *
+     * @return array
+     */
+    public function getMatchesData(): array
+    {
+        $data = [];
+
+        //Match all addresses whose 4th octet is "1337".
+        $data[] = [
+            'ip' => 'fe80:0:0:1337::',
+            'mask' => 'ffff:ffff:ffff:0:ffff:ffff:ffff:ffff',
+            'matches' => [
+                'c30d:ec5c:ff82:1337:358d:631e:2918:e812',
+                'b7bc:af65:ec86:1337:7d96:51eb:7955:4a65',
+                '74b1:4339:1304:1337:481b:32f5:504d:a277',
+                'd302:62e9:6f57:1337:97d9:60f3:95a1:5804',
+                'f30b:f965:c810:1337:25fa:fec9:83d7:d29e',
+                '2009:9b8c:a747:1337:b223:9e3a:1676:8a9a',
+                '4ddf:eebd:2a16:1337:cc0e:3d4b:d752:e28e',
+                '14c0:bda3:a182:1337:e357:5f1e:601c:2118',
+            ],
+            'non_matches' => [
+                '591f:531e:8b94:ed1c:2f59:6255:b74e:c396',
+                '3471:1337:d49f:de59:17b9:626b:c060:fbef',
+                'e304:4137:b59e:34b7:1f70:82d9:63fe:1337',
+                'd775:867c:6101:eaee:08c9:e0b2:1337:365e',
+                '1fdb:192b:eb7a:b883:3c85:1337:8aab:5072',
+                '1337:1337:1337:0:1337:1337:1337:1337',
+                'ae07:58e8:ea9e:2fb1:bbce:468a:7e1a:72aa',
+                '5779:ed72:069c:8e09:3bf1:18ec:97e0:f99b',
+            ],
+        ];
+
+        //Match all addresses in a220:db8:c3b0::/48 where the last octet is an even number.
+        $data[] = [
+            'ip' => 'a220:db8:c3b0::',
+            'mask' => '::ffff:ffff:ffff:ffff:fffe',
+            'matches' => [
+                'a220:db8:c3b0:09a0:ff6d:7e70:8763:9668',
+                'a220:db8:c3b0:87a9:c49c:669c:1083:6ff2',
+                'a220:db8:c3b0:0ca1:e7c4:1848:cc3e:b396',
+                'a220:db8:c3b0:ca85:c338:071f:06fc:05a2',
+                'a220:db8:c3b0:c624:24fc:1f57:cac2:b634',
+                'a220:db8:c3b0:56aa:7dd2:e87c:8177:f2f2',
+                'a220:db8:c3b0:b8c4:d334:29ea:9bbc:16c8',
+                'a220:db8:c3b0:ee6e:aee6:c196:1acb:e43a',
+            ],
+            'non_matches' => [
+                'a220:db8:c3b0:b8c4:d334:29ea:9bbc:16c9',
+                'a220:db8:c3b0:ee6e:aee6:c196:1acb:e43b',
+                'e97d:75a3:a265:adc5:8662:688e:bfcd:bcc8',
+                'bd83:c5de:f93f:cb75:05b7:9f90:e4b6:53a4',
+                '54fe:b07d:5b5a:66b0:83d5:f71e:5b7b:ef6c',
+                '2754:511e:8ddc:0d7d:8062:ab8d:d6b8:d9e6',
+                '94dc:d885:02f1:591e:0d5c:858c:8895:7f7f',
+                'b388:899b:8f2d:5463:8d3e:2e01:5e2d:a698',
+            ],
+        ];
+
+        return $data;
+    }
+
+    /**
      * @dataProvider getValidLinkLocalAddresses
      *
      * @param string $address
@@ -284,5 +391,60 @@ class IPv6Test extends TestCase
         $address = new IPv6($invalidLoopback);
 
         $this->assertFalse($address->isLoopback());
+    }
+
+    /**
+     * @dataProvider getXorData
+     *
+     * @param string $ip_1
+     * @param string $ip_2
+     * @param string $xor
+     */
+    public function testBit_xor(string $ip_1, string $ip_2, string $xor)
+    {
+        $this->assertEquals(IPv6::create($xor), IPv6::create($ip_1)->bit_xor($ip_2));
+    }
+
+    /**
+     * @dataProvider getNegateData
+     *
+     * @param string $ip
+     * @param string $negation
+     */
+    public function testBit_negate(string $ip, string $negation)
+    {
+        $this->assertEquals(IPv6::create($negation), IPv6::create($ip));
+    }
+
+    /**
+     * @dataProvider getMatchesData
+     *
+     * @param mixed $ip
+     * @param mixed $mask
+     * @param array $matches
+     * @param array $non_matches
+     */
+    public function testMatches($ip, $mask, array $matches, array $non_matches)
+    {
+        $ip = IPv6::create($ip);
+
+        foreach ($matches as $hostIP) {
+            $this->assertTrue($ip->matches($hostIP, $mask), sprintf('Failed asserting host IP "%s" matches with IP: %s and mask %s.', $hostIP, $ip, $mask));
+        }
+
+        foreach ($non_matches as $hostIP) {
+            $this->assertFalse($ip->matches($hostIP, $mask), sprintf('Failed asserting host IP "%s" DOES NOT match with IP: %s and mask %s.', $hostIP, $ip, $mask));
+        }
+    }
+
+    /**
+     * Test that the IP::matches() mask default of 0 matches the entire IP address exactly.
+     */
+    public function testDefaultMaskValueMatchesEntireIpAddress()
+    {
+        $ip = IPv6::create('14c0:bda3:a182:4a16:e357:5f1e:601c:2118');
+
+        $this->assertTrue($ip->matches('14c0:bda3:a182:4a16:e357:5f1e:601c:2118'));
+        $this->assertFalse($ip->matches('14c0:bda3:a182:4a16:e357:5f1e:601c:2119'));
     }
 }
