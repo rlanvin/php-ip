@@ -2,7 +2,12 @@
 
 ## [Unreleased]
 
+n/a
+
+## [2.0.0] - 2019-09-01
+
 ### Backward Compatibility Breaking Changes
+
 - All classes now reside within `PhpIP` namespace. [#14](https://github.com/rlanvin/php-ip/pull/14)
 - Deprecated `IPBlock::getSuper`, use `IPBlock::getSuperBlock()` instead. [#46](https://github.com/rlanvin/php-ip/pull/46)
 
@@ -13,7 +18,7 @@
 - New method `reversePointer()` [#44](https://github.com/rlanvin/php-ip/pull/44)
 - New method `IpBlock::getGivenIp` to return the IP used in the constructor [#6](https://github.com/rlanvin/php-ip/pull/6)
 
-### Removed 
+### Removed
 
 - Drop support for PHP 5 [#8](https://github.com/rlanvin/php-ip/issues/8)
 
@@ -27,5 +32,6 @@
 
 First release
 
-[Unreleased]: https://github.com/rlanvin/php-rrule/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/rlanvin/php-rrule/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/rlanvin/php-rrule/compare/v1.0.1...v2.0.0
 [1.0.1]: https://github.com/rlanvin/php-ip/compare/v1.0.0...v1.0.1
