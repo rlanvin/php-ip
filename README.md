@@ -16,7 +16,7 @@ IPv4/IPv6 manipulation library for PHP inspired by Python [ipaddress](https://do
 
 The recommended way is to install the lib [through Composer](http://getcomposer.org/).
 
-Simply run `composer require rlanvin/php-rrule` for it to be automatically installed and included in your `composer.json`.
+Simply run `composer require rlanvin/php-ip` for it to be automatically installed and included in your `composer.json`.
 
 Now you can use the autoloader, and you will have access to the library:
 
