@@ -139,8 +139,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
             $this->given_ip = new static::$ip_class($this->given_ip);
         }
 
-        $this->checkPrefix($prefix);
-        $this->prefix = (int) $prefix;
+        $this->prefix = $this->checkPrefix($prefix);
 
         $this->first_ip = $this->given_ip->bit_and($this->getMask());
         $this->last_ip = $this->first_ip->bit_or($this->getDelta());
@@ -319,6 +318,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      * @param mixed $prefix
      *
      * @throws \InvalidArgumentException
+     * @return int
      */
     protected function checkPrefix($prefix)
     {
@@ -329,6 +329,8 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
                 $prefix
             ));
         }
+
+        return (int) $prefix;
     }
 
     /**
@@ -343,7 +345,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
     public function getSubBlocks($prefix): IPBlockIterator
     {
         $prefix = ltrim($prefix, '/');
-        $this->checkPrefix($prefix);
+        $prefix = $this->checkPrefix($prefix);
 
         if ($prefix <= $this->prefix) {
             throw new \InvalidArgumentException("Prefix must be smaller than {$this->prefix} ($prefix given)");
@@ -379,7 +381,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
     public function getSuperBlock($prefix): IPBlock
     {
         $prefix = ltrim($prefix, '/');
-        $this->checkPrefix($prefix);
+        $prefix = $this->checkPrefix($prefix);
 
         if ($prefix >= $this->prefix) {
             throw new \InvalidArgumentException("Prefix must be bigger than {$this->prefix} ($prefix given)");
