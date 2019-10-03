@@ -140,7 +140,6 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
         }
 
         $this->prefix = $this->checkPrefix($prefix);
-
         $this->first_ip = $this->given_ip->bit_and($this->getMask());
         $this->last_ip = $this->first_ip->bit_or($this->getDelta());
     }
@@ -315,22 +314,57 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      * @internal
      * Check if the prefix is valid
      *
-     * @param mixed $prefix
+     * @param mixed $value
      *
      * @throws \InvalidArgumentException
+     *
      * @return int
      */
-    protected function checkPrefix($prefix)
+    protected function checkPrefix($value)
     {
-        if ($prefix === '' || $prefix === null || $prefix === false || $prefix < 0 || $prefix > $this->getMaxPrefix()) {
+        $prefix = null;
+        if (is_int($value) || preg_match('/^[0-9]+$/', $value)) {
+            $prefix = (int) $value;
+        }
+
+        if (filter_var($value, FILTER_VALIDATE_IP)) {
+            $prefix = $this->prefixFromNetmask($value);
+        }
+
+        if ($prefix === null || $prefix > $this->getMaxPrefix()) {
             throw new \InvalidArgumentException(sprintf(
                 "Invalid IPv%s block prefix '%s'",
                 $this->getVersion(),
-                $prefix
+                $value
             ));
         }
 
         return (int) $prefix;
+    }
+
+    /**
+     * Calculate the prefix length for a given subnet mask.
+     *
+     * @param $netmask
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return int The prefix length
+     */
+    protected function prefixFromNetmask($netmask): int
+    {
+        $netmask = IP::create($netmask);
+        if (!$netmask->isNetmask()) {
+            throw new \InvalidArgumentException(sprintf('The IP address "%s" is not a valid network mask', $netmask->humanReadable()));
+        }
+
+        $prefix = strpos($netmask->numeric(2), '0');
+
+        if ($prefix === false) {
+            $prefix = $this->getMaxPrefix();
+        }
+
+        return $prefix;
     }
 
     /**

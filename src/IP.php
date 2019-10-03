@@ -85,6 +85,11 @@ abstract class IP
     protected $is_loopback;
 
     /**
+     * @var bool
+     */
+    protected $is_netmask;
+
+    /**
      * @var string Either "IPv4" or "IPv6"
      */
     protected $class;
@@ -555,6 +560,28 @@ abstract class IP
         }
 
         return $this->is_loopback;
+    }
+
+    /**
+     * Return true if the IP address is a valid sub network mask, for instance: '255.255.252.0'.
+     *
+     * @return bool
+     */
+    public function isNetmask(): bool
+    {
+        if ($this->is_netmask !== null) {
+            return $this->is_netmask;
+        }
+
+        if (gmp_cmp($this->ip, 0) === 0) {
+            $this->is_netmask = true;
+        } else {
+            $y = $this->bit_negate()->plus(1);
+            $z = $this->bit_negate()->bit_and($y);
+            $this->is_netmask = gmp_cmp($z->ip, 0) === 0;
+        }
+
+        return $this->is_netmask;
     }
 
     /**
