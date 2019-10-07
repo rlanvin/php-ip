@@ -6,6 +6,7 @@
 
 - New method `matches($ip, $mask)` to perform wildcard mask matching common in network Access Control Lists and OSPF dynamic routing [#51](https://github.com/rlanvin/php-ip/pull/51)
 - IPv4Block: Allow to specify the prefix also as an old-style netmask [#53](https://github.com/rlanvin/php-ip/pull/53)
+- New method `IPv4::isNetmask()` tests whether the IPv4 address is a valid subnet mask. [#55](https://github.com/rlanvin/php-ip/pull/55)
 
 ## [2.0.0] - 2019-09-01
 
