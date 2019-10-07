@@ -220,6 +220,27 @@ class IPv4Test extends TestCase
     }
 
     /**
+     * Data provider for testIsNetmask().
+     *
+     * @return array
+     */
+    public function netmaskProvider(): array
+    {
+        return [
+            //IP address        is valid netmask
+            ['0.0.0.0',         true],
+            ['64.0.0.0',        false],
+            ['128.0.0.0',       true],
+            ['127.0.0.0',       false],
+            ['255.255.0.0',     true],
+            ['255.0.255.252',   false],
+            ['255.255.255.0',   true],
+            ['255.255.255.224', true],
+            ['255.255.255.252', true],
+        ];
+    }
+
+    /**
      * @dataProvider validAddresses
      */
     public function testConstructValid($ip, $string)
@@ -516,5 +537,16 @@ class IPv4Test extends TestCase
 
         $this->assertTrue($ip->matches('172.16.3.5'));
         $this->assertFalse($ip->matches('172.16.3.4'));
+    }
+
+    /**
+     * @dataProvider netmaskProvider
+     *
+     * @param $ip
+     * @param bool $expectation
+     */
+    public function testIsNetMask($ip, bool $expectation)
+    {
+        $this->assertEquals($expectation, IPv4::create($ip)->isNetmask());
     }
 }

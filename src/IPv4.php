@@ -51,6 +51,11 @@ class IPv4 extends IP
     protected static $link_local_block = '169.254.0.0/16';
 
     /**
+     * @var bool
+     */
+    protected $is_netmask;
+
+    /**
      * {@inheritdoc}
      */
     public function humanReadable(bool $short_form = true): string
@@ -72,5 +77,27 @@ class IPv4 extends IP
         $octets = array_reverse(explode('.', $this->humanReadable()));
 
         return implode('.', $octets).'.in-addr.arpa.';
+    }
+
+    /**
+     * Return true if the IP address is a valid sub network mask, for instance: '255.255.252.0'.
+     *
+     * @return bool
+     */
+    public function isNetmask(): bool
+    {
+        if ($this->is_netmask !== null) {
+            return $this->is_netmask;
+        }
+
+        if (gmp_cmp($this->ip, 0) === 0) {
+            $this->is_netmask = true;
+        } else {
+            $y = $this->bit_negate()->plus(1);
+            $z = $this->bit_negate()->bit_and($y);
+            $this->is_netmask = gmp_cmp($z->ip, 0) === 0;
+        }
+
+        return $this->is_netmask;
     }
 }
