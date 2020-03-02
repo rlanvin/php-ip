@@ -29,6 +29,7 @@ class IPv6BlockTest extends TestCase
             ['2001:0db8::/31',                    'ffff:fffe::',                   '0:1:ffff:ffff:ffff:ffff:ffff:ffff',  '2001:db8::',          '2001:db9:ffff:ffff:ffff:ffff:ffff:ffff'],
             ['2001:0db8::/32',                    'ffff:ffff::',                   '::ffff:ffff:ffff:ffff:ffff:ffff',  '2001:db8::',            '2001:db8:ffff:ffff:ffff:ffff:ffff:ffff'],
             ['2001:0db8:85a3::8a2e:0370:7334/64', 'ffff:ffff:ffff:ffff::',         '::ffff:ffff:ffff:ffff',            '2001:db8:85a3::',       '2001:db8:85a3:0:ffff:ffff:ffff:ffff'],
+            ['2a0d:7c40:1001::/48',               'ffff:ffff:ffff::',              '::ffff:ffff:ffff:ffff:ffff',         '2a0d:7c40:1001::',    '2a0d:7c40:1001:ffff:ffff:ffff:ffff:ffff'],
         ];
     }
 
