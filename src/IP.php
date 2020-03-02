@@ -175,16 +175,6 @@ abstract class IP
      */
     private static function fromString(string $ip): \GMP
     {
-        // binary, packed string
-        if (@inet_ntop($ip) !== false) {
-            if (static::NB_BYTES != strlen($ip)) {
-                throw new \InvalidArgumentException(sprintf('The binary string "%s" is not a valid IPv%d address.', $ip, static::IP_VERSION));
-            }
-            $hex = unpack('H*', $ip);
-
-            return gmp_init($hex[1], 16);
-        }
-
         // valid IP string
         $filterFlag = constant('FILTER_FLAG_IPV'.static::IP_VERSION);
         if (filter_var($ip, FILTER_VALIDATE_IP, $filterFlag)) {
@@ -202,6 +192,16 @@ abstract class IP
             }
 
             return $ip;
+        }
+
+        // binary, packed string
+        if (@inet_ntop($ip) !== false) {
+            if (static::NB_BYTES != strlen($ip)) {
+                throw new \InvalidArgumentException(sprintf('The binary string "%s" is not a valid IPv%d address.', $ip, static::IP_VERSION));
+            }
+            $hex = unpack('H*', $ip);
+
+            return gmp_init($hex[1], 16);
         }
 
         throw new \InvalidArgumentException(sprintf('The string "%s" is not a valid IPv%d address.', $ip, static::IP_VERSION));
