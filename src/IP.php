@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace PhpIP;
 
+use phpDocumentor\Reflection\Types\Static_;
+
 if (!function_exists('gmp_shiftl')) {
     /**
      * Shift left (<<).
@@ -110,6 +112,10 @@ abstract class IP
      */
     public function __construct($ip)
     {
+        if (null === $ip) {
+            return;
+        }
+
         if (is_int($ip)) {
             $this->ip = self::fromInt($ip);
 
@@ -136,6 +142,82 @@ abstract class IP
         }
 
         throw new \InvalidArgumentException(sprintf('Unsupported argument type: "%s".', gettype($ip)));
+    }
+
+    /**
+     * @param int $ipAddress
+     * @return IP
+     */
+    public static function newFromInteger(int $ipAddress): self
+    {
+        $ip = new static(null);
+        $ip->ip = self::fromInt($ipAddress);
+
+        return $ip;
+    }
+
+    /**
+     * @param float $ipAddress
+     * @return IP
+     */
+    public static function newFromFloat(float $ipAddress): self
+    {
+        $ip = new static(null);
+        $ip->ip = self::fromFloat($ipAddress);
+
+        return $ip;
+    }
+
+    /**
+     * @param string $ipAddress
+     * @return IP
+     */
+    public static function newFromIpString(string $ipAddress): self
+    {
+        $ip = new static(null);
+        $ip->ip = self::fromIpString($ipAddress);
+
+        return $ip;
+    }
+
+    /**
+     * @param string $ipAddress
+     * @return IP
+     */
+    public static function newFromBinaryString(string $ipAddress): self
+    {
+        $ip = new static(null);
+        $ip->ip = self::fromBinaryString($ipAddress);
+
+        return $ip;
+    }
+
+    /**
+     * @param string $ipAddress
+     * @return IP
+     */
+    public static function newFromNumericString(string $ipAddress): self
+    {
+        if (!ctype_digit($ipAddress)) {
+            throw new \InvalidArgumentException(sprintf('"%s" is not a valid numeric string.', $ipAddress));
+        }
+
+        $ip = new static(null);
+        $ip->ip = self::fromNumericString($ipAddress);
+
+        return $ip;
+    }
+
+    /**
+     * @param \GMP $ipAddress
+     * @return IP
+     */
+    public static function newFromGmp(\GMP $ipAddress): self
+    {
+        $ip = new static(null);
+        $ip->ip = self::fromGMP($ipAddress);
+
+        return $ip;
     }
 
     /**
@@ -169,42 +251,74 @@ abstract class IP
     }
 
     /**
-     * @param string $ip
-     *
+     * @param string $ip One of a binary string, human readable IP address, or base-10 integer string.
      * @return \GMP
      */
     private static function fromString(string $ip): \GMP
     {
-        // valid IP string
-        $filterFlag = constant('FILTER_FLAG_IPV'.static::IP_VERSION);
-        if (filter_var($ip, FILTER_VALIDATE_IP, $filterFlag)) {
-            $ip = inet_pton($ip);
-            $hex = unpack('H*', $ip);
-
-            return gmp_init($hex[1], 16);
-        }
-
-        // numeric string (decimal)
-        if (ctype_digit($ip)) {
-            $ip = gmp_init($ip, 10);
-            if (!self::isValid($ip)) {
-                throw new \InvalidArgumentException(sprintf('"%s" is not a valid decimal IPv%d address.', gmp_strval($ip), static::IP_VERSION));
-            }
-
-            return $ip;
-        }
-
         // binary, packed string
         if (@inet_ntop($ip) !== false) {
-            if (static::NB_BYTES != strlen($ip)) {
-                throw new \InvalidArgumentException(sprintf('The binary string "%s" is not a valid IPv%d address.', $ip, static::IP_VERSION));
-            }
-            $hex = unpack('H*', $ip);
+            return self::fromBinaryString($ip);
+        }
 
-            return gmp_init($hex[1], 16);
+        // valid IP string
+        if (filter_var($ip, FILTER_VALIDATE_IP, constant('FILTER_FLAG_IPV'.static::IP_VERSION))) {
+            return self::fromIpString($ip);
+        }
+
+        // numeric decimal string
+        if (ctype_digit($ip)) {
+            return self::fromNumericString($ip);
         }
 
         throw new \InvalidArgumentException(sprintf('The string "%s" is not a valid IPv%d address.', $ip, static::IP_VERSION));
+    }
+
+    /**
+     * @param string $ip A human readable IP address.
+     *
+     * @return \GMP
+     */
+    private static function fromIpString(string $ip): \GMP
+    {
+        $ip = inet_pton($ip);
+        if (false === $ip) {
+            throw new \InvalidArgumentException(sprintf('The string "%s" is not a valid IPv%d address.', $ip, static::IP_VERSION));
+        }
+
+        $hex = unpack('H*', $ip)[1];
+
+        return gmp_init($hex, 16);
+    }
+
+    /**
+     * @param string $ip Binary IP string in packed in_addr representation.
+     *
+     * @return \GMP
+     */
+    private static function fromBinaryString(string $ip): \GMP
+    {
+        if (static::NB_BYTES != strlen($ip)) {
+            throw new \InvalidArgumentException(sprintf('The binary string "%s" is not a valid IPv%d address.', $ip, static::IP_VERSION));
+        }
+        $hex = unpack('H*', $ip)[1];
+
+        return gmp_init($hex, 16);
+    }
+
+    /**
+     * @param string $ip A base-10 integer.
+     *
+     * @return \GMP
+     */
+    private static function fromNumericString(string $ip): \GMP
+    {
+        $ip = gmp_init($ip, 10);
+        if (!self::isValid($ip)) {
+            throw new \InvalidArgumentException(sprintf('"%s" is not a valid decimal IPv%d address.', gmp_strval($ip), static::IP_VERSION));
+        }
+
+        return $ip;
     }
 
     /**

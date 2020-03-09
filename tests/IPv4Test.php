@@ -24,19 +24,19 @@ class IPv4Test extends TestCase
     public function validAddresses()
     {
         $values = [
-            //IP                            String             Decimal       Binary                              Hexadecimal
-            ['127.0.0.1',                  '127.0.0.1',       '2130706433', '01111111000000000000000000000001', '7f000001'],
-            ['10.0.0.1',                   '10.0.0.1',        '167772161',  '00001010000000000000000000000001', 'a000001'],
-            ['0.0.0.0',                    '0.0.0.0',         '0',          '00000000000000000000000000000000', '0'],
-            ['0.0.0.1',                    '0.0.0.1',         '1',          '00000000000000000000000000000001', '1'],
-            ['255.255.255.254',            '255.255.255.254', '4294967294', '11111111111111111111111111111110', 'fffffffe'],
-            ['255.255.255.255',            '255.255.255.255', '4294967295', '11111111111111111111111111111111', 'ffffffff'],
-            [ip2long('10.0.0.1'),          '10.0.0.1',        '167772161',  '00001010000000000000000000000001', 'a000001'],
-            [ip2long('255.255.255.255'),   '255.255.255.255', '4294967295', '11111111111111111111111111111111', 'ffffffff'],
-            ['1',                          '0.0.0.1',         '1',          '00000000000000000000000000000001', '1'],
-            ['4294967295',                 '255.255.255.255', '4294967295', '11111111111111111111111111111111', 'ffffffff'],
-            [inet_pton('10.0.0.1'),        '10.0.0.1',        '167772161',  '00001010000000000000000000000001', 'a000001'],
-            [inet_pton('255.255.255.255'), '255.255.255.255', '4294967295', '11111111111111111111111111111111', 'ffffffff'],
+            //IP                            String             Decimal       Binary                              Hexadecimal    Float
+            ['127.0.0.1',                  '127.0.0.1',       '2130706433', '01111111000000000000000000000001', '7f000001',     '2130706433.0'],
+            ['10.0.0.1',                   '10.0.0.1',        '167772161',  '00001010000000000000000000000001', 'a000001',      '167772161.0'],
+            ['0.0.0.0',                    '0.0.0.0',         '0',          '00000000000000000000000000000000', '0',            '0.0'],
+            ['0.0.0.1',                    '0.0.0.1',         '1',          '00000000000000000000000000000001', '1',            '1.0'],
+            ['255.255.255.254',            '255.255.255.254', '4294967294', '11111111111111111111111111111110', 'fffffffe',     '4294967294.0'],
+            ['255.255.255.255',            '255.255.255.255', '4294967295', '11111111111111111111111111111111', 'ffffffff',     '4294967295.0'],
+            [ip2long('10.0.0.1'),          '10.0.0.1',        '167772161',  '00001010000000000000000000000001', 'a000001',      '167772161.0'],
+            [ip2long('255.255.255.255'),   '255.255.255.255', '4294967295', '11111111111111111111111111111111', 'ffffffff',     '4294967295.0'],
+            ['1',                          '0.0.0.1',         '1',          '00000000000000000000000000000001', '1',            '1.0'],
+            ['4294967295',                 '255.255.255.255', '4294967295', '11111111111111111111111111111111', 'ffffffff',     '4294967295.0'],
+            [inet_pton('10.0.0.1'),        '10.0.0.1',        '167772161',  '00001010000000000000000000000001', 'a000001',      '167772161.0'],
+            [inet_pton('255.255.255.255'), '255.255.255.255', '4294967295', '11111111111111111111111111111111', 'ffffffff',     '4294967295.0'],
         ];
 
         // 32 bits
@@ -516,5 +516,67 @@ class IPv4Test extends TestCase
 
         $this->assertTrue($ip->matches('172.16.3.5'));
         $this->assertFalse($ip->matches('172.16.3.4'));
+    }
+
+    /**
+     * @dataProvider validAddresses
+     */
+    public function testNewFromInteger($ip, string $string, string $dec, string $bin, string $hex, string $float)
+    {
+        $ip = IPv4::newFromInteger((int) $dec);
+
+        $this->assertEquals($string, $ip->humanReadable());
+    }
+
+    /**
+     * @dataProvider validAddresses
+     */
+    public function testNewFromFloat($ip, string $string, string $dec, string $bin, string $hex, string $float)
+    {
+        $ip = IPv4::newFromFloat((float) $float);
+
+        $this->assertEquals($string, $ip->humanReadable());
+    }
+
+    /**
+     * @dataProvider validAddresses
+     */
+    public function testNewFromNumericString($ip, string $string, string $dec, string $bin, string $hex, string $float)
+    {
+        $ip = IPv4::newFromNumericString($dec);
+
+        $this->assertEquals($string, $ip->humanReadable());
+    }
+
+    /**
+     * @dataProvider validAddresses
+     */
+    public function testNewFromBinaryString($ip, string $string, string $dec, string $bin, string $hex, string $float)
+    {
+        $binaryString = inet_pton($string);
+        $ip = IPv4::newFromBinaryString($binaryString);
+
+        $this->assertEquals($string, $ip->humanReadable());
+    }
+
+    /**
+     * @dataProvider validAddresses
+     */
+    public function testNewFromIpString($ip, string $string, string $dec, string $bin, string $hex, string $float)
+    {
+        $ip = IPv4::newFromIpString($string);
+
+        $this->assertEquals($string, $ip->humanReadable());
+    }
+
+    /**
+     * @dataProvider validAddresses
+     */
+    public function testNewFromGmp($ip, string $string, string $dec, string $bin, string $hex, string $float)
+    {
+        $gmp = gmp_init($hex, 16);
+        $ip = IPv4::newFromGmp($gmp);
+
+        $this->assertEquals($string, $ip->humanReadable());
     }
 }
