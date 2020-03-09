@@ -36,8 +36,11 @@ class IPv6Test extends TestCase
             // init with numeric representation
             ['332314827956335977770735408709082546176', 'fa01:8200::', '332314827956335977770735408709082546176'],
 
-            // init with GMP ressource
+            // init with GMP resource
             [gmp_init('332314827956335977770735408709082546176'), 'fa01:8200::', '332314827956335977770735408709082546176'],
+
+            // Binary string
+            [inet_pton('3261:3064:3a37:6334:303a:3130:3031:3a3a'), '3261:3064:3a37:6334:303a:3130:3031:3a3a', '66966034081017988598476378644333804090']
         ];
 
         // 32 bits
@@ -446,5 +449,47 @@ class IPv6Test extends TestCase
 
         $this->assertTrue($ip->matches('14c0:bda3:a182:4a16:e357:5f1e:601c:2118'));
         $this->assertFalse($ip->matches('14c0:bda3:a182:4a16:e357:5f1e:601c:2119'));
+    }
+
+    /**
+     * @dataProvider validAddresses
+     */
+    public function testNewFromNumericString($ip, string $compressed, string $decimal)
+    {
+        $ip = IPv6::newFromNumericString($decimal);
+
+        $this->assertEquals($compressed, $ip->humanReadable());
+    }
+
+    /**
+     * @dataProvider validAddresses
+     */
+    public function testNewFromBinaryString($ip, string $compressed, string $decimal)
+    {
+        $binaryString = inet_pton($compressed);
+        $ip = IPv6::newFromBinaryString($binaryString);
+
+        $this->assertEquals($compressed, $ip->humanReadable());
+    }
+
+    /**
+     * @dataProvider validAddresses
+     */
+    public function testNewFromIpString($ip, string $compressed, string $decimal)
+    {
+        $ip = IPv6::newFromIpString($compressed);
+
+        $this->assertEquals($compressed, $ip->humanReadable());
+    }
+
+    /**
+     * @dataProvider validAddresses
+     */
+    public function testNewFromGmp($ip, string $compressed, string $decimal)
+    {
+        $gmp = gmp_init($decimal, 10);
+        $ip = IPv6::newFromGmp($gmp);
+
+        $this->assertEquals($compressed, $ip->humanReadable());
     }
 }
