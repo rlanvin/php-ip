@@ -14,8 +14,6 @@ declare(strict_types=1);
 
 namespace PhpIP;
 
-use phpDocumentor\Reflection\Types\Static_;
-
 if (!function_exists('gmp_shiftl')) {
     /**
      * Shift left (<<).
@@ -112,7 +110,7 @@ abstract class IP
      */
     public function __construct($ip)
     {
-        if (null === $ip) {
+        if ($ip === null) {
             return;
         }
 
@@ -146,6 +144,7 @@ abstract class IP
 
     /**
      * @param int $ipAddress
+     *
      * @return IP
      */
     public static function newFromInteger(int $ipAddress): self
@@ -158,6 +157,7 @@ abstract class IP
 
     /**
      * @param float $ipAddress
+     *
      * @return IP
      */
     public static function newFromFloat(float $ipAddress): self
@@ -170,6 +170,7 @@ abstract class IP
 
     /**
      * @param string $ipAddress
+     *
      * @return IP
      */
     public static function newFromIpString(string $ipAddress): self
@@ -182,6 +183,7 @@ abstract class IP
 
     /**
      * @param string $ipAddress
+     *
      * @return IP
      */
     public static function newFromBinaryString(string $ipAddress): self
@@ -194,6 +196,7 @@ abstract class IP
 
     /**
      * @param string $ipAddress
+     *
      * @return IP
      */
     public static function newFromNumericString(string $ipAddress): self
@@ -210,6 +213,7 @@ abstract class IP
 
     /**
      * @param \GMP $ipAddress
+     *
      * @return IP
      */
     public static function newFromGmp(\GMP $ipAddress): self
@@ -251,7 +255,8 @@ abstract class IP
     }
 
     /**
-     * @param string $ip One of a binary string, human readable IP address, or base-10 integer string.
+     * @param string $ip one of a binary string, human readable IP address, or base-10 integer string
+     *
      * @return \GMP
      */
     private static function fromString(string $ip): \GMP
@@ -275,14 +280,14 @@ abstract class IP
     }
 
     /**
-     * @param string $ip A human readable IP address.
+     * @param string $ip a human readable IP address
      *
      * @return \GMP
      */
     private static function fromIpString(string $ip): \GMP
     {
         $ip = inet_pton($ip);
-        if (false === $ip) {
+        if ($ip === false) {
             throw new \InvalidArgumentException(sprintf('The string "%s" is not a valid IPv%d address.', $ip, static::IP_VERSION));
         }
 
@@ -292,7 +297,7 @@ abstract class IP
     }
 
     /**
-     * @param string $ip Binary IP string in packed in_addr representation.
+     * @param string $ip binary IP string in packed in_addr representation
      *
      * @return \GMP
      */
@@ -307,7 +312,7 @@ abstract class IP
     }
 
     /**
-     * @param string $ip A base-10 integer.
+     * @param string $ip a base-10 integer
      *
      * @return \GMP
      */
