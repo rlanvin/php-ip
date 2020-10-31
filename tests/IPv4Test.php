@@ -241,6 +241,68 @@ class IPv4Test extends TestCase
     /**
      * @dataProvider validAddresses
      */
+    public function testCreateFromInt($ip, string $string, string $dec, string $bin, string $hex, string $float)
+    {
+        $ip = IPv4::createFromInt((int) $dec);
+
+        $this->assertEquals($string, $ip->humanReadable());
+    }
+
+    /**
+     * @dataProvider validAddresses
+     */
+    public function testCreateFromFloat($ip, string $string, string $dec, string $bin, string $hex, string $float)
+    {
+        $ip = IPv4::createFromFloat((float) $float);
+
+        $this->assertEquals($string, $ip->humanReadable());
+    }
+
+    /**
+     * @dataProvider validAddresses
+     */
+    public function testCreateFromNumericString($ip, string $string, string $dec, string $bin, string $hex, string $float)
+    {
+        $ip = IPv4::createFromNumericString($dec);
+
+        $this->assertEquals($string, $ip->humanReadable());
+    }
+
+    /**
+     * @dataProvider validAddresses
+     */
+    public function testCreateFromBinaryString($ip, string $string, string $dec, string $bin, string $hex, string $float)
+    {
+        $binaryString = inet_pton($string);
+        $ip = IPv4::createFromBinaryString($binaryString);
+
+        $this->assertEquals($string, $ip->humanReadable());
+    }
+
+    /**
+     * @dataProvider validAddresses
+     */
+    public function testCreateFromString($ip, string $string, string $dec, string $bin, string $hex, string $float)
+    {
+        $ip = IPv4::createFromString($string);
+
+        $this->assertEquals($string, $ip->humanReadable());
+    }
+
+    /**
+     * @dataProvider validAddresses
+     */
+    public function testCreateFromGmp($ip, string $string, string $dec, string $bin, string $hex, string $float)
+    {
+        $gmp = gmp_init($hex, 16);
+        $ip = IPv4::createFromGmp($gmp);
+
+        $this->assertEquals($string, $ip->humanReadable());
+    }
+
+    /**
+     * @dataProvider validAddresses
+     */
     public function testConvertToNumeric($ip, $string, $dec, $bin, $hex)
     {
         $instance = new IPv4($ip);
@@ -516,67 +578,5 @@ class IPv4Test extends TestCase
 
         $this->assertTrue($ip->matches('172.16.3.5'));
         $this->assertFalse($ip->matches('172.16.3.4'));
-    }
-
-    /**
-     * @dataProvider validAddresses
-     */
-    public function testNewFromInteger($ip, string $string, string $dec, string $bin, string $hex, string $float)
-    {
-        $ip = IPv4::newFromInteger((int) $dec);
-
-        $this->assertEquals($string, $ip->humanReadable());
-    }
-
-    /**
-     * @dataProvider validAddresses
-     */
-    public function testNewFromFloat($ip, string $string, string $dec, string $bin, string $hex, string $float)
-    {
-        $ip = IPv4::newFromFloat((float) $float);
-
-        $this->assertEquals($string, $ip->humanReadable());
-    }
-
-    /**
-     * @dataProvider validAddresses
-     */
-    public function testNewFromNumericString($ip, string $string, string $dec, string $bin, string $hex, string $float)
-    {
-        $ip = IPv4::newFromNumericString($dec);
-
-        $this->assertEquals($string, $ip->humanReadable());
-    }
-
-    /**
-     * @dataProvider validAddresses
-     */
-    public function testNewFromBinaryString($ip, string $string, string $dec, string $bin, string $hex, string $float)
-    {
-        $binaryString = inet_pton($string);
-        $ip = IPv4::newFromBinaryString($binaryString);
-
-        $this->assertEquals($string, $ip->humanReadable());
-    }
-
-    /**
-     * @dataProvider validAddresses
-     */
-    public function testNewFromIpString($ip, string $string, string $dec, string $bin, string $hex, string $float)
-    {
-        $ip = IPv4::newFromIpString($string);
-
-        $this->assertEquals($string, $ip->humanReadable());
-    }
-
-    /**
-     * @dataProvider validAddresses
-     */
-    public function testNewFromGmp($ip, string $string, string $dec, string $bin, string $hex, string $float)
-    {
-        $gmp = gmp_init($hex, 16);
-        $ip = IPv4::newFromGmp($gmp);
-
-        $this->assertEquals($string, $ip->humanReadable());
     }
 }

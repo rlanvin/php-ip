@@ -104,23 +104,25 @@ abstract class IP
     protected static $loopback_range;
 
     /**
-     * Constructor tries to guess what form $ip takes. The order in which it guesses is:
+     * Constructor tries to guess the type of $ip. The order in which it guesses is:
      *   1) GMP object
      *   2) Integer
      *   3) Float
-     *   4) Binary "packed" string
-     *   5) IP string
+     *   4) Binary "packed" string [only for ipv4]
+     *   5) String (human readable representation)
      *   6) Numeric decimal string
      *
-     * If you know the type of object being inputted, it is best practice to use one of the respective factory methods:
-     *   1) IP::newFromGmp($ipAddress);
-     *   2) IP::newFromInteger($ipAddress);
-     *   3) IP::newFromFloat($ipAddress);
-     *   4) IP::newFromBinaryString($ipAddress);
-     *   5) IP::newFromIpString($ipAddress);
-     *   6) IP::newFromNumericString($ipAddress);
+     * If you know the type already, and do not want to rely on auto-detection,
+     * you can instead used the respective factory methods, available in the IPv4 and IPv6 classes
      *
-     * **Note: the class `IP` must be replaced with either `IPv4` or `IPv6`.
+     *   Type                         | Factory method (only in subclasses)
+     *   -----------------------------|------------------------------------
+     *   Human readable string        | createFromString($ip);
+     *   Integer                      | createFromInt($ip);
+     *   Binary "packed" (in_addr)    | createFromBinaryString($ip);
+     *   GMP number                   | createFromGmp($ip);
+     *   Float/double                 | createFromFloat($ip);
+     *   Numeric string               | createFromNumericString($ip);
      *
      * @param \GMP|int|float|string $ip string, binary string, int, float or \GMP instance
      */
@@ -129,90 +131,34 @@ abstract class IP
         if ($ip instanceof \GMP) {
             $this->ip = $ip;
         } elseif (is_int($ip)) {
-            $this->ip = self::fromInt($ip);
+            $this->ip = static::initGmpFromInt($ip);
         } elseif (is_float($ip) && $ip == floor($ip)) {
-            $this->ip = self::fromFloat($ip);
+            $this->ip = static::initGmpfromFloat($ip);
         } elseif (is_string($ip)) {
-            $this->ip = self::fromString($ip);
+            if (static::NB_BYTES == strlen($ip) && static::IP_VERSION == 4) {
+                // auto-detection of binary strings is only supported for ipv4
+                // see https://github.com/rlanvin/php-ip/issues/57 for more details
+                $this->ip = static::initGmpfromBinaryString($ip);
+            } elseif (ctype_digit($ip)) {
+                $this->ip = static::initGmpfromNumericString($ip);
+            } else {
+                $this->ip = static::initGmpfromString($ip);
+            }
         } else {
             throw new \InvalidArgumentException(sprintf('Unsupported argument type: "%s".', gettype($ip)));
         }
 
-        if (!self::isValid($this->ip)) {
-            throw new \InvalidArgumentException(sprintf('The integer "%s" is not a valid IPv%d address.', (string) $ip, static::IP_VERSION));
+        if (!static::isValid($this->ip)) {
+            throw new \InvalidArgumentException(sprintf('The provided argument "%s" is not a valid IPv%d address.', (string) $ip, static::IP_VERSION));
         }
     }
 
     /**
-     * @param int $ipAddress
-     *
-     * @return IP
-     */
-    public static function newFromInteger(int $ipAddress): self
-    {
-        return new static(self::fromInt($ipAddress));
-    }
-
-    /**
-     * @param float $ipAddress
-     *
-     * @return IP
-     */
-    public static function newFromFloat(float $ipAddress): self
-    {
-        return new static(self::fromFloat($ipAddress));
-    }
-
-    /**
-     * @param string $ipAddress
-     *
-     * @return IP
-     */
-    public static function newFromIpString(string $ipAddress): self
-    {
-        return new static(self::fromIpString($ipAddress));
-    }
-
-    /**
-     * @param string $ipAddress
-     *
-     * @return IP
-     */
-    public static function newFromBinaryString(string $ipAddress): self
-    {
-        return new static(self::fromBinaryString($ipAddress));
-    }
-
-    /**
-     * @param string $ipAddress
-     *
-     * @return IP
-     */
-    public static function newFromNumericString(string $ipAddress): self
-    {
-        if (!ctype_digit($ipAddress)) {
-            throw new \InvalidArgumentException(sprintf('"%s" is not a valid numeric string.', $ipAddress));
-        }
-
-        return new static(self::fromNumericString($ipAddress));
-    }
-
-    /**
-     * @param \GMP $ipAddress
-     *
-     * @return IP
-     */
-    public static function newFromGmp(\GMP $ipAddress): self
-    {
-        return new static($ipAddress);
-    }
-
-    /**
-     * @param $ip
+     * @param int $ip
      *
      * @return \GMP
      */
-    private static function fromInt(int $ip): \GMP
+    protected static function initGmpFromInt(int $ip): \GMP
     {
         return gmp_init(sprintf('%u', $ip), 10);
     }
@@ -222,43 +168,24 @@ abstract class IP
      *
      * @return \GMP
      */
-    private static function fromFloat(float $ip): \GMP
+    protected static function initGmpFromFloat(float $ip): \GMP
     {
         return gmp_init(sprintf('%s', $ip), 10);
     }
 
     /**
-     * @param string $ip one of a binary string, human readable IP address, or base-10 integer string
+     * Create a GMP number from a human-readable string representation of an IP address.
+     *
+     * @param string $ip
      *
      * @return \GMP
      */
-    private static function fromString(string $ip): \GMP
+    protected static function initGmpFromString(string $ip): \GMP
     {
-        // binary, packed string
-        if (@inet_ntop($ip) !== false) {
-            return self::fromBinaryString($ip);
+        if (!filter_var($ip, FILTER_VALIDATE_IP, constant('FILTER_FLAG_IPV'.static::IP_VERSION))) {
+            throw new \InvalidArgumentException(sprintf('The string "%s" is not a valid IPv%d address.', $ip, static::IP_VERSION));
         }
 
-        // valid IP string
-        if (filter_var($ip, FILTER_VALIDATE_IP, constant('FILTER_FLAG_IPV'.static::IP_VERSION))) {
-            return self::fromIpString($ip);
-        }
-
-        // numeric decimal string
-        if (ctype_digit($ip)) {
-            return self::fromNumericString($ip);
-        }
-
-        throw new \InvalidArgumentException(sprintf('The string "%s" is not a valid IPv%d address.', $ip, static::IP_VERSION));
-    }
-
-    /**
-     * @param string $ip a human readable IP address
-     *
-     * @return \GMP
-     */
-    private static function fromIpString(string $ip): \GMP
-    {
         $ip = @inet_pton($ip);
         if ($ip === false) {
             throw new \InvalidArgumentException(sprintf('The string "%s" is not a valid IPv%d address.', $ip, static::IP_VERSION));
@@ -274,11 +201,8 @@ abstract class IP
      *
      * @return \GMP
      */
-    private static function fromBinaryString(string $ip): \GMP
+    protected static function initGmpfromBinaryString(string $ip): \GMP
     {
-        if (static::NB_BYTES != strlen($ip)) {
-            throw new \InvalidArgumentException(sprintf('The binary string "%s" is not a valid IPv%d address.', $ip, static::IP_VERSION));
-        }
         $hex = unpack('H*', $ip)[1];
 
         return gmp_init($hex, 16);
@@ -289,7 +213,7 @@ abstract class IP
      *
      * @return \GMP
      */
-    private static function fromNumericString(string $ip): \GMP
+    protected static function initGmpfromNumericString(string $ip): \GMP
     {
         return gmp_init($ip, 10);
     }
@@ -310,12 +234,14 @@ abstract class IP
             return new IPv4($ip);
         } catch (\InvalidArgumentException $e) {
             // do nothing
+            unset($e);
         }
 
         try {
             return new IPv6($ip);
         } catch (\InvalidArgumentException $e) {
             // do nothing
+            unset($e);
         }
 
         throw new \InvalidArgumentException("$ip does not appear to be an IPv4 or IPv6 address");

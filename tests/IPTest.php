@@ -23,12 +23,12 @@ class IPTest extends TestCase
     public function validAddresses()
     {
         return [
-            ['127.0.0.1', '127.0.0.1', 4],
-            ['4294967296', '::1:0:0', 6],
-            ['2a01:8200::', '2a01:8200::', 6],
-            ['::1', '::1', 6],
-            [inet_pton('::1'), '::1', 6],
-            [inet_pton('127.0.0.1'), '127.0.0.1', 4],
+            'human readable v4' => ['127.0.0.1', '127.0.0.1', 4],
+            'decimal v4' => ['4294967296', '::1:0:0', 6],
+            'human readable v6' => ['2a01:8200::', '2a01:8200::', 6],
+            'human readable v6 (2)' => ['::1', '::1', 6],
+            // [unsupported] 'in_addr binary string v6' => [inet_pton('::1'), '::1', 6],
+            'in_addr binary string v4' => [inet_pton('127.0.0.1'), '127.0.0.1', 4],
         ];
     }
 

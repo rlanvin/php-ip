@@ -27,7 +27,10 @@ class IPv6Test extends TestCase
             ['2001:0db8:85a3:0000:0000:8a2e:0370:7334', '2001:db8:85a3::8a2e:370:7334', '42540766452641154071740215577757643572'],
             ['ffff:0db8::', 'ffff:db8::', '340277452873386678732099705461792571392'],
             ['ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff', 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff', '340282366920938463463374607431768211455'],
-            ['::1', '::1', '1', '1', '1'],
+            ['::1', '::1', '1',],
+
+            'bug #57' => ['2a0d:7c40:1001::', '2a0d:7c40:1001::', '55897595776473642224142104158797824000'],
+            'bug #57 (2)'  => ['3261:3064:3a37::', '3261:3064:3a37::', '66966034081017520121488738571054481408'],
 
             // IPv4-mapped IPv6 addresses
             ['0000:0000:0000:0000:0000:0000:127.127.127.127', '::127.127.127.127', '2139062143'],
@@ -35,12 +38,14 @@ class IPv6Test extends TestCase
 
             // init with numeric representation
             ['332314827956335977770735408709082546176', 'fa01:8200::', '332314827956335977770735408709082546176'],
+            'bug #57 (3)' => ['55897595776473642224142104158797824000', '2a0d:7c40:1001::', '55897595776473642224142104158797824000'],
+            'bug #57 (4)'  => ['66966034081017520121488738571054481408', '3261:3064:3a37::', '66966034081017520121488738571054481408'],
 
             // init with GMP resource
             [gmp_init('332314827956335977770735408709082546176'), 'fa01:8200::', '332314827956335977770735408709082546176'],
 
-            // Binary string
-            [inet_pton('3261:3064:3a37:6334:303a:3130:3031:3a3a'), '3261:3064:3a37:6334:303a:3130:3031:3a3a', '66966034081017988598476378644333804090'],
+            // Binary string (unsupported)
+            //[inet_pton('3261:3064:3a37:6334:303a:3130:3031:3a3a'), '3261:3064:3a37:6334:303a:3130:3031:3a3a', '66966034081017988598476378644333804090'],
         ];
 
         // 32 bits
@@ -101,6 +106,48 @@ class IPv6Test extends TestCase
         $this->expectException(\InvalidArgumentException::class);
 
         $instance = new IPv6($ip);
+    }
+
+    /**
+     * @dataProvider validAddresses
+     */
+    public function testCreateFromNumericString($ip, string $compressed, string $decimal)
+    {
+        $ip = IPv6::createFromNumericString($decimal);
+
+        $this->assertEquals($compressed, $ip->humanReadable());
+    }
+
+    /**
+     * @dataProvider validAddresses
+     */
+    public function testCreateFromBinaryString($ip, string $compressed, string $decimal)
+    {
+        $binaryString = inet_pton($compressed);
+        $ip = IPv6::createFromBinaryString($binaryString);
+
+        $this->assertEquals($compressed, $ip->humanReadable());
+    }
+
+    /**
+     * @dataProvider validAddresses
+     */
+    public function testCreateFromString($ip, string $compressed, string $decimal)
+    {
+        $ip = IPv6::createFromString($compressed);
+
+        $this->assertEquals($compressed, $ip->humanReadable());
+    }
+
+    /**
+     * @dataProvider validAddresses
+     */
+    public function testCreateFromGmp($ip, string $compressed, string $decimal)
+    {
+        $gmp = gmp_init($decimal, 10);
+        $ip = IPv6::createFromGmp($gmp);
+
+        $this->assertEquals($compressed, $ip->humanReadable());
     }
 
     /**
@@ -449,47 +496,5 @@ class IPv6Test extends TestCase
 
         $this->assertTrue($ip->matches('14c0:bda3:a182:4a16:e357:5f1e:601c:2118'));
         $this->assertFalse($ip->matches('14c0:bda3:a182:4a16:e357:5f1e:601c:2119'));
-    }
-
-    /**
-     * @dataProvider validAddresses
-     */
-    public function testNewFromNumericString($ip, string $compressed, string $decimal)
-    {
-        $ip = IPv6::newFromNumericString($decimal);
-
-        $this->assertEquals($compressed, $ip->humanReadable());
-    }
-
-    /**
-     * @dataProvider validAddresses
-     */
-    public function testNewFromBinaryString($ip, string $compressed, string $decimal)
-    {
-        $binaryString = inet_pton($compressed);
-        $ip = IPv6::newFromBinaryString($binaryString);
-
-        $this->assertEquals($compressed, $ip->humanReadable());
-    }
-
-    /**
-     * @dataProvider validAddresses
-     */
-    public function testNewFromIpString($ip, string $compressed, string $decimal)
-    {
-        $ip = IPv6::newFromIpString($compressed);
-
-        $this->assertEquals($compressed, $ip->humanReadable());
-    }
-
-    /**
-     * @dataProvider validAddresses
-     */
-    public function testNewFromGmp($ip, string $compressed, string $decimal)
-    {
-        $gmp = gmp_init($decimal, 10);
-        $ip = IPv6::newFromGmp($gmp);
-
-        $this->assertEquals($compressed, $ip->humanReadable());
     }
 }

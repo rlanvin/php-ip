@@ -19,6 +19,8 @@ namespace PhpIP;
  */
 class IPv4 extends IP
 {
+    use IPTrait;
+
     const IP_VERSION = 4;
     const MAX_INT = '4294967295';
     const NB_BITS = 32;
