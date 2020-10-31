@@ -138,9 +138,9 @@ abstract class IP
             if (static::NB_BYTES == strlen($ip) && static::IP_VERSION == 4) {
                 // auto-detection of binary strings is only supported for ipv4
                 // see https://github.com/rlanvin/php-ip/issues/57 for more details
-                $this->ip = static::initGmpfromBinaryString($ip);
+                $this->ip = static::initGmpFromBinaryString($ip);
             } elseif (ctype_digit($ip)) {
-                $this->ip = static::initGmpfromNumericString($ip);
+                $this->ip = static::initGmpFromNumericString($ip);
             } else {
                 $this->ip = static::initGmpfromString($ip);
             }
@@ -201,7 +201,7 @@ abstract class IP
      *
      * @return \GMP
      */
-    protected static function initGmpfromBinaryString(string $ip): \GMP
+    protected static function initGmpFromBinaryString(string $ip): \GMP
     {
         $hex = unpack('H*', $ip)[1];
 
@@ -213,7 +213,7 @@ abstract class IP
      *
      * @return \GMP
      */
-    protected static function initGmpfromNumericString(string $ip): \GMP
+    protected static function initGmpFromNumericString(string $ip): \GMP
     {
         return gmp_init($ip, 10);
     }
