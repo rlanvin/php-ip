@@ -56,7 +56,7 @@ trait IPTrait
             throw new \InvalidArgumentException(sprintf('The binary string "%s" is not a valid IPv%d address.', $ip, self::IP_VERSION));
         }
 
-        return new self(self::initGmpfromBinaryString($ip));
+        return new self(self::initGmpFromBinaryString($ip));
     }
 
     /**
@@ -70,7 +70,7 @@ trait IPTrait
             throw new \InvalidArgumentException(sprintf('"%s" is not a valid numeric string.', $ip));
         }
 
-        return new self(self::initGmpfromNumericString($ip));
+        return new self(self::initGmpFromNumericString($ip));
     }
 
     /**
