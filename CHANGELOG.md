@@ -2,10 +2,15 @@
 
 ## [Unreleased]
 
+- n/a
+
+## [2.1.0] - 2020-10-31
+
 ### Added
 
-- New method `matches($ip, $mask)` to perform wildcard mask matching common in network Access Control Lists and OSPF dynamic routing [#51](https://github.com/rlanvin/php-ip/pull/51)
+- New method `IP::matches($ip, $mask)` to perform wildcard mask matching common in network Access Control Lists and OSPF dynamic routing [#51](https://github.com/rlanvin/php-ip/pull/51)
 - IPv4Block: Allow to specify the prefix also as an old-style netmask [#53](https://github.com/rlanvin/php-ip/pull/53)
+- Support for PHP 7.4
 
 ## [2.0.0] - 2019-09-01
 
@@ -35,6 +40,7 @@
 
 First release
 
-[Unreleased]: https://github.com/rlanvin/php-rrule/compare/v2.0.0...HEAD
-[2.0.0]: https://github.com/rlanvin/php-rrule/compare/v1.0.1...v2.0.0
+[Unreleased]: https://github.com/rlanvin/php-ip/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/rlanvin/php-ip/compare/v2.0.0...v2.1.0
+[2.0.0]: https://github.com/rlanvin/php-ip/compare/v1.0.1...v2.0.0
 [1.0.1]: https://github.com/rlanvin/php-ip/compare/v1.0.0...v1.0.1
