@@ -318,6 +318,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      * @param mixed $prefix
      *
      * @throws \InvalidArgumentException
+     *
      * @return int
      */
     protected function checkPrefix($prefix)
