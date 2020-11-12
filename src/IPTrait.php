@@ -19,6 +19,7 @@ trait IPTrait
      * @param int $ip
      *
      * @return IP
+     * @throws \InvalidArgumentException when passed $ip is not valid
      */
     public static function createFromInt(int $ip): self
     {
@@ -29,6 +30,7 @@ trait IPTrait
      * @param float $ip
      *
      * @return IP
+     * @throws \InvalidArgumentException when passed $ip is not valid
      */
     public static function createFromFloat(float $ip): self
     {
@@ -39,6 +41,7 @@ trait IPTrait
      * @param string $ip
      *
      * @return IP
+     * @throws \InvalidArgumentException when passed $ip is not valid
      */
     public static function createFromString(string $ip): self
     {
@@ -49,6 +52,7 @@ trait IPTrait
      * @param string $ip
      *
      * @return IP
+     * @throws \InvalidArgumentException when passed $ip is not valid
      */
     public static function createFromBinaryString(string $ip): self
     {
@@ -63,6 +67,7 @@ trait IPTrait
      * @param string $ip
      *
      * @return IP
+     * @throws \InvalidArgumentException when passed $ip is not valid
      */
     public static function createFromNumericString(string $ip): self
     {

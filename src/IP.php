@@ -125,6 +125,7 @@ abstract class IP
      *   Numeric string               | createFromNumericString($ip);
      *
      * @param \GMP|int|float|string $ip string, binary string, int, float or \GMP instance
+     * @throws \InvalidArgumentException when passed input could not be parsed
      */
     public function __construct($ip)
     {
@@ -135,7 +136,7 @@ abstract class IP
         } elseif (is_float($ip) && $ip == floor($ip)) {
             $this->ip = static::initGmpfromFloat($ip);
         } elseif (is_string($ip)) {
-            if (static::NB_BYTES == strlen($ip) && static::IP_VERSION == 4) {
+            if (static::NB_BYTES === strlen($ip) && static::IP_VERSION === 4) {
                 // auto-detection of binary strings is only supported for ipv4
                 // see https://github.com/rlanvin/php-ip/issues/57 for more details
                 $this->ip = static::initGmpFromBinaryString($ip);
