@@ -2,7 +2,7 @@
 
 IPv4/IPv6 manipulation library for PHP inspired by Python [ipaddress](https://docs.python.org/dev/library/ipaddress.html).
 
-[![Build Status](https://travis-ci.org/rlanvin/php-ip.svg?branch=master)](https://travis-ci.org/rlanvin/php-ip)
+[![Build status](https://github.com/rlanvin/php-ip/workflows/Tests/badge.svg)](https://github.com/rlanvin/php-ip/actions)
 [![Latest Stable Version](https://poser.pugx.org/rlanvin/php-ip/v/stable)](https://packagist.org/packages/rlanvin/php-ip)
 [![Total Downloads](https://poser.pugx.org/rlanvin/php-ip/downloads)](https://packagist.org/packages/rlanvin/php-ip)
 
