@@ -2,7 +2,18 @@
 
 ## [Unreleased]
 
-- n/a
+### Backward Compatibility Breaking Changes
+
+- Deprecated auto-detection of binary strings for IPv6 [#57]((https://github.com/rlanvin/php-ip/pull/57)
+This means you can't directly pass the result of `inet_pton` to construct an IPv6 instance anymore, because it is
+impossible to reliability distinguish some IPv6 human-readable representation from their binary string representation.
+Instead, you need to use the explicit factory method `IPv6::createFromBinaryString` if you want to work with `inet_pton`.
+Note: this is still supported for IPv4.
+
+### Added
+
+- Added explicit factory methods for `IPv4`/`IPv6` classes:
+`createFromInt`, `createFromFloat`, `createFromString`, `createFromBinaryString`, `createFromNumericString` and `createFromGmp`
 
 ## [2.1.0] - 2020-10-31
 
