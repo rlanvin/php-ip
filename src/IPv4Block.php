@@ -19,7 +19,31 @@ namespace PhpIP;
  */
 class IPv4Block extends IPBlock
 {
+    use IPBlockTrait;
+
     protected static $ip_class = IPv4::class;
+
+    /**
+     * @see https://en.wikipedia.org/wiki/Reserved_IP_addresses
+     */
+    const PRIVATE_BLOCKS = [
+        '0.0.0.0/8',
+        '10.0.0.0/8',
+        '127.0.0.0/8',
+        '169.254.0.0/16',
+        '172.16.0.0/12',
+        '192.0.0.0/29',
+        '192.0.0.170/31',
+        '192.0.2.0/24',
+        '192.168.0.0/16',
+        '198.18.0.0/15',
+        '198.51.100.0/24',
+        '203.0.113.0/24',
+        '240.0.0.0/4',
+        '255.255.255.255/32',
+    ];
+    const LOOPBACK_BLOCK = '127.0.0.0/8';
+    const LINK_LOCAL_BLOCK = '169.254.0.0/16';
 
     const NETMASK2PREFIX = [
         '0.0.0.0' => 0,

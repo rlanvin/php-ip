@@ -56,6 +56,7 @@ abstract class IP
     const MAX_INT = 0;
     const NB_BITS = 0;
     const NB_BYTES = 0;
+    const PRIVATE_BLOCKS = [];
 
     /**
      * Internal representation of the IP as a numeric format.
@@ -88,13 +89,6 @@ abstract class IP
      * @var string Either "IPv4" or "IPv6"
      */
     protected $class;
-
-    /**
-     * Array of reserved IP ranges.
-     *
-     * @var array
-     */
-    protected static $private_ranges;
 
     /**
      * The range reserved for loopback addresses.
@@ -493,6 +487,8 @@ abstract class IP
     /**
      * Return true if the address is reserved per IANA IPv4/6 Special Registry.
      *
+     * @see https://en.wikipedia.org/wiki/Reserved_IP_addresses
+     *
      * @return bool
      */
     public function isPrivate(): bool
@@ -502,8 +498,9 @@ abstract class IP
         }
 
         $this->is_private = false;
-        foreach (static::$private_ranges as $range) {
-            if ($this->isIn($range)) {
+
+        foreach ((static::BLOCK_CLASS)::getPrivateBlocks() as $block) {
+            if ($block->contains($this)) {
                 $this->is_private = true;
                 break;
             }
@@ -537,7 +534,7 @@ abstract class IP
     public function isLinkLocal(): bool
     {
         if ($this->is_link_local === null) {
-            $this->is_link_local = $this->isIn(static::$link_local_block);
+            $this->is_link_local = (static::BLOCK_CLASS)::getLinkLocalBlock()->contains($this);
         }
 
         return $this->is_link_local;
@@ -551,7 +548,7 @@ abstract class IP
     public function isLoopback(): bool
     {
         if ($this->is_loopback === null) {
-            $this->is_loopback = $this->isIn(static::$loopback_range);
+            $this->is_loopback = (static::BLOCK_CLASS)::getLoopbackBlock()->contains($this);
         }
 
         return $this->is_loopback;

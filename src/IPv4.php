@@ -25,32 +25,7 @@ class IPv4 extends IP
     const MAX_INT = '4294967295';
     const NB_BITS = 32;
     const NB_BYTES = 4;
-
-    protected static $private_ranges = [
-        '0.0.0.0/8',
-        '10.0.0.0/8',
-        '127.0.0.0/8',
-        '169.254.0.0/16',
-        '172.16.0.0/12',
-        '192.0.0.0/29',
-        '192.0.0.170/31',
-        '192.0.2.0/24',
-        '192.168.0.0/16',
-        '198.18.0.0/15',
-        '198.51.100.0/24',
-        '203.0.113.0/24',
-        '240.0.0.0/4',
-        '255.255.255.255/32',
-    ];
-
-    protected static $loopback_range = '127.0.0.0/8';
-
-    /**
-     * @see https://tools.ietf.org/html/rfc3927 Dynamic Configuration of IPv4 Link-Local Addresses
-     *
-     * @var string
-     */
-    protected static $link_local_block = '169.254.0.0/16';
+    const BLOCK_CLASS = IPv4Block::class;
 
     /**
      * {@inheritdoc}

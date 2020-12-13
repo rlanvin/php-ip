@@ -12,7 +12,10 @@
 
 namespace PhpIP;
 
-
+/**
+ * Static methods shared by IPv4 and IPv6, but that shouldn't be
+ * available in the base class
+ */
 trait IPTrait
 {
     /**

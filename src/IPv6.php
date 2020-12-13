@@ -29,26 +29,7 @@ class IPv6 extends IP
     const MAX_INT = '340282366920938463463374607431768211455';
     const NB_BITS = 128;
     const NB_BYTES = 16;
-
-    protected static $private_ranges = [
-        '::1/128',
-        '::/128',
-        '::ffff:0:0/96',
-        '100::/64',
-        '2001::/23',
-        '2001:2::/48',
-        '2001:db8::/32',
-        '2001:10::/28',
-        'fc00::/7',
-        'fe80::/10',
-    ];
-
-    protected static $loopback_range = '::1/128';
-
-    /**
-     * @var string
-     */
-    protected static $link_local_block = 'fe80::/10';
+    const BLOCK_CLASS = IPv6Block::class;
 
     /**
      * {@inheritdoc}

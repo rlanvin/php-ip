@@ -4,12 +4,11 @@
 
 ### Backward Compatibility Breaking Changes
 
-- Deprecated auto-detection of binary strings for IPv6 [#57]((https://github.com/rlanvin/php-ip/pull/57)
+- Deprecated auto-detection of binary strings for IPv6 [#57](https://github.com/rlanvin/php-ip/pull/57)
 This means you can't directly pass the result of `inet_pton` to construct an IPv6 instance anymore, because it is
 impossible to reliability distinguish some IPv6 human-readable representation from their binary string representation.
 Instead, you need to use the explicit factory method `IPv6::createFromBinaryString` if you want to work with `inet_pton`.
 Note: this is still supported for IPv4.
-- `IPBlock::contains` now throws an `InvalidArgumentException` if mixing IP versions
 - `IPBlock::getMask()` renamed to `IPBlock::getNetmask()`
 - `IPBlock::getPrefix()` renamed to `IPBlock::getPrefixLength()`
 - `IPBlock::getMaxPrefix()` renamed to `IPBlock::getMaxPrefixLength()`
@@ -17,10 +16,24 @@ Note: this is still supported for IPv4.
 
 ### Added
 
+- Support for PHP 8.0
 - Added explicit factory methods for `IPv4`/`IPv6` classes:
 `createFromInt`, `createFromFloat`, `createFromString`, `createFromBinaryString`, `createFromNumericString` and `createFromGmp`
-- `IpBlock::plus()` and `IpBlock::minus()` now accept numeric strings and GMP instances
-- `IpBlockIterator` now implements `ArrayAccess` which means you can write e.g. `IpBlock::create('192.168.0.0/24')->getSubBlocks('/25')[1]`
+- `IPBlock::plus()` and `IpBlock::minus()` now accept numeric strings and GMP instances
+- `IPBlockIterator` now implements `ArrayAccess` which means you can write e.g. `IPBlock::create('192.168.0.0/24')->getSubBlocks('/25')[1]`
+- New methods for `IPv4Block`/`IPv6Block`: `getPrivateBlocks()`, `getLoopbackBlock()`, `getLinkLocalBlock()`
+
+### Changed
+
+- Optimise performance of `IP::isPrivate()`
+
+### Fixed
+
+- `IPBlock::contains` now always throws an `InvalidArgumentException` if mixing IP versions
+
+### Removed
+
+- Removed deprecated method `IPBlock::getSuper`
 
 ## [2.1.0] - 2020-10-31
 
