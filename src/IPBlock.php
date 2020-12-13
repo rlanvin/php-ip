@@ -37,7 +37,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
     /**
      * @var int
      */
-    protected $prefix;
+    protected $prefix_length;
 
     /**
      * @var IP
@@ -67,11 +67,11 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
     public function getMask(): IP
     {
         if ($this->mask === null) {
-            if ($this->prefix == 0) {
+            if ($this->prefix_length == 0) {
                 $this->mask = new static::$ip_class(0);
             } else {
                 $max_int = gmp_init(static::$ip_class::MAX_INT);
-                $mask = gmp_shiftl($max_int, static::$ip_class::NB_BITS - $this->prefix);
+                $mask = gmp_shiftl($max_int, static::$ip_class::NB_BITS - $this->prefix_length);
                 $mask = gmp_and($mask, $max_int); // truncate to 128 bits only
                 $this->mask = new static::$ip_class($mask);
             }
@@ -88,10 +88,10 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
     public function getDelta(): IP
     {
         if ($this->delta === null) {
-            if ($this->prefix == 0) {
+            if ($this->prefix_length == 0) {
                 $this->delta = new static::$ip_class(static::$ip_class::MAX_INT);
             } else {
-                $this->delta = new static::$ip_class(gmp_sub(gmp_shiftl(1, static::$ip_class::NB_BITS - $this->prefix), 1));
+                $this->delta = new static::$ip_class(gmp_sub(gmp_shiftl(1, static::$ip_class::NB_BITS - $this->prefix_length), 1));
             }
         }
 
@@ -100,20 +100,20 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
 
     /**
      * @param mixed $ip
-     * @param mixed $prefix
+     * @param mixed $prefix_length
      *
      * @return IPv4Block|IPv6Block
      */
-    public static function create($ip, $prefix = ''): IPBlock
+    public static function create($ip, $prefix_length = ''): IPBlock
     {
         try {
-            return new IPv4Block($ip, $prefix);
+            return new IPv4Block($ip, $prefix_length);
         } catch (\InvalidArgumentException $e) {
             // do nothing
         }
 
         try {
-            return new IPv6Block($ip, $prefix);
+            return new IPv6Block($ip, $prefix_length);
         } catch (\InvalidArgumentException $e) {
             // do nothing
         }
@@ -122,24 +122,24 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
     }
 
     /**
-     * Accepts a CIDR string (e.g. 192.168.0.0/24) or an IP and a prefix as
+     * Accepts a CIDR string (e.g. 192.168.0.0/24) or an IP and a prefix length as
      * two separate parameters.
      *
-     * @param mixed $ip_or_cidr IP or CIDR string
-     * @param mixed $prefix     int (optional) The "slash" part
+     * @param mixed $ip_or_cidr      IP or CIDR string
+     * @param mixed $prefix_length   int (optional) The prefix length (after the /)
      */
-    public function __construct($ip_or_cidr, $prefix = '')
+    public function __construct($ip_or_cidr, $prefix_length = '')
     {
         $this->given_ip = $ip_or_cidr;
         if (is_string($ip_or_cidr) && strpos($ip_or_cidr, '/') !== false) {
-            list($this->given_ip, $prefix) = explode('/', $ip_or_cidr, 2);
+            list($this->given_ip, $prefix_length) = explode('/', $ip_or_cidr, 2);
         }
 
         if (!$this->given_ip instanceof IP) {
             $this->given_ip = new static::$ip_class($this->given_ip);
         }
 
-        $this->prefix = $this->checkPrefix($prefix);
+        $this->prefix_length = $this->checkPrefixLength($prefix_length);
 
         $this->first_ip = $this->given_ip->bit_and($this->getMask());
         $this->last_ip = $this->first_ip->bit_or($this->getDelta());
@@ -150,14 +150,16 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      */
     public function __toString(): string
     {
-        return (string) $this->first_ip.'/'.$this->prefix;
+        return $this->withPrefixLength();
     }
 
     /**
-     * Returns given IP.
+     * Returns the IP given in the constructor.
+     * For the first IP of the block, see getFirstIp()
      *
      * For example 192.168.48.7 for 192.168.48.7/24
      *
+     * @see getFirstIp()
      * @return IP
      */
     public function getGivenIp(): IP
@@ -166,24 +168,46 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
     }
 
     /**
-     * Returns the prefix (the slash part).
-     *
-     * @return int
+     * @deprecated
      */
     public function getPrefix(): int
     {
-        return $this->prefix;
+        trigger_error(__METHOD__." is deprecated and will be removed, use getPrefixLength() instead.", E_USER_DEPRECATED);
+        return $this->getPrefixLength();
     }
 
     /**
+     * Returns the prefix length (the slash part).
+     *
      * @return int
      */
+    public function getPrefixLength(): int
+    {
+        return $this->prefix_length;
+    }
+
+    /**
+     * @deprecated
+     */
     public function getMaxPrefix(): int
+    {
+        trigger_error(__METHOD__." is deprecated and will be removed, use getMaxPrefixLength() instead.", E_USER_DEPRECATED);
+        return $this->getMaxPrefixLength();
+    }
+
+    /**
+     * Returns the max prefix length allowed by the version of IP
+     *
+     * @return int
+     */
+    public function getMaxPrefixLength(): int
     {
         return static::$ip_class::NB_BITS;
     }
 
     /**
+     * Return the IP version of the block.
+     *
      * @return int
      */
     public function getVersion(): int
@@ -212,7 +236,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
 
             return new static(
                 $first_ip,
-                $this->prefix
+                $this->prefix_length
             );
         } catch (\InvalidArgumentException $e) {
             throw new \OutOfBoundsException($e->getMessage());
@@ -240,7 +264,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
 
             return new static(
                 $first_ip,
-                $this->prefix
+                $this->prefix_length
             );
         } catch (\InvalidArgumentException $e) {
             throw new \OutOfBoundsException($e->getMessage());
@@ -292,17 +316,48 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
     }
 
     /**
-     * A string representation of the given IP with the mask in prefix notation.
+     * A string representation of the block with the mask in prefix notation.
+     * Default method when trying to convert to a string
      *
      * @return string
      */
-    public function getGivenIpWithPrefixLen(): string
+    public function withPrefixLength(): string
     {
-        return $this->given_ip.'/'.$this->prefix;
+        return $this->first_ip.'/'.$this->prefix_length;
     }
 
     /**
-     * A string representation of the given IP with the network as a net mask.
+     * A string representation of the block with the mask in prefix notation.
+     * Default method when trying to convert to a string
+     *
+     * @return string
+     */
+    public function withNetmask(): string
+    {
+        return $this->first_ip.'/'.$this->getMask();
+    }
+
+    /**
+     * @deprecated
+     */
+    public function getGivenIpWithPrefixLen(): string
+    {
+        trigger_error(__METHOD__." is deprecated and will be removed. Use getGivenIpWithPrefixLength()", E_USER_DEPRECATED);
+        return $this->getGivenIpWithPrefixLength();
+    }
+
+    /**
+     * A string representation of the given IP, with the mask in prefix notation.
+     *
+     * @return string
+     */
+    public function getGivenIpWithPrefixLength(): string
+    {
+        return $this->given_ip.'/'.$this->prefix_length;
+    }
+
+    /**
+     * A string representation of the given IP, with the mask in net mask notation
      *
      * @return string
      **/
@@ -313,25 +368,25 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
 
     /**
      * @internal
-     * Check if the prefix is valid
+     * Check if the prefix_length is valid
      *
-     * @param mixed $prefix
+     * @param mixed $prefix_length
      *
      * @throws \InvalidArgumentException
      *
      * @return int
      */
-    protected function checkPrefix($prefix)
+    protected function checkPrefixLength($prefix_length)
     {
-        if ($prefix === '' || $prefix === null || $prefix === false || $prefix < 0 || $prefix > $this->getMaxPrefix()) {
+        if ((!is_int($prefix_length) && !ctype_digit($prefix_length)) || $prefix_length < 0 || $prefix_length > $this->getMaxPrefixLength()) {
             throw new \InvalidArgumentException(sprintf(
-                "Invalid IPv%s block prefix '%s'",
+                "Invalid IPv%s block prefix length '%s'",
                 $this->getVersion(),
-                $prefix
+                $prefix_length
             ));
         }
 
-        return (int) $prefix;
+        return (int) $prefix_length;
     }
 
     /**
@@ -339,21 +394,21 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * Returns an iterator, use foreach to loop it and count to get number of subnets.
      *
-     * @param mixed $prefix
+     * @param mixed $prefix_length
      *
      * @return IPBlockIterator
      */
-    public function getSubBlocks($prefix): IPBlockIterator
+    public function getSubBlocks($prefix_length): IPBlockIterator
     {
-        $prefix = ltrim($prefix, '/');
-        $prefix = $this->checkPrefix($prefix);
+        $prefix_length = ltrim($prefix_length, '/');
+        $prefix_length = $this->checkPrefixLength($prefix_length);
 
-        if ($prefix <= $this->prefix) {
-            throw new \InvalidArgumentException("Prefix must be smaller than {$this->prefix} ($prefix given)");
+        if ($prefix_length <= $this->prefix_length) {
+            throw new \InvalidArgumentException("prefix_length must be smaller than {$this->prefix_length} ($prefix_length given)");
         }
 
-        $first_block = new static($this->first_ip, $prefix);
-        $number_of_blocks = gmp_pow(2, $prefix - $this->prefix);
+        $first_block = new static($this->first_ip, $prefix_length);
+        $number_of_blocks = gmp_pow(2, $prefix_length - $this->prefix_length);
 
         return new IPBlockIterator($first_block, $number_of_blocks);
     }
@@ -361,34 +416,34 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
     /**
      * @deprecated since version 2.0 and will be removed in 3.0. Use IPBlock::getSuperBlock() instead.
      *
-     * @param mixed $prefix
+     * @param mixed $prefix_length
      *
      * @return IPBlock
      */
-    public function getSuper($prefix): IPBlock
+    public function getSuper($prefix_length): IPBlock
     {
         @trigger_error('IPBlock::getSuper() is deprecated since version 2.0 and will be removed in 3.0. Use IPBlock::getSuperBlock() instead.', E_USER_DEPRECATED);
 
-        return $this->getSuperBlock($prefix);
+        return $this->getSuperBlock($prefix_length);
     }
 
     /**
      * Return the super block containing the current block.
      *
-     * @param mixed $prefix
+     * @param mixed $prefix_length
      *
      * @return IPBlock
      */
-    public function getSuperBlock($prefix): IPBlock
+    public function getSuperBlock($prefix_length): IPBlock
     {
-        $prefix = ltrim($prefix, '/');
-        $prefix = $this->checkPrefix($prefix);
+        $prefix_length = ltrim($prefix_length, '/');
+        $prefix_length = $this->checkPrefixLength($prefix_length);
 
-        if ($prefix >= $this->prefix) {
-            throw new \InvalidArgumentException("Prefix must be bigger than {$this->prefix} ($prefix given)");
+        if ($prefix_length >= $this->prefix_length) {
+            throw new \InvalidArgumentException("prefix_length must be bigger than {$this->prefix_length} ($prefix_length given)");
         }
 
-        return new static($this->first_ip, $prefix);
+        return new static($this->first_ip, $prefix_length);
     }
 
     /**
@@ -483,7 +538,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
     public function getNbAddresses(): string
     {
         if ($this->nb_addresses === null) {
-            $this->nb_addresses = gmp_strval(gmp_pow(2, $this->getMaxPrefix() - $this->prefix));
+            $this->nb_addresses = gmp_strval(gmp_pow(2, $this->getMaxPrefixLength() - $this->prefix_length));
         }
 
         return $this->nb_addresses;

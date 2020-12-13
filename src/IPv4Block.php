@@ -21,7 +21,7 @@ class IPv4Block extends IPBlock
 {
     protected static $ip_class = IPv4::class;
 
-    const netmask2prefix = [
+    const NETMASK2PREFIX = [
         '0.0.0.0' => 0,
         '128.0.0.0' => 1,
         '192.0.0.0' => 2,
@@ -59,9 +59,9 @@ class IPv4Block extends IPBlock
 
     /**
      * @internal
-     * Check if the prefix is valid,
-     * rewrites IPv4 old-style netmask to CIDR prefix number,
-     * and returns the prefix
+     * Check if the prefix length is valid,
+     * rewrites IPv4 old-style netmask to CIDR prefix length,
+     * and returns the prefix length as an int
      *
      * @param mixed $prefix
      *
@@ -69,12 +69,12 @@ class IPv4Block extends IPBlock
      *
      * @return int
      */
-    protected function checkPrefix($prefix)
+    protected function checkPrefixLength($prefix)
     {
-        if (isset(self::netmask2prefix[$prefix])) {
-            return (int) self::netmask2prefix[$prefix];
+        if (isset(self::NETMASK2PREFIX[$prefix])) {
+            return (int) self::NETMASK2PREFIX[$prefix];
         }
 
-        return parent::checkPrefix($prefix);
+        return parent::checkPrefixLength($prefix);
     }
 }

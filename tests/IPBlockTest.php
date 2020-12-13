@@ -244,12 +244,12 @@ class IPBlockTest extends TestCase
 
         $this->assertCount(16, $subnets);
         $this->assertEquals('192.168.8.0', $subnets->current()->getFirstIp()->humanReadable());
-        $this->assertEquals(28, $subnets->current()->getPrefix());
+        $this->assertEquals(28, $subnets->current()->getPrefixLength());
 
         $subnets->next();
         $subnets->next();
 
-        $this->assertEquals('192.168.8.32/28', $subnets->current()->getGivenIpWithPrefixLen());
+        $this->assertEquals('192.168.8.32/28', $subnets->current()->getGivenIpWithPrefixLength());
     }
 
     public function testGetSuperBlock()
