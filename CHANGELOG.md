@@ -9,6 +9,11 @@ This means you can't directly pass the result of `inet_pton` to construct an IPv
 impossible to reliability distinguish some IPv6 human-readable representation from their binary string representation.
 Instead, you need to use the explicit factory method `IPv6::createFromBinaryString` if you want to work with `inet_pton`.
 Note: this is still supported for IPv4.
+- `IPBlock::contains` now throws an `InvalidArgumentException` if mixing IP versions
+- `IPBlock::getMask()` renamed to `IPBlock::getNetmask()`
+- `IPBlock::getPrefix()` renamed to `IPBlock::getPrefixLength()`
+- `IPBlock::getMaxPrefix()` renamed to `IPBlock::getMaxPrefixLength()`
+- `IPBlock::getGivenIpWithPrefixLen()` renamed to `IPBlock::getGivenIpWithPrefixLength()`
 
 ### Added
 

@@ -19,63 +19,6 @@ use PHPUnit\Framework\TestCase;
 
 class IPv6BlockTest extends TestCase
 {
-    // see http://www.miniwebtool.com/ip-address-to-binary-converter/
-    // and http://www.miniwebtool.com/ip-address-to-hex-converter
-    public function validBlocks()
-    {
-        return [
-            //CIDR                                 Mask                             Delta                                 First IP               Last IP
-            ['2001:0db8::/30',                    'ffff:fffc::',                   '0:3:ffff:ffff:ffff:ffff:ffff:ffff',  '2001:db8::',          '2001:dbb:ffff:ffff:ffff:ffff:ffff:ffff'],
-            ['2001:0db8::/31',                    'ffff:fffe::',                   '0:1:ffff:ffff:ffff:ffff:ffff:ffff',  '2001:db8::',          '2001:db9:ffff:ffff:ffff:ffff:ffff:ffff'],
-            ['2001:0db8::/32',                    'ffff:ffff::',                   '::ffff:ffff:ffff:ffff:ffff:ffff',  '2001:db8::',            '2001:db8:ffff:ffff:ffff:ffff:ffff:ffff'],
-            ['2001:0db8:85a3::8a2e:0370:7334/64', 'ffff:ffff:ffff:ffff::',         '::ffff:ffff:ffff:ffff',            '2001:db8:85a3::',       '2001:db8:85a3:0:ffff:ffff:ffff:ffff'],
-            //['2a0d:7c40:1001::/48',               'ffff:ffff:ffff::',              '::ffff:ffff:ffff:ffff:ffff',         '2a0d:7c40:1001::',    '2a0d:7c40:1001:ffff:ffff:ffff:ffff:ffff'],
-        ];
-    }
-
-    /**
-     * @dataProvider validBlocks
-     */
-    public function testConstructValid($block, $mask, $delta, $first_ip, $last_ip)
-    {
-        $instance = new IPv6Block($block);
-        $this->assertEquals($mask, (string) $instance->getMask(), "Mask of $block");
-        $this->assertEquals($delta, (string) $instance->getDelta(), "Delta of $block");
-        $this->assertEquals($first_ip, (string) $instance->getFirstIp(), "First IP of $block");
-        $this->assertEquals($last_ip, (string) $instance->getLastIp(), "Last IP of $block");
-    }
-
-    public function invalidBlocks()
-    {
-        return [
-            ['127.0.2666.1/24'],
-            ['127.0.0.1/45'],
-            ['127.0.0.1/junk'],
-            ['127.0.0.1'],
-            ['127.0.0.1/'],
-            ["\t"],
-            ['abc'],
-            [12.3],
-            [-12.3],
-            ['-1'],
-            ['4294967296'],
-            ['2a01:8200::'],
-            ['2a01:8200::/'],
-            ['::1'],
-            ['192.168.0.2/24'],
-        ];
-    }
-
-    /**
-     * @dataProvider invalidBlocks
-     */
-    public function testConstructInvalid($block)
-    {
-        $this->expectException(\InvalidArgumentException::class);
-
-        $instance = new IPv6Block($block);
-    }
-
     public function testIterator()
     {
         $expectation = [

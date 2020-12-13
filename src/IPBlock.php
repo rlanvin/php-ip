@@ -42,7 +42,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
     /**
      * @var IP
      */
-    protected $mask;
+    protected $netmask;
 
     /**
      * @var IP
@@ -59,29 +59,35 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      */
     protected static $ip_class;
 
+    public function getMask(): IP
+    {
+        trigger_error(__METHOD__." is deprecated, get getNetmask instead", E_USER_DEPRECATED);
+        return $this->getNetmask();
+    }
+
     /**
      * Return netmask.
      *
      * @return IP
      */
-    public function getMask(): IP
+    public function getNetmask(): IP
     {
-        if ($this->mask === null) {
+        if ($this->netmask === null) {
             if ($this->prefix_length == 0) {
-                $this->mask = new static::$ip_class(0);
+                $this->netmask = new static::$ip_class(0);
             } else {
                 $max_int = gmp_init(static::$ip_class::MAX_INT);
-                $mask = gmp_shiftl($max_int, static::$ip_class::NB_BITS - $this->prefix_length);
-                $mask = gmp_and($mask, $max_int); // truncate to 128 bits only
-                $this->mask = new static::$ip_class($mask);
+                $netmask = gmp_shiftl($max_int, static::$ip_class::NB_BITS - $this->prefix_length);
+                $netmask = gmp_and($netmask, $max_int); // truncate to 128 bits only
+                $this->netmask = new static::$ip_class($netmask);
             }
         }
 
-        return $this->mask;
+        return $this->netmask;
     }
 
     /**
-     * Return delta to last IP address.
+     * Return delta to last IP address (also known as "wildcard", "hostmask")
      *
      * @return IP
      */
@@ -141,7 +147,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
 
         $this->prefix_length = $this->checkPrefixLength($prefix_length);
 
-        $this->first_ip = $this->given_ip->bit_and($this->getMask());
+        $this->first_ip = $this->given_ip->bit_and($this->getNetmask());
         $this->last_ip = $this->first_ip->bit_or($this->getDelta());
     }
 
@@ -334,7 +340,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      */
     public function withNetmask(): string
     {
-        return $this->first_ip.'/'.$this->getMask();
+        return $this->first_ip.'/'.$this->getNetmask();
     }
 
     /**
@@ -363,7 +369,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      **/
     public function getGivenIpWithNetmask(): string
     {
-        return $this->given_ip.'/'.$this->getMask();
+        return $this->given_ip.'/'.$this->getNetmask();
     }
 
     /**
@@ -414,20 +420,6 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
     }
 
     /**
-     * @deprecated since version 2.0 and will be removed in 3.0. Use IPBlock::getSuperBlock() instead.
-     *
-     * @param mixed $prefix_length
-     *
-     * @return IPBlock
-     */
-    public function getSuper($prefix_length): IPBlock
-    {
-        @trigger_error('IPBlock::getSuper() is deprecated since version 2.0 and will be removed in 3.0. Use IPBlock::getSuperBlock() instead.', E_USER_DEPRECATED);
-
-        return $this->getSuperBlock($prefix_length);
-    }
-
-    /**
      * Return the super block containing the current block.
      *
      * @param mixed $prefix_length
@@ -472,7 +464,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
     public function containsIP($ip): bool
     {
         if (!$ip instanceof IP) {
-            $ip = IP::create($ip);
+            $ip = new static::$ip_class($ip);
         }
 
         return ($ip->numeric() >= $this->getFirstIp()->numeric()) && ($ip->numeric() <= $this->getLastIp()->numeric());
