@@ -21,7 +21,7 @@ class IPv6Block extends IPBlock
 {
     use IPBlockTrait;
 
-    protected static $ip_class = IPv6::class;
+    const IP_CLASS = IPv6::class;
 
     /**
      * @see https://en.wikipedia.org/wiki/Reserved_IP_addresses

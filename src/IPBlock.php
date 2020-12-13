@@ -54,11 +54,6 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      */
     protected $nb_addresses;
 
-    /**
-     * @var string Either "IPv4" or "IPv6"
-     */
-    protected static $ip_class;
-
     public function getMask(): IP
     {
         trigger_error(__METHOD__." is deprecated, get getNetmask instead", E_USER_DEPRECATED);
@@ -73,13 +68,14 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
     public function getNetmask(): IP
     {
         if ($this->netmask === null) {
+            $ip_class = static::IP_CLASS;
             if ($this->prefix_length == 0) {
-                $this->netmask = new static::$ip_class(0);
+                $this->netmask = new $ip_class(0);
             } else {
-                $max_int = gmp_init(static::$ip_class::MAX_INT);
-                $netmask = gmp_shiftl($max_int, static::$ip_class::NB_BITS - $this->prefix_length);
+                $max_int = gmp_init($ip_class::MAX_INT);
+                $netmask = gmp_shiftl($max_int, $ip_class::NB_BITS - $this->prefix_length);
                 $netmask = gmp_and($netmask, $max_int); // truncate to 128 bits only
-                $this->netmask = new static::$ip_class($netmask);
+                $this->netmask = new $ip_class($netmask);
             }
         }
 
@@ -94,10 +90,11 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
     public function getDelta(): IP
     {
         if ($this->delta === null) {
+            $ip_class = static::IP_CLASS;
             if ($this->prefix_length == 0) {
-                $this->delta = new static::$ip_class(static::$ip_class::MAX_INT);
+                $this->delta = new $ip_class($ip_class::MAX_INT);
             } else {
-                $this->delta = new static::$ip_class(gmp_sub(gmp_shiftl(1, static::$ip_class::NB_BITS - $this->prefix_length), 1));
+                $this->delta = new $ip_class(gmp_sub(gmp_shiftl(1, $ip_class::NB_BITS - $this->prefix_length), 1));
             }
         }
 
@@ -142,7 +139,8 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
         }
 
         if (!$this->given_ip instanceof IP) {
-            $this->given_ip = new static::$ip_class($this->given_ip);
+            $ip_class = static::IP_CLASS;
+            $this->given_ip = new $ip_class($this->given_ip);
         }
 
         $this->prefix_length = $this->checkPrefixLength($prefix_length);
@@ -208,7 +206,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      */
     public function getMaxPrefixLength(): int
     {
-        return static::$ip_class::NB_BITS;
+        return (static::IP_CLASS)::NB_BITS;
     }
 
     /**
@@ -218,7 +216,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      */
     public function getVersion(): int
     {
-        return static::$ip_class::IP_VERSION;
+        return (static::IP_CLASS)::IP_VERSION;
     }
 
     /**
@@ -478,7 +476,8 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
     public function containsIP($ip): bool
     {
         if (!$ip instanceof IP) {
-            $ip = new static::$ip_class($ip);
+            $ip_class = static::IP_CLASS;
+            $ip = new $ip_class($ip);
         }
 
         return ($ip->numeric() >= $this->getFirstIp()->numeric()) && ($ip->numeric() <= $this->getLastIp()->numeric());

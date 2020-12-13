@@ -21,7 +21,7 @@ class IPv4Block extends IPBlock
 {
     use IPBlockTrait;
 
-    protected static $ip_class = IPv4::class;
+    const IP_CLASS = IPv4::class;
 
     /**
      * @see https://en.wikipedia.org/wiki/Reserved_IP_addresses
