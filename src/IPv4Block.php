@@ -71,7 +71,7 @@ class IPv4Block extends IPBlock
      */
     protected function checkPrefixLength($prefix)
     {
-        if (isset(self::NETMASK2PREFIX[$prefix])) {
+        if (is_string($prefix) && isset(self::NETMASK2PREFIX[$prefix])) {
             return (int) self::NETMASK2PREFIX[$prefix];
         }
 

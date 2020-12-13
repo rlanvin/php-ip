@@ -283,12 +283,19 @@ class IPBlockTest extends TestCase
     public function validOperations()
     {
         return [
-            // block           plus/minus  result
-            ['192.168.0.0/24', 0,          '192.168.0.0/24'],
-            ['192.168.0.0/24', 5,          '192.168.5.0/24'],
-            ['192.168.5.0/24', -5,         '192.168.0.0/24'],
-            ['192.168.0.0/24', 256,        '192.169.0.0/24'],
-            ['0.0.0.0/1',      1,          '128.0.0.0/1'],
+            // block           plus/minus   result
+            ['192.168.0.0/24', 0,           '192.168.0.0/24'],
+            ['192.168.0.0/24', '0',         '192.168.0.0/24'],
+            ['192.168.0.0/24', 5,           '192.168.5.0/24'],
+            ['192.168.0.0/24', '5',         '192.168.5.0/24'],
+            ['192.168.0.0/24', gmp_init(5), '192.168.5.0/24'],
+            ['192.168.5.0/24', -5,          '192.168.0.0/24'],
+            ['192.168.5.0/24', '-5',        '192.168.0.0/24'],
+            ['192.168.5.0/24', gmp_init(-5),'192.168.0.0/24'],
+            ['192.168.0.0/24', 256,         '192.169.0.0/24'],
+            ['0.0.0.0/1',      1,           '128.0.0.0/1'],
+
+            ['2001::/64',      '281474976710656', '2002::/64']
         ];
     }
 
@@ -303,7 +310,7 @@ class IPBlockTest extends TestCase
         $this->assertEquals((string) $block, (string) IPBlock::create($result)->minus($plus), "$result - $plus = $block");
     }
 
-    public function invalidAdditions()
+    public function oobAdditions()
     {
         return [
             // IP                 plus
@@ -318,7 +325,7 @@ class IPBlockTest extends TestCase
     }
 
     /**
-     * @dataProvider invalidAdditions
+     * @dataProvider oobAdditions
      */
     public function testPlusOob($block, $plus)
     {
@@ -328,7 +335,7 @@ class IPBlockTest extends TestCase
         $block->plus($plus);
     }
 
-    public function invalidSubtractions()
+    public function oobSubtractions()
     {
         return [
             // IP                 minus
@@ -339,7 +346,7 @@ class IPBlockTest extends TestCase
     }
 
     /**
-     * @dataProvider invalidSubtractions
+     * @dataProvider oobSubtractions
      */
     public function testMinusOob($block, $minus)
     {
@@ -347,6 +354,40 @@ class IPBlockTest extends TestCase
 
         $block = IPBlock::create($block);
         $block->minus($minus);
+    }
+
+    public function invalidPlusMinusValues()
+    {
+        return [
+            [null],
+            [array()],
+            [2.5],
+            ['junk'],
+            ['127.63.255.255'],
+            [new \stdClass()],
+        ];
+    }
+
+    /**
+     * @dataProvider invalidPlusMinusValues
+     */
+    public function testPlusInvalidArgument($value)
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $block = IPBlock::create('127.0.0.0/24');
+        $block->plus($value);
+    }
+
+    /**
+     * @dataProvider invalidPlusMinusValues
+     */
+    public function testMinusInvalidArgument($value)
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $block = IPBlock::create('127.0.0.0/24');
+        $block->minus($value);
     }
 
     public function blockContent()
@@ -548,21 +589,44 @@ class IPBlockTest extends TestCase
         $this->assertEquals('192.168.8.32/28', $subnets->current()->getGivenIpWithPrefixLength());
     }
 
-    public function testGetSuperBlock()
+    public function validSuperBlocks()
+    {
+        return [
+            ['192.168.42.0/24', '/16', '192.168.0.0/16'],
+            ['192.168.42.0/24', '16', '192.168.0.0/16'],
+            ['192.168.42.0/24', 16, '192.168.0.0/16'],
+        ];
+    }
+
+    /**
+     * @dataProvider validSuperBlocks
+     */
+    public function testGetSuperBlock($block, $prefix_length, $superblock)
     {
         $block = IPBlock::create('192.168.42.0/24');
-        $this->assertEquals('192.168.0.0/16', (string) $block->getSuperBlock('/16'));
+        $this->assertEquals($superblock, (string) $block->getSuperBlock($prefix_length));
+    }
 
-        try {
-            $block->getSuperBlock('');
-            $this->fail('Expected InvalidArgumentException has not be thrown');
-        } catch (\InvalidArgumentException $e) {
-        }
+    public function invalidSuperBlockPrefixLengths()
+    {
+        return [
+            ['192.168.42.0/24', ''],
+            ['192.168.42.0/24', array()],
+            ['192.168.42.0/24', new \stdClass()],
+            ['192.168.42.0/24', null],
+            ['192.168.42.0/24', 2.5],
+            ['192.168.42.0/24', -1],
+            ['192.168.42.0/24', '/32'],
+        ];
+    }
 
-        try {
-            $block->getSuperBlock('/32');
-            $this->fail('Expected InvalidArgumentException has not be thrown');
-        } catch (\InvalidArgumentException $e) {
-        }
+    /**
+     * @dataProvider invalidSuperBlockPrefixLengths
+     */
+    public function testGetSuperBlockInvalidPrefixLength($block, $prefix_length)
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $block = IPBlock::create($block);
+        $block->getSuperBlock($prefix_length);
     }
 }

@@ -15,9 +15,9 @@ declare(strict_types=1);
 namespace PhpIP;
 
 /**
- * Iterator for IPBlock. This could be a Generator in PHP 5.5.
+ * Iterator for IPBlock, represent a group of blocks (returned when calculating subblocks)
  */
-class IPBlockIterator implements \Iterator, \Countable
+class IPBlockIterator implements \Iterator, \Countable, \ArrayAccess
 {
     /**
      * @var \GMP
@@ -92,9 +92,9 @@ class IPBlockIterator implements \Iterator, \Countable
     /**
      * {@inheritdoc}
      */
-    public function key(): \GMP
+    public function key(): string
     {
-        return $this->position;
+        return gmp_strval($this->position);
     }
 
     /**
@@ -120,5 +120,49 @@ class IPBlockIterator implements \Iterator, \Countable
     public function getNbBlocks(): string
     {
         return gmp_strval($this->nb_blocks);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetExists($offset): bool
+    {
+        return gmp_cmp($offset, 0) >= 0 && gmp_cmp($offset, $this->nb_blocks) < 0;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetGet($offset): IPBlock
+    {
+        if (!(is_int($offset) || (is_numeric($offset) && !is_float($offset)) || $offset instanceof \GMP)) {
+            throw new \InvalidArgumentException('Illegal offset type: '.gettype($offset));
+        }
+
+        if (!$this->offsetExists($offset)) {
+            throw new \OutOfBoundsException("Offset $offset does not exists");
+        }
+
+        return $this->first_block->plus($offset);
+    }
+
+    /**
+     * Method is logically unsupported.
+     *
+     * {@inheritdoc}
+     */
+    public function offsetSet($offset, $value)
+    {
+        throw new \LogicException('Setting IPBlock in block iterator is not supported');
+    }
+
+    /**
+     * Method is logically unsupported.
+     *
+     * {@inheritdoc}
+     */
+    public function offsetUnset($offset)
+    {
+        throw new \LogicException('Unsetting IPBlock in block iterator is not supported');
     }
 }

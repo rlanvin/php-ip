@@ -387,7 +387,7 @@ abstract class IP
      *
      * @throws \OutOfBoundsException
      *
-     * @param $value mixed anything that can be converted into an IP object
+     * @param mixed $value anything that can be converted into an IP object
      *
      * @return IP
      */
@@ -424,7 +424,7 @@ abstract class IP
      *
      * @throws \OutOfBoundsException
      *
-     * @param $value mixed anything that can be converted into an IP object
+     * @param mixed $value anything that can be converted into an IP object
      *
      * @return IP
      */

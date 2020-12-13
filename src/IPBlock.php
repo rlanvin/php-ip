@@ -222,12 +222,16 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
     }
 
     /**
-     * @param int $value
+     * @param mixed $value
      *
      * @return IPBlock
      */
-    public function plus(int $value): IPBlock
+    public function plus($value): IPBlock
     {
+        if (!(is_int($value) || (is_numeric($value) && !is_float($value)) || $value instanceof \GMP)) {
+            throw new \InvalidArgumentException('Invalid value type: '.gettype($value));
+        }
+
         if ($value < 0) {
             return $this->minus(-1 * $value);
         }
@@ -250,12 +254,16 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
     }
 
     /**
-     * @param int $value
+     * @param mixed $value
      *
      * @return IPBlock
      */
-    public function minus(int $value): IPBlock
+    public function minus($value): IPBlock
     {
+        if (!(is_int($value) || (is_numeric($value) && !is_float($value)) || $value instanceof \GMP)) {
+            throw new \InvalidArgumentException('Invalid value type: '.gettype($value));
+        }
+
         if ($value < 0) {
             return $this->plus(-1 * $value);
         }
@@ -388,7 +396,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
             throw new \InvalidArgumentException(sprintf(
                 "Invalid IPv%s block prefix length '%s'",
                 $this->getVersion(),
-                $prefix_length
+                is_scalar($prefix_length) ? $prefix_length : gettype($prefix_length)
             ));
         }
 
@@ -406,7 +414,10 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      */
     public function getSubBlocks($prefix_length): IPBlockIterator
     {
-        $prefix_length = ltrim($prefix_length, '/');
+        if (is_string($prefix_length)) {
+            $prefix_length = ltrim($prefix_length, '/');
+        }
+
         $prefix_length = $this->checkPrefixLength($prefix_length);
 
         if ($prefix_length <= $this->prefix_length) {
@@ -428,7 +439,10 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      */
     public function getSuperBlock($prefix_length): IPBlock
     {
-        $prefix_length = ltrim($prefix_length, '/');
+        if (is_string($prefix_length)) {
+            $prefix_length = ltrim($prefix_length, '/');
+        }
+
         $prefix_length = $this->checkPrefixLength($prefix_length);
 
         if ($prefix_length >= $this->prefix_length) {

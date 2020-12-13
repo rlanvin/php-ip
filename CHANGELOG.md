@@ -19,6 +19,8 @@ Note: this is still supported for IPv4.
 
 - Added explicit factory methods for `IPv4`/`IPv6` classes:
 `createFromInt`, `createFromFloat`, `createFromString`, `createFromBinaryString`, `createFromNumericString` and `createFromGmp`
+- `IpBlock::plus()` and `IpBlock::minus()` now accept numeric strings and GMP instances
+- `IpBlockIterator` now implements `ArrayAccess` which means you can write e.g. `IpBlock::create('192.168.0.0/24')->getSubBlocks('/25')[1]`
 
 ## [2.1.0] - 2020-10-31
 
