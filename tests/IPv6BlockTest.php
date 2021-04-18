@@ -44,4 +44,29 @@ class IPv6BlockTest extends TestCase
 
         $this->assertEquals($expectation, iterator_to_array($subnet->getIterator()));
     }
+
+    public function testGetPrivateBlocks()
+    {
+        $private_blocks = IPv6Block::getPrivateBlocks();
+
+        $this->assertInstanceOf(IPv6Block::class, $private_blocks[0]);
+        $this->assertEquals('::1/128', (string) $private_blocks[0]);
+        $this->assertCount(10, $private_blocks);
+    }
+
+    public function testGetLoopbackBlock()
+    {
+        $loopback_block = IPv6Block::getLoopbackBlock();
+
+        $this->assertInstanceOf(IPv6Block::class, $loopback_block);
+        $this->assertEquals('::1/128', (string) $loopback_block);
+    }
+
+    public function testGetLinkLocalBlock()
+    {
+        $link_local_block = IPv6Block::getLinkLocalBlock();
+
+        $this->assertInstanceOf(IPv6Block::class, $link_local_block);
+        $this->assertEquals('fe80::/10', (string) $link_local_block);
+    }
 }

@@ -22,27 +22,27 @@ class IPv6Test extends TestCase
     public function validAddresses()
     {
         $values = [
-            // IP  compressed  decimal
-            ['2a01:8200::', '2a01:8200::', '55835404833073476206743540170770874368'],
-            ['2001:0db8:85a3:0000:0000:8a2e:0370:7334', '2001:db8:85a3::8a2e:370:7334', '42540766452641154071740215577757643572'],
-            ['ffff:0db8::', 'ffff:db8::', '340277452873386678732099705461792571392'],
-            ['ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff', 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff', '340282366920938463463374607431768211455'],
-            ['::1', '::1', '1',],
+            // IP                                       compressed                                  numeric string                              int    float
+            ['2a01:8200::',                             '2a01:8200::',                             '55835404833073476206743540170770874368',    null,  null],
+            ['2001:0db8:85a3:0000:0000:8a2e:0370:7334', '2001:db8:85a3::8a2e:370:7334',            '42540766452641154071740215577757643572',    null,  null],
+            ['ffff:0db8::',                             'ffff:db8::',                              '340277452873386678732099705461792571392',   null,  null],
+            ['ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff', 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff', '340282366920938463463374607431768211455',   null,  null],
+            ['::1',                                     '::1',                                     '1',                                         1,     1.0],
 
-            'bug #57' => ['2a0d:7c40:1001::', '2a0d:7c40:1001::', '55897595776473642224142104158797824000'],
-            'bug #57 (2)'  => ['3261:3064:3a37::', '3261:3064:3a37::', '66966034081017520121488738571054481408'],
+            'bug #57' => ['2a0d:7c40:1001::',           '2a0d:7c40:1001::',                        '55897595776473642224142104158797824000',    null,  null],
+            'bug #57 (2)'  => ['3261:3064:3a37::',      '3261:3064:3a37::',                        '66966034081017520121488738571054481408',    null,  null],
 
             // IPv4-mapped IPv6 addresses
-            ['0000:0000:0000:0000:0000:0000:127.127.127.127', '::127.127.127.127', '2139062143'],
-            ['::ffff:192.0.2.128', '::ffff:192.0.2.128', '281473902969472'],
+            ['0000:0000:0000:0000:0000:0000:127.127.127.127', '::127.127.127.127',                 '2139062143',                                2139062143, 2139062143.0],
+            ['::ffff:192.0.2.128',                            '::ffff:192.0.2.128',                '281473902969472',                           null, null],
 
             // init with numeric representation
-            ['332314827956335977770735408709082546176', 'fa01:8200::', '332314827956335977770735408709082546176'],
-            'bug #57 (3)' => ['55897595776473642224142104158797824000', '2a0d:7c40:1001::', '55897595776473642224142104158797824000'],
-            'bug #57 (4)'  => ['66966034081017520121488738571054481408', '3261:3064:3a37::', '66966034081017520121488738571054481408'],
+            ['332314827956335977770735408709082546176',                  'fa01:8200::',      '332314827956335977770735408709082546176',    null,  null],
+            'bug #57 (3)' => ['55897595776473642224142104158797824000',  '2a0d:7c40:1001::', '55897595776473642224142104158797824000',     null,  null],
+            'bug #57 (4)'  => ['66966034081017520121488738571054481408', '3261:3064:3a37::', '66966034081017520121488738571054481408',     null,  null],
 
             // init with GMP resource
-            [gmp_init('332314827956335977770735408709082546176'), 'fa01:8200::', '332314827956335977770735408709082546176'],
+            [gmp_init('332314827956335977770735408709082546176'),        'fa01:8200::', '332314827956335977770735408709082546176',         null,  null],
 
             // Binary string (unsupported)
             //[inet_pton('3261:3064:3a37:6334:303a:3130:3031:3a3a'), '3261:3064:3a37:6334:303a:3130:3031:3a3a', '66966034081017988598476378644333804090'],
@@ -51,13 +51,13 @@ class IPv6Test extends TestCase
         // 32 bits
         if (PHP_INT_SIZE == 4) {
             $values = array_merge($values, [
-                [-1, '::255.255.255.255', '4294967295'],
+                [-1, '::255.255.255.255', '4294967295', null, null],
             ]);
         }
         // 64 bits
         elseif (PHP_INT_SIZE == 8) {
             $values = array_merge($values, [
-                [-1, '::ffff:ffff:ffff:ffff', '18446744073709551615'],
+                [-1, '::ffff:ffff:ffff:ffff', '18446744073709551615', null, null],
             ]);
         }
 
@@ -106,6 +106,36 @@ class IPv6Test extends TestCase
         $this->expectException(\InvalidArgumentException::class);
 
         $instance = new IPv6($ip);
+    }
+
+    /**
+     * @dataProvider validAddresses
+     */
+    public function testCreateFromInt($ip, string $compressed, string $dec, $int, $float)
+    {
+        if ($int === null) {
+            $this->markTestSkipped();
+            return;
+        }
+
+        $ip = IPv6::createFromInt($int);
+
+        $this->assertEquals($compressed, $ip->humanReadable());
+    }
+
+    /**
+     * @dataProvider validAddresses
+     */
+    public function testCreateFromFloat($ip, string $compressed, string $dec, $int, $float)
+    {
+        if ($float === null) {
+            $this->markTestSkipped();
+            return;
+        }
+
+        $ip = IPv6::createFromFloat($float);
+
+        $this->assertEquals($compressed, $ip->humanReadable());
     }
 
     /**

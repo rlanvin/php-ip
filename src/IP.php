@@ -165,7 +165,7 @@ abstract class IP
      */
     protected static function initGmpFromFloat(float $ip): \GMP
     {
-        return gmp_init(sprintf('%s', $ip), 10);
+        return gmp_init(sprintf('%.0f', $ip), 10);
     }
 
     /**
