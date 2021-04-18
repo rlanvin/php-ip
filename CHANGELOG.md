@@ -71,7 +71,8 @@ Note: this is still supported for IPv4.
 
 First release
 
-[Unreleased]: https://github.com/rlanvin/php-ip/compare/v2.1.0...HEAD
+[Unreleased]: https://github.com/rlanvin/php-ip/compare/v3.0.0-rc1...HEAD
+[3.0.0-rc1]: https://github.com/rlanvin/php-ip/compare/v2.1.0...v3.0.0-rc1
 [2.1.0]: https://github.com/rlanvin/php-ip/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/rlanvin/php-ip/compare/v1.0.1...v2.0.0
 [1.0.1]: https://github.com/rlanvin/php-ip/compare/v1.0.0...v1.0.1
