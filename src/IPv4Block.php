@@ -24,18 +24,42 @@ class IPv4Block extends IPBlock
     const IP_CLASS = IPv4::class;
 
     /**
-     * @see https://en.wikipedia.org/wiki/Reserved_IP_addresses
+     * @see https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml
+     *
+     * PRIVATE_BLOCKS   = not globally reachable, but routeable
+     * RESERVED_BLOCKS  = all IANA reserved blocks
+     * LOOPBACK_BLOCK   = Loopback Address
+     * LINK_LOCAL_BLOCK = Link-Local Unicast
      */
     const PRIVATE_BLOCKS = [
-        '0.0.0.0/8',
         '10.0.0.0/8',
+        '100.64.0.0/10',
+        '172.16.0.0/12',
+        '192.0.0.0/29',
+        '192.168.0.0/16',
+        '198.18.0.0/15'
+    ];
+    const RESERVED_BLOCKS = [
+        '0.0.0.0/8',
+        '0.0.0.0/32',
+        '10.0.0.0/8',
+        '100.64.0.0/10',
         '127.0.0.0/8',
         '169.254.0.0/16',
         '172.16.0.0/12',
+        '192.0.0.0/24',
         '192.0.0.0/29',
-        '192.0.0.170/31',
+        '192.0.0.8/32',
+        '192.0.0.9/32',
+        '192.0.0.10/32',
+        '192.0.0.170/32',
+        '192.0.0.171/32',
         '192.0.2.0/24',
+        '192.31.196.0/24',
+        '192.52.193.0/24',
+        '192.88.99.0/24',
         '192.168.0.0/16',
+        '192.175.48.0/24',
         '198.18.0.0/15',
         '198.51.100.0/24',
         '203.0.113.0/24',

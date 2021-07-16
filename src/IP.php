@@ -73,6 +73,11 @@ abstract class IP
     /**
      * @var bool
      */
+    protected $is_reserved;
+
+    /**
+     * @var bool
+     */
     protected $is_link_local;
 
     /**
@@ -485,9 +490,11 @@ abstract class IP
     }
 
     /**
-     * Return true if the address is reserved per IANA IPv4/6 Special Registry.
+     * Return true if the address is reserved per IANA IPv4/6 Special Registry
+     * and is not global reachable, but routeable.
      *
-     * @see https://en.wikipedia.org/wiki/Reserved_IP_addresses
+     * @see https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml
+     * @see https://www.iana.org/assignments/iana-ipv6-special-registry/iana-ipv6-special-registry.xhtml
      *
      * @return bool
      */
@@ -510,13 +517,39 @@ abstract class IP
     }
 
     /**
+     * Return true if the address is reserved per IANA IPv4/6 Special Registry.
+     *
+     * @see https://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml
+     * @see https://www.iana.org/assignments/iana-ipv6-special-registry/iana-ipv6-special-registry.xhtml
+     *
+     * @return bool
+     */
+    public function isReserved(): bool
+    {
+        if ($this->is_reserved !== null) {
+            return $this->is_reserved;
+        }
+
+        $this->is_reserved = false;
+
+        foreach ((static::BLOCK_CLASS)::getReservedBlocks() as $block) {
+            if ($block->contains($this)) {
+                $this->is_reserved = true;
+                break;
+            }
+        }
+
+        return $this->is_reserved;
+    }
+
+    /**
      * Return true if the address is allocated for public networks.
      *
      * @return bool
      */
     public function isPublic(): bool
     {
-        return !$this->isPrivate();
+        return !$this->isReserved();
     }
 
     /**

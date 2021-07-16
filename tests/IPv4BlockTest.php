@@ -50,8 +50,8 @@ class IPv4BlockTest extends TestCase
         $private_blocks = IPv4Block::getPrivateBlocks();
 
         $this->assertInstanceOf(IPv4Block::class, $private_blocks[0]);
-        $this->assertEquals('0.0.0.0/8', (string) $private_blocks[0]);
-        $this->assertCount(14, $private_blocks);
+        $this->assertEquals('10.0.0.0/8', (string) $private_blocks[0]);
+        $this->assertCount(6, $private_blocks);
     }
 
     public function testGetLoopbackBlock()
@@ -68,5 +68,13 @@ class IPv4BlockTest extends TestCase
 
         $this->assertInstanceOf(IPv4Block::class, $link_local_block);
         $this->assertEquals('169.254.0.0/16', (string) $link_local_block);
+    }
+
+    public function testGetReservedBlocks()
+    {
+        $reserved_blocks = IPv4Block::getReservedBlocks();
+
+        $this->assertInstanceOf(IPv4Block::class, $reserved_blocks[0]);
+        $this->assertEquals('0.0.0.0/8', (string) $reserved_blocks[0]);
     }
 }
