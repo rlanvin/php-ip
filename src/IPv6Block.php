@@ -24,17 +24,38 @@ class IPv6Block extends IPBlock
     const IP_CLASS = IPv6::class;
 
     /**
-     * @see https://en.wikipedia.org/wiki/Reserved_IP_addresses
+     * @see https://www.iana.org/assignments/iana-ipv6-special-registry/iana-ipv6-special-registry.xhtml
+     *
+     * PRIVATE_BLOCKS   = not globally reachable, but routeable
+     * RESERVED_BLOCKS  = all IANA reserved blocks
+     * LOOPBACK_BLOCK   = Loopback Address
+     * LINK_LOCAL_BLOCK = Link-Local Unicast
      */
     const PRIVATE_BLOCKS = [
-        '::1/128',
+        'fc00::/7',
+        '2001:2::/48',
+        '100::/64',
+        '64:ff9b:1::/48'
+    ];
+    const RESERVED_BLOCKS = [
         '::/128',
+        '::1/128',
         '::ffff:0:0/96',
+        '64:ff9b::/96',
+        '64:ff9b:1::/48',
         '100::/64',
         '2001::/23',
+        '2001::/32',
+        '2001:1::1/128',
+        '2001:1::2/128',
         '2001:2::/48',
-        '2001:db8::/32',
+        '2001:3::/32',
+        '2001:4:112::/48',
         '2001:10::/28',
+        '2001:20::/28',
+        '2001:db8::/32',
+        '2002::/16',
+        '2620:4f:8000::/48',
         'fc00::/7',
         'fe80::/10',
     ];

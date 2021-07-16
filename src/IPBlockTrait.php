@@ -24,6 +24,11 @@ trait IPBlockTrait
     static public $private_blocks = null;
 
     /**
+     * @var array Cache for the reserved blocks IPBlock instances
+     */
+    static public $reserved_blocks = null;
+
+    /**
      * Returns an array with the private blocks as IPBlock objects.
      *
      * The array is then cached so the IPBlock objects don't need to be instanciated
@@ -42,6 +47,27 @@ trait IPBlockTrait
         }
 
         return self::$private_blocks;
+    }
+
+    /**
+     * Returns an array with the IANA reserved blocks as IPBlock objects.
+     *
+     * The array is then cached so the IPBlock objects don't need to be instanciated
+     * anymore. This makes checking IP::isReserved() a lot faster if more than once
+     * in the same script.
+     *
+     * @return array An array of IPBlock
+     */
+    public static function getReservedBlocks(): array
+    {
+        if (self::$reserved_blocks === null) {
+            self::$reserved_blocks = [];
+            foreach (self::RESERVED_BLOCKS as $block) {
+                self::$reserved_blocks[] = new self($block);
+            }
+        }
+
+        return self::$reserved_blocks;
     }
 
     /**

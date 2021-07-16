@@ -314,7 +314,7 @@ class IPv4Test extends TestCase
     public function privateAddresses()
     {
         return [
-            ['127.0.0.1'],
+            ['10.0.0.1'],
             ['192.168.0.1'],
         ];
     }

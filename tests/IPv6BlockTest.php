@@ -50,8 +50,8 @@ class IPv6BlockTest extends TestCase
         $private_blocks = IPv6Block::getPrivateBlocks();
 
         $this->assertInstanceOf(IPv6Block::class, $private_blocks[0]);
-        $this->assertEquals('::1/128', (string) $private_blocks[0]);
-        $this->assertCount(10, $private_blocks);
+        $this->assertEquals('fc00::/7', (string) $private_blocks[0]);
+        $this->assertCount(4, $private_blocks);
     }
 
     public function testGetLoopbackBlock()
@@ -68,5 +68,13 @@ class IPv6BlockTest extends TestCase
 
         $this->assertInstanceOf(IPv6Block::class, $link_local_block);
         $this->assertEquals('fe80::/10', (string) $link_local_block);
+    }
+
+    public function testGetReservedBlocks()
+    {
+        $reserved_blocks = IPv6Block::getReservedBlocks();
+
+        $this->assertInstanceOf(IPv6Block::class, $reserved_blocks[0]);
+        $this->assertEquals('::/128', (string) $reserved_blocks[0]);
     }
 }
