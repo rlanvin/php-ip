@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.0.0-rc2] - 2021-07-22
+
+### Backward Compatibility Breaking Changes
+
+- Separate "[private](https://en.wikipedia.org/wiki/Private_network)" from other "[reserved](https://en.wikipedia.org/wiki/Reserved_IP_addresses)" IP addresses.
+This changes the behaviour of `IP::isPrivate()` and `IPBlock::getPrivateBlocks()` to be more narrow in scope.
+The previous behaviour has been moved to new methods: `IP::isReserved()` and `IPBlock::getReservedBlocks()`.
+- `IP::isPrivate()` renamed to `IP::isReserved()`
+- `IPBlock::getPrivateBlocks()` renamed to `IPBlock::getReservedBlocks()`
+- `IP::isPrivate()` now only tests if an IP is in a forwardable and non globally reachable IP Block as defined in the IANA special-purpose address registry
+- `IPBlock::getPrivateBlocks()` now returns only the forwardable and non globally reachable IP Blocks as defined in the IANA special-purpose address registry
+
+
 ## [3.0.0-rc1] - 2021-04-18
 
 ### Backward Compatibility Breaking Changes
@@ -71,7 +84,8 @@ Note: this is still supported for IPv4.
 
 First release
 
-[Unreleased]: https://github.com/rlanvin/php-ip/compare/v3.0.0-rc1...HEAD
+[Unreleased]: https://github.com/rlanvin/php-ip/compare/v3.0.0-rc2...HEAD
+[3.0.0-rc2]: https://github.com/rlanvin/php-ip/compare/v3.0-rc1...v3.0.0-rc2
 [3.0.0-rc1]: https://github.com/rlanvin/php-ip/compare/v2.1.0...v3.0.0-rc1
 [2.1.0]: https://github.com/rlanvin/php-ip/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/rlanvin/php-ip/compare/v1.0.1...v2.0.0

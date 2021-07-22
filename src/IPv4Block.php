@@ -32,12 +32,12 @@ class IPv4Block extends IPBlock
      * LINK_LOCAL_BLOCK = Link-Local Unicast
      */
     const PRIVATE_BLOCKS = [
-        '10.0.0.0/8',
-        '100.64.0.0/10',
-        '172.16.0.0/12',
-        '192.0.0.0/29',
-        '192.168.0.0/16',
-        '198.18.0.0/15'
+        '10.0.0.0/8', // Private-Use
+        '100.64.0.0/10', // Shared Address Space (for communications between a service provider and its subscribers when using a carrier-grade NAT)
+        '172.16.0.0/12', // Private-Use
+        '192.0.0.0/29', // IPv4 Service Continuity Prefix (Dual-Stack Lite)
+        '192.168.0.0/16', // Private-Use
+        '198.18.0.0/15' // Benchmarking (testing of inter-network communications between two separate subnets)
     ];
     const RESERVED_BLOCKS = [
         '0.0.0.0/8',

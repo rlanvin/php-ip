@@ -32,10 +32,10 @@ class IPv6Block extends IPBlock
      * LINK_LOCAL_BLOCK = Link-Local Unicast
      */
     const PRIVATE_BLOCKS = [
-        'fc00::/7',
-        '2001:2::/48',
-        '100::/64',
-        '64:ff9b:1::/48'
+        'fc00::/7', // Unique-Local
+        '2001:2::/48', // Benchmarking
+        '100::/64', // Discard-Only Address Block
+        '64:ff9b:1::/48' // IPv4-IPv6 Translat.
     ];
     const RESERVED_BLOCKS = [
         '::/128',
