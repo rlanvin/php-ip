@@ -604,7 +604,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * {@inheritdoc}
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value): void
     {
         throw new \LogicException('Setting IP in block is not supported');
     }
@@ -614,7 +614,7 @@ abstract class IPBlock implements \ArrayAccess, \IteratorAggregate, \Countable
      *
      * {@inheritdoc}
      */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset): void
     {
         throw new \LogicException('Unsetting IP in block is not supported');
     }
