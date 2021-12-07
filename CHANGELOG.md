@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+### Backward Compatibility Breaking Changes
+
+- Dropped support for PHP 7.0
+
+
 ## [3.0.0-rc2] - 2021-07-22
 
 ### Backward Compatibility Breaking Changes
