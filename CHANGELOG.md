@@ -6,6 +6,10 @@
 
 - Dropped support for PHP 7.0
 
+### Added
+
+- Support for PHP 8.1
+
 
 ## [3.0.0-rc2] - 2021-07-22
 
