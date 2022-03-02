@@ -8,7 +8,7 @@ IPv4/IPv6 manipulation library for PHP inspired by Python [ipaddress](https://do
 
 ## Requirements
 
-- PHP >= 7.0
+- PHP >= 7.1
 - IPv6 support enabled
 - GMP extension (www.php.net/manual/en/book.gmp.php)
 

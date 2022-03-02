@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [3.0.0] - 2022-03-02
+
 ### Backward Compatibility Breaking Changes
 
 - Dropped support for PHP 7.0
@@ -95,8 +97,9 @@ Note: this is still supported for IPv4.
 
 First release
 
-[Unreleased]: https://github.com/rlanvin/php-ip/compare/v3.0.0-rc2...HEAD
-[3.0.0-rc2]: https://github.com/rlanvin/php-ip/compare/v3.0-rc1...v3.0.0-rc2
+[Unreleased]: https://github.com/rlanvin/php-ip/compare/v3.0.0...HEAD
+[3.0.0]: https://github.com/rlanvin/php-ip/compare/v3.0.0-rc2...v3.0.0
+[3.0.0-rc2]: https://github.com/rlanvin/php-ip/compare/v3.0.0-rc1...v3.0.0-rc2
 [3.0.0-rc1]: https://github.com/rlanvin/php-ip/compare/v2.1.0...v3.0.0-rc1
 [2.1.0]: https://github.com/rlanvin/php-ip/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/rlanvin/php-ip/compare/v1.0.1...v2.0.0
