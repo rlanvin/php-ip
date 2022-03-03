@@ -28,6 +28,13 @@ require 'vendor/autoload.php';
 
 Complete doc is available in [the wiki](https://github.com/rlanvin/php-ip/wiki).
 
+## Related projects
+
+There are some Open Source libraries, built by community on top of this this one:
+
+- [hiqdev/php-ip-tools](https://github.com/hiqdev/php-ip-tools) – tooling for IP address calculations, such as free IP blocks calculation and IP ranges parsing.
+- Built one? Add it here.
+
 ## Contribution
 
 Feel free to contribute! Just create a new issue or a new pull request.
